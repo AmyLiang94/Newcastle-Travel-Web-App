@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.groupwork.charchar.dao.AttractionsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.groupwork.charchar.entity.AttractionsEntity" id="attractionsMap">
+        <result property="attractionId" column="attraction_id"/>
+        <result property="attractionName" column="attraction_name"/>
+        <result property="description" column="description"/>
+        <result property="category" column="category"/>
+        <result property="latitude" column="latitude"/>
+        <result property="longitude" column="longitude"/>
+        <result property="openingHours" column="opening_hours"/>
+        <result property="ticketPrice" column="ticket_price"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="attrRating" column="attr_rating"/>
+        <result property="wheelchairAllow" column="wheelchair_allow"/>
+        <result property="pramAllow" column="pram_allow"/>
+        <result property="hearingAllow" column="hearing_allow"/>
+    </resultMap>
+
+
+</mapper>
