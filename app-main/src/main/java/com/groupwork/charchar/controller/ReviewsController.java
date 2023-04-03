@@ -1,17 +1,11 @@
 package com.groupwork.charchar.controller;
 
 import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 
-import com.group.charchar.utils.PageUtils;
-import com.group.charchar.utils.R;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import com.groupwork.charchar.entity.ReviewsEntity;
 import com.groupwork.charchar.service.ReviewsService;
 
@@ -28,54 +22,74 @@ public class ReviewsController {
     private ReviewsService reviewsService;
 
     /**
-     * 列表
+     * 获取某个景点的所有评论
+     *
+     * @param attractionId attraction id
      */
-    @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params) {
-        PageUtils page = reviewsService.queryPage(params);
-
-        return R.ok().put("page", page);
+    @GetMapping("/list/attr/{attractionId}")
+    public List<ReviewsEntity> listReviewsByAttraction(@PathVariable("attractionId") Integer attractionId) {
+        List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
+        return reviews;
     }
 
+    /**
+     * 获取某个用户的所有评论
+     *
+     * @userId user id
+     */
+    @GetMapping("/list/user/{userId}")
+    public List<ReviewsEntity> listReviewsByUser(@PathVariable("userId") Integer userId) {
+        List<ReviewsEntity> reviews = reviewsService.listReviewsByUserId(userId);
+        return reviews;
+    }
 
     /**
-     * 信息
+     * 分页获取某个景点的所有评论
+     *
+     * @param attractionId attraction id
      */
-    @RequestMapping("/info/{reviewId}")
-    public R info(@PathVariable("reviewId") Integer reviewId) {
-        ReviewsEntity reviews = reviewsService.getById(reviewId);
+    @GetMapping("/list/attr/{attractionId}/{{page}/{size}")
+    public IPage<ReviewsEntity> listReviewsByAttractionWithPage(@PathVariable("attractionId") Integer attractionId, @PathVariable Integer page, @PathVariable Integer size) {
+        IPage<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionIdWithPage(attractionId, page, size);
+        return reviews;
+    }
 
-        return R.ok().put("reviews", reviews);
+    /**
+     * 分页获取某个用户的所有评论
+     *
+     * @userId user id
+     */
+    @GetMapping("/list/user/{userId}/{{page}/{size}")
+    public IPage<ReviewsEntity> listReviewsByUserWithPage(@PathVariable("userId") Integer userId, @PathVariable Integer page, @PathVariable Integer size) {
+        IPage<ReviewsEntity> reviews = reviewsService.listReviewsByUserIdWithPage(userId, page, size);
+        return reviews;
     }
 
     /**
      * 保存
      */
-    @RequestMapping("/save")
-    public R save(@RequestBody ReviewsEntity reviews) {
+    @PostMapping("/save")
+    public boolean saveReview(@RequestBody ReviewsEntity reviews) {
         reviewsService.save(reviews);
-
-        return R.ok();
+        return true;
     }
 
     /**
      * 修改
      */
-    @RequestMapping("/update")
-    public R update(@RequestBody ReviewsEntity reviews) {
+    @PutMapping("/update")
+    public boolean updateReview(@RequestBody ReviewsEntity reviews) {
         reviewsService.updateById(reviews);
-
-        return R.ok();
+        return true;
     }
 
     /**
      * 删除
      */
-    @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] reviewIds) {
+    @DeleteMapping("/delete")
+    public boolean deleteReview(@RequestBody Integer[] reviewIds) {
         reviewsService.removeByIds(Arrays.asList(reviewIds));
-
-        return R.ok();
+        return true;
     }
 
 }
