@@ -48,7 +48,7 @@ public class ReviewsController {
      *
      * @param attractionId attraction id
      */
-    @GetMapping("/list/attr/{attractionId}/{{page}/{size}")
+    @GetMapping("/list/attr/{attractionId}/{page}/{size}")
     public IPage<ReviewsEntity> listReviewsByAttractionWithPage(@PathVariable("attractionId") Integer attractionId, @PathVariable Integer page, @PathVariable Integer size) {
         IPage<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionIdWithPage(attractionId, page, size);
         return reviews;
@@ -59,7 +59,7 @@ public class ReviewsController {
      *
      * @userId user id
      */
-    @GetMapping("/list/user/{userId}/{{page}/{size}")
+    @GetMapping("/list/user/{userId}/{page}/{size}")
     public IPage<ReviewsEntity> listReviewsByUserWithPage(@PathVariable("userId") Integer userId, @PathVariable Integer page, @PathVariable Integer size) {
         IPage<ReviewsEntity> reviews = reviewsService.listReviewsByUserIdWithPage(userId, page, size);
         return reviews;

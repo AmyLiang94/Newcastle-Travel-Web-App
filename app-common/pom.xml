@@ -8,6 +8,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.groupwork.charchar</groupId>
+    <artifactId>app-common</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -59,9 +62,15 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-    <groupId>com.groupwork.charchar</groupId>
-    <artifactId>app-common</artifactId>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
