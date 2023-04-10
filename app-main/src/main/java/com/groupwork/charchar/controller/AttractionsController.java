@@ -1,17 +1,15 @@
 package com.groupwork.charchar.controller;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
 import com.group.charchar.utils.PageUtils;
 import com.group.charchar.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.service.AttractionsService;
@@ -36,6 +34,17 @@ public class AttractionsController {
         PageUtils page = attractionsService.queryPage(params);
 
         return R.ok().put("page", page);
+    }
+
+    /**
+     * 列表
+     */
+    @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
+    public List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
+                                                     @PathVariable("longitude") double longitude,
+                                                     @PathVariable("radius") double radius) throws IOException {
+        List<AttractionsEntity> res = attractionsService.getNearByLocation(latitude, longitude, radius);
+        return res;
     }
 
 

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.group.charchar.utils.PageUtils;
 import com.groupwork.charchar.entity.AttractionsEntity;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,5 +16,8 @@ import java.util.Map;
 public interface AttractionsService extends IService<AttractionsEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException;
+
 }
 
