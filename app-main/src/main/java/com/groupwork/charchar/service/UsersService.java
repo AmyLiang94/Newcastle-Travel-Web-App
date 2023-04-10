@@ -2,8 +2,10 @@ package com.groupwork.charchar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.group.charchar.utils.PageUtils;
+import com.groupwork.charchar.entity.ReviewsEntity;
 import com.groupwork.charchar.entity.UsersEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,6 +15,7 @@ import java.util.Map;
  */
 public interface UsersService extends IService<UsersEntity> {
 
-    PageUtils queryPage(Map<String, Object> params);
+//    PageUtils queryPage(Map<String, Object> params);
+//public UsersEntity updateUsersEntityId(Integer userId,UsersEntity users);
 }
 

@@ -1,12 +1,17 @@
 package com.groupwork.charchar.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * @author wangyilong
@@ -21,7 +26,7 @@ public class UsersEntity implements Serializable {
     /**
      *
      */
-    @TableId
+    @TableId()
     private Integer userId;
     /**
      *
@@ -42,10 +47,16 @@ public class UsersEntity implements Serializable {
     /**
      *
      */
+    private String userLocation;
+    /**
+     *
+     */
+
     private Date createdTime;
     /**
      *
      */
+
     private Date updatedTime;
 
 }
