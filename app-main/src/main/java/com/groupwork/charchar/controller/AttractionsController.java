@@ -1,13 +1,7 @@
 package com.groupwork.charchar.controller;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-
-
-import com.group.charchar.utils.PageUtils;
-import com.group.charchar.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,18 +20,9 @@ public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;
 
-    /**
-     * 列表
-     */
-    @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params) {
-        PageUtils page = attractionsService.queryPage(params);
-
-        return R.ok().put("page", page);
-    }
 
     /**
-     * 列表
+     * 返回范围内的景点
      */
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
     public List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
@@ -46,46 +31,21 @@ public class AttractionsController {
         List<AttractionsEntity> res = attractionsService.getNearByLocation(latitude, longitude, radius);
         return res;
     }
-
-
     /**
-     * 信息
+     * 获取步行时间
+     * @param departLat  latitude of departure
+     * @param departLng  longitude of departure
+     * @param desLat   latitude of destination
+     * @param desLng   longitude of destination
      */
-    @RequestMapping("/info/{attractionId}")
-    public R info(@PathVariable("attractionId") Integer attractionId) {
-        AttractionsEntity attractions = attractionsService.getById(attractionId);
-
-        return R.ok().put("attractions", attractions);
+    @GetMapping("/walktime/{departLat}/{departLng}/{desLat}/{desLng}")
+    public String getWalkTime(@PathVariable("departLat") double departLat,
+                              @PathVariable("departLng") double departLng,
+                              @PathVariable("desLat") double desLat,
+                              @PathVariable("desLng") double desLng) {
+        String walkingTime = attractionsService.getWalkTime(departLat, departLng, desLat, desLng);
+        return walkingTime;
     }
 
-    /**
-     * 保存
-     */
-    @RequestMapping("/save")
-    public R save(@RequestBody AttractionsEntity attractions) {
-        attractionsService.save(attractions);
-
-        return R.ok();
-    }
-
-    /**
-     * 修改
-     */
-    @RequestMapping("/update")
-    public R update(@RequestBody AttractionsEntity attractions) {
-        attractionsService.updateById(attractions);
-
-        return R.ok();
-    }
-
-    /**
-     * 删除
-     */
-    @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] attractionIds) {
-        attractionsService.removeByIds(Arrays.asList(attractionIds));
-
-        return R.ok();
-    }
 
 }

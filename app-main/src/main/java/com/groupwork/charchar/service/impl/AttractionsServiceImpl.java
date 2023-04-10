@@ -1,11 +1,8 @@
 package com.groupwork.charchar.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.google.gson.*;
-import com.group.charchar.utils.PageUtils;
-import com.group.charchar.utils.Query;
+import lombok.SneakyThrows;
 import okhttp3.*;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +10,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.groupwork.charchar.dao.AttractionsDao;
@@ -28,15 +22,6 @@ import com.groupwork.charchar.service.AttractionsService;
 public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, AttractionsEntity> implements AttractionsService {
     @Value("${google.maps.api.key}")
     private String key;
-    @Override
-    public PageUtils queryPage(Map<String, Object> params) {
-        IPage<AttractionsEntity> page = this.page(
-                new Query<AttractionsEntity>().getPage(params),
-                new QueryWrapper<AttractionsEntity>()
-        );
-
-        return new PageUtils(page);
-    }
 
     @Override
     public List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException {
@@ -55,10 +40,10 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
         //获取列表
         JsonArray datas = json.getAsJsonArray("results");
-        for (JsonElement data: datas) {
+        for (JsonElement data : datas) {
             JsonObject curPlace = data.getAsJsonObject();
             String name = curPlace.get("name").getAsString();
-            String icon = curPlace.get("icon").getAsString();
+//            String icon = curPlace.get("icon").getAsString();
             double lat = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lat").getAsDouble();
             double lng = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lng").getAsDouble();
             String photo = curPlace.getAsJsonArray("photos").get(0).getAsJsonObject().get("photo_reference").getAsString();
@@ -72,5 +57,28 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return showList;
     }
+
+    // 返回的数据类似："57 mins"
+    @SneakyThrows
+    @Override
+    public String getWalkTime(double departLat, double departLng, double desLat, double desLng) {
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = RequestBody.create(mediaType, "");
+        String url = String.format("https://maps.googleapis.com/maps/api/directions/json?origin%f,%f&destination=%f,%f&key=%s", departLat, departLng, desLat, desLng, key);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("GET", body)
+                .build();
+            Response response = client.newCall(request).execute();
+        JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
+        JsonObject walk = json.getAsJsonArray("routes").get(0).getAsJsonObject().getAsJsonArray("leg").get(0).getAsJsonObject();
+        String time = walk.getAsJsonObject("duration").get("text").getAsString();
+        return time;
+
+    }
+
 
 }
