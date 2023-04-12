@@ -11,7 +11,7 @@ CREATE TABLE attractions (
                              attr_rating INT NOT NULL,
                              wheelchair_allow BOOLEAN,
                              pram_allow BOOLEAN,
-                             hearing_allow BOOLEAN,
+                             hearing_allow BOOLEAN
 );
 CREATE TABLE reviews (
                          review_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -20,7 +20,7 @@ CREATE TABLE reviews (
                          rating INT NOT NULL,
                          review_text TEXT,
                          create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                         update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                         update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 );
 CREATE TABLE users (
@@ -28,7 +28,9 @@ CREATE TABLE users (
                        username VARCHAR(255) NOT NULL UNIQUE,
                        email VARCHAR(255) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
+                       salt VARCHAR(255) NOT NULL,
                        phone VARCHAR(20),
+                       user_location VARCHAR(255) NOT NULL,
                        created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                        updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

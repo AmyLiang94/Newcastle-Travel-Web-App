@@ -1,19 +1,20 @@
 package com.groupwork.charchar.controller;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.group.charchar.utils.PageUtils;
-import com.group.charchar.utils.R;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.groupwork.charchar.dao.UsersDao;
-import com.groupwork.charchar.entity.ReviewsEntity;
+import com.groupwork.charchar.service.impl.UsersServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.groupwork.charchar.entity.UsersEntity;
 import com.groupwork.charchar.service.UsersService;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -28,14 +29,17 @@ public class UsersController {
     private UsersService usersService;
 
     /**
+     * 登录
+     */
+    @GetMapping("login")
+        public Map<String,Object> login(@RequestBody UsersEntity user){
+        System.out.println(user.getUsername());
+        return usersService.loginAccount(user);
+}
+
+    /**
      * 列表
      */
-//    @RequestMapping("/list")
-//    public R list(@RequestParam Map<String, Object> params) {
-//        PageUtils page = usersService.queryPage(params);
-//
-//        return R.ok().put("page", page);
-//    }
     @GetMapping
     public String getAll(){
         List<UsersEntity> userList = usersService.list();
@@ -65,28 +69,23 @@ public class UsersController {
 //        return "spring boot userId";
 //    }
     /**
-     * 保存
+     * 注册
      */
     @PostMapping("/save")
     public boolean save(@RequestBody UsersEntity users) {
+        //盐
+        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
+        //加密密码，原始密码+盐
+        String md5Pwd= SecureUtil.md5(users.getPassword()+salt);
+        //初始化账号信息
+        users.setSalt(salt);
+        users.setPassword(md5Pwd);
         return usersService.save(users);
     }
 
     /**
      * 修改
      */
-//    @RequestMapping("/update")
-//    public R update(@RequestBody UsersEntity users) {
-//        usersService.updateById(users);
-//
-//        return R.ok();
-//    }
-
-//    @PutMapping("/update/{userId}")
-//    public UsersEntity updateUsersId(@PathVariable("userId") Integer userId,UsersEntity users) {
-//        UsersEntity usersEntityIPage = usersService.updateUsersEntityId(userId,users);
-//        return usersEntityIPage;
-//    }
     @PutMapping("/update")
     public boolean updateUser(@RequestBody UsersEntity users) {
         boolean update=usersService.updateById(users);
@@ -94,14 +93,18 @@ public class UsersController {
         return update;
     }
     /**
+     * 修改密码
+     */
+    @PutMapping("/updateUserPassword")
+    public Map<String,Object> updateUserPassword(@RequestBody UsersEntity users) {
+        Map<String,Object> update=usersService.updatePassword(users);
+        System.out.println(update);
+        return update;
+    }
+    /**
      * 删除
      */
-//    @RequestMapping("/delete")
-//    public R delete(@RequestBody Integer[] userIds) {
-//        usersService.removeByIds(Arrays.asList(userIds));
-//
-//        return R.ok();
-//    }
+
     @DeleteMapping("/{id}")
     public String delete(@PathVariable Integer id) {
         boolean flag = usersService.removeById(id);
