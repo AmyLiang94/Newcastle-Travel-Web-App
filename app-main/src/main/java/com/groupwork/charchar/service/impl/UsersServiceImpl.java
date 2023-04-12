@@ -6,10 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
@@ -100,6 +97,35 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         usersDao.save(user);
         resultMap.put("code",200);
         resultMap.put("message","注册成功");
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> forgetPassword(UsersEntity user) {
+        //运行结果记录列表
+        Map<String,Object> resultMap=new HashMap<>();
+        //获取该用户名相应的用户名，加密后的密码 和 盐
+        List<UsersEntity> usersEntityList = usersDao.selectUserName(user.getUsername());
+        if (usersEntityList == null || usersEntityList.isEmpty()) {
+            return null;
+        }
+        UsersEntity usersEntity2=usersEntityList.get(0);
+
+        // 检查密保问题的答案是否正确
+        if (!usersEntity2.getAnswer1().equals(user.getAnswer1()) || !usersEntity2.getAnswer2().equals(user.getAnswer2()) || !usersEntity2.getAnswer3().equals(user.getAnswer3())) {
+            resultMap.put("code",400);
+            resultMap.put("message","问题答案不正确");
+            return resultMap;
+        }
+
+        // 解密密码
+        int num = (int) ((Math.random() * 9 + 1) * 100000);
+        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
+        String md5Pwd= SecureUtil.md5(num+salt);
+        //生成新的盐和加密后的新密码一并保存到数据库
+        usersDao.updatePwd(user.getUsername(), md5Pwd, salt);
+        resultMap.put("code", 200);
+        resultMap.put("message", "密码为临时密码请尽快更改"+num);
         return resultMap;
     }
 }

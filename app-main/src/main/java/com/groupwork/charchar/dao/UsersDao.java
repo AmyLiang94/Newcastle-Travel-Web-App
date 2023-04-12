@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Mapper
 public interface UsersDao extends BaseMapper<UsersEntity> {
-    @Select("SELECT username, password, salt FROM users where username=#{username}")
+    @Select("SELECT username, password, salt,answer1,answer2,answer3 FROM users where username=#{username}")
     public List<UsersEntity> selectUserName(@Param("username") String username);
 
     @Update("UPDATE users SET password=#{password}, salt=#{salt} WHERE username=#{username}")
@@ -22,5 +22,6 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
 
     @Insert("INSERT INTO users(username, password,email, salt, phone, user_location, question1, answer1, question2, answer2, question3, answer3) VALUES (#{username}, #{password}, #{email},#{salt}, #{phone}, #{userLocation}, #{question1}, #{answer1},#{question2}, #{answer2}, #{question3}, #{answer3})")
     void save(UsersEntity user);
+
 
 }

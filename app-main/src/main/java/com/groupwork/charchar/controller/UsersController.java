@@ -90,6 +90,16 @@ public class UsersController {
         return update;
     }
     /**
+     * 忘记密码
+     */
+    @PutMapping("/forgetUserPassword")
+    public Map<String,Object> forgetUserPassword(@RequestBody UsersEntity users) {
+        Map<String,Object> update=usersService.forgetPassword(users);
+        System.out.println(update);
+        return update;
+    }
+
+    /**
      * 删除
      */
 
