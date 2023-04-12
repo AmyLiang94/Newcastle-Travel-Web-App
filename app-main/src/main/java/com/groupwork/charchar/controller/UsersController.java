@@ -61,13 +61,6 @@ public class UsersController {
      */
     @PostMapping("/save")
     public Map<String,Object> save(@RequestBody UsersEntity users) {
-//        //盐
-//        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
-//        //加密密码，原始密码+盐
-//        String md5Pwd= SecureUtil.md5(users.getPassword()+salt);
-//        //初始化账号信息
-//        users.setSalt(salt);
-//        users.setPassword(md5Pwd);
         return usersService.register(users);
     }
 
