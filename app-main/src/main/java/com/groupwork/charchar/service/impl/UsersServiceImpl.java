@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,4 +73,33 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
 
+    @Override
+    public Map<String,Object> register(UsersEntity user) {
+        Map<String,Object> resultMap=new HashMap<>();
+        List<UsersEntity> usersEntityList = usersDao.selectUserName(user.getUsername());
+        //该用户不存在或未注册
+        if(!(usersEntityList==null|| usersEntityList.isEmpty())){
+            resultMap.put("code",400);
+            resultMap.put("message","该用户名已经注册");
+            return resultMap;
+        }
+        //用户存在多个相同名字账号，账号异常
+        if(usersEntityList.size()>1){
+            resultMap.put("code",400);
+            resultMap.put("message","该账号异常");
+            return resultMap;
+        }
+        //盐
+        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
+        //加密密码，原始密码+盐
+        String md5Pwd= SecureUtil.md5(user.getPassword()+salt);
+        //初始化账号信息
+        user.setSalt(salt);
+        user.setPassword(md5Pwd);
+        //保存user对象
+        usersDao.save(user);
+        resultMap.put("code",200);
+        resultMap.put("message","注册成功");
+        return resultMap;
+    }
 }

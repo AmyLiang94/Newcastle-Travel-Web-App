@@ -56,6 +56,7 @@ public class UsersEntity implements Serializable {
     /**
      *
      */
+    @TableField("user_location")
     private String userLocation;
     /**
      *
@@ -67,5 +68,37 @@ public class UsersEntity implements Serializable {
      */
 
     private Date updatedTime;
+    /**
+     *忘记密码功能的三个问题
+     */
+//    @TableField("question_1")
+    private String question1;
+    /**
+     *
+     */
+//    @TableField("answer_1")
+    private String answer1;
+    /**
+     *
+     */
+//    @TableField("question_2")
+    private String question2;
+    /**
+     *
+     */
+//    @TableField("answer_2")
+    private String answer2;
+    /**
+     *
+     */
+//    @TableField("question_3")
+    private String question3;
+    /**
+     *
+     */
+//    @TableField("answer_3")
+    private String answer3;
+
+
 
 }

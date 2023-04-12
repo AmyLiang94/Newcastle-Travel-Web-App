@@ -4,6 +4,7 @@ import com.groupwork.charchar.entity.UsersEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,5 +19,8 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
 
     @Update("UPDATE users SET password=#{password}, salt=#{salt} WHERE username=#{username}")
     void updatePwd(@Param("username") String username, @Param("password") String password, @Param("salt") String salt);
+
+    @Insert("INSERT INTO users(username, password,email, salt, phone, user_location, question1, answer1, question2, answer2, question3, answer3) VALUES (#{username}, #{password}, #{email},#{salt}, #{phone}, #{userLocation}, #{question1}, #{answer1},#{question2}, #{answer2}, #{question3}, #{answer3})")
+    void save(UsersEntity user);
 
 }

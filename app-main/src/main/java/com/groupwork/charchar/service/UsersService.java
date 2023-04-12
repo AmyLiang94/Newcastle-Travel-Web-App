@@ -18,8 +18,7 @@ import java.util.Map;
 public interface UsersService extends IService<UsersEntity> {
     public Map<String,Object> loginAccount(UsersEntity user);
     public Map<String,Object> updatePassword(UsersEntity user);
-//    public Map<String,Object> createAccount(UsersEntity user);
-//    PageUtils queryPage(Map<String, Object> params);
-//public UsersEntity updateUsersEntityId(Integer userId,UsersEntity users);
+
+    public Map<String,Object> register(UsersEntity user);
 }
 

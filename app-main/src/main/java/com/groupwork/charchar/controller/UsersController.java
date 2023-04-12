@@ -50,37 +50,25 @@ public class UsersController {
     /**
      * 信息
      */
-//    @RequestMapping("/info/{userId}")
-//    public R info(@PathVariable("userId") Integer userId) {
-//        UsersEntity users = usersService.getById(userId);
-//
-//        return R.ok().put("users", users);
-//    }
     @GetMapping("/{userId}")
     public String getById(@PathVariable Integer userId){
         UsersEntity usersEntity = usersService.getById(userId);
         System.out.println("getById bookList"+usersEntity);
         return "getById";
     }
-
-//    @GetMapping("/{userId}")
-//    public String getById(@PathVariable Integer userId){
-//        System.out.println("userId ==>"+userId);
-//        return "spring boot userId";
-//    }
     /**
      * 注册
      */
     @PostMapping("/save")
-    public boolean save(@RequestBody UsersEntity users) {
-        //盐
-        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
-        //加密密码，原始密码+盐
-        String md5Pwd= SecureUtil.md5(users.getPassword()+salt);
-        //初始化账号信息
-        users.setSalt(salt);
-        users.setPassword(md5Pwd);
-        return usersService.save(users);
+    public Map<String,Object> save(@RequestBody UsersEntity users) {
+//        //盐
+//        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
+//        //加密密码，原始密码+盐
+//        String md5Pwd= SecureUtil.md5(users.getPassword()+salt);
+//        //初始化账号信息
+//        users.setSalt(salt);
+//        users.setPassword(md5Pwd);
+        return usersService.register(users);
     }
 
     /**
