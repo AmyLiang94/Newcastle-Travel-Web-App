@@ -2,7 +2,7 @@ CREATE TABLE attractions (
                              attraction_id INT AUTO_INCREMENT PRIMARY KEY,
                              name VARCHAR(255) NOT NULL,
                              description TEXT,
-                             category ENUM('Historical Buildings', 'Museums', 'Libraries', 'Parks') NOT NULL,
+                             category VARCHAR(255) NOT NULL,
                              latitude DECIMAL(10, 8) NOT NULL,
                              longitude DECIMAL(11, 8) NOT NULL,
                              opening_hours VARCHAR(255),

@@ -45,21 +45,45 @@ public class AttractionsController {
                               @PathVariable("desLat") double desLat,
                               @PathVariable("desLng") double desLng) {
         String walkingTime = attractionsService.getWalkTime(departLat, departLng, desLat, desLng);
+
         return walkingTime;
     }
 
-    @GetMapping("/{attractionId}")
+    /**
+     * acquire information about an attraction base on AttractionID
+     * @param attractionId
+     * @return
+     */
+
+
+    @GetMapping("/findAttractionByID/{attractionId}")
     public String getById(@PathVariable Integer attractionId){
         AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
         System.out.println("getById bookList"+attractionsEntity);
+
         return "getById";
+    }
+
+    /**
+     * Filter the attraction based on their category
+     * @param attrac
+     * @param category
+     * @return
+     */
+    @GetMapping("/filterAttractionByCategory/{category}")
+    public List<AttractionsEntity> getAttractionByCategory(@PathVariable List<AttractionsEntity> attrac, String category){
+        List<AttractionsEntity> filteredAttractions = attractionsService.filterAttractionByCategory(attrac,category);
+        System.out.println("getAttractionByCategory" + filteredAttractions);
+        return filteredAttractions;
     }
 
 
 
 
 
-    @PostMapping("/save/attractions")
+
+
+    @PostMapping("/save")
     public boolean saveAttractions(@RequestBody AttractionsEntity attractions) {
         attractionsService.save(attractions);
         return true;
@@ -68,7 +92,7 @@ public class AttractionsController {
     /**
      * 修改
      */
-    @PutMapping("/update/attractions")
+    @PutMapping("/update")
     public boolean updateAttractions(@RequestBody AttractionsEntity attractions) {
         attractionsService.updateById(attractions);
         return true;
@@ -77,7 +101,7 @@ public class AttractionsController {
     /**
      * 删除
      */
-    @DeleteMapping("/delete/attraction")
+    @DeleteMapping("/delete")
     public boolean deleteAttractions(@RequestBody Integer[] attractionsID) {
         attractionsService.removeByIds(Arrays.asList(attractionsID));
         return true;

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
@@ -78,6 +79,17 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         String time = walk.getAsJsonObject("duration").get("text").getAsString();
         return time;
 
+    }
+
+    @Override
+    public List<AttractionsEntity> filterAttractionByCategory(List<AttractionsEntity> attractions, String category) {
+
+        List<AttractionsEntity> filteredAttractions = attractions.stream().filter(a -> a
+                        .getCategory().equals(category))
+                .collect(Collectors.toList());
+
+
+        return filteredAttractions;
     }
 
 

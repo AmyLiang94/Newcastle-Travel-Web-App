@@ -34,7 +34,7 @@ public class AttractionsEntity implements Serializable {
     /**
      *
      */
-    private Enum category;
+    private String category;
     /**
      *
      */

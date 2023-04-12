@@ -16,5 +16,9 @@ public interface AttractionsService extends IService<AttractionsEntity> {
     List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException;
 
     String getWalkTime(double departLat, double departLng, double desLat, double desLng);
+
+    List<AttractionsEntity> filterAttractionByCategory(List<AttractionsEntity> attractions, String category);
+
+
 }
 
