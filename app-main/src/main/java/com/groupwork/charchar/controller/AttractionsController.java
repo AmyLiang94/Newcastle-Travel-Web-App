@@ -1,6 +1,7 @@
 package com.groupwork.charchar.controller;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +47,42 @@ public class AttractionsController {
         String walkingTime = attractionsService.getWalkTime(departLat, departLng, desLat, desLng);
         return walkingTime;
     }
+
+    @GetMapping("/{attractionId}")
+    public String getById(@PathVariable Integer attractionId){
+        AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
+        System.out.println("getById bookList"+attractionsEntity);
+        return "getById";
+    }
+
+
+
+
+
+    @PostMapping("/save/attractions")
+    public boolean saveAttractions(@RequestBody AttractionsEntity attractions) {
+        attractionsService.save(attractions);
+        return true;
+    }
+
+    /**
+     * 修改
+     */
+    @PutMapping("/update/attractions")
+    public boolean updateAttractions(@RequestBody AttractionsEntity attractions) {
+        attractionsService.updateById(attractions);
+        return true;
+    }
+
+    /**
+     * 删除
+     */
+    @DeleteMapping("/delete/attraction")
+    public boolean deleteAttractions(@RequestBody Integer[] attractionsID) {
+        attractionsService.removeByIds(Arrays.asList(attractionsID));
+        return true;
+    }
+
 
 
 }
