@@ -77,6 +77,20 @@ public class AttractionsController {
         return filteredAttractions;
     }
 
+    @GetMapping("/filterattractionsByStillOpening")
+    public List<AttractionsEntity> getAttractionThatStillOpen(@PathVariable List<AttractionsEntity> attrac){
+        return null;
+
+
+    }
+
+    @GetMapping("/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}")
+    public List<AttractionsEntity> getAttractionByWheelChairAccessibility(@PathVariable List<AttractionsEntity> attrac,Integer wc_allowed){
+        List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac,wc_allowed);
+        return result;
+    }
+
+
 
 
 

@@ -19,6 +19,8 @@ public interface AttractionsService extends IService<AttractionsEntity> {
 
     List<AttractionsEntity> filterAttractionByCategory(List<AttractionsEntity> attractions, String category);
 
+    List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List <AttractionsEntity> attractions, Integer wheelchairAllow);
+
 
 }
 

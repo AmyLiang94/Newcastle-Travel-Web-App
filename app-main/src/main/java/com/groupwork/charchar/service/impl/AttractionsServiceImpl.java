@@ -92,5 +92,20 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         return filteredAttractions;
     }
 
+    @Override
+    public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wheelchairAllow) {
+        List<AttractionsEntity> filteredAttractions = new ArrayList<>();
+        for (AttractionsEntity attraction: attractions){
+            if (attraction.getWheelchairAllow() == wheelchairAllow){
+                filteredAttractions.add(attraction);
+            }
+        }
+
+
+
+
+        return filteredAttractions;
+    }
+
 
 }
