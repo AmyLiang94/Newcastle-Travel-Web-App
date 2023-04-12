@@ -103,4 +103,11 @@ public class UsersController {
         return "delete";
     }
 
+    @DeleteMapping("/deleteUser")
+    public Map<String,Object> deleteUser(@RequestBody UsersEntity users) {
+        Map<String,Object> flag = usersService.deleteUser(users);
+        System.out.println(flag);
+        return flag;
+    }
+
 }

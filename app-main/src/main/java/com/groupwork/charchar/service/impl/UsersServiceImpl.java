@@ -128,4 +128,26 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         resultMap.put("message", "密码为临时密码请尽快更改"+num);
         return resultMap;
     }
+
+    //执行该方法前应该先执行loginAccount再调用
+    @Override
+    public Map<String, Object> deleteUser(UsersEntity user) {
+        Map<String,Object> resultMap=new HashMap<>();
+        //获取该用户名相应的用户名，加密后的密码 和 盐
+        List<UsersEntity> usersEntityList = usersDao.selectUserName(user.getUsername());
+
+
+        //该用户不存在或未注册
+        if(usersEntityList==null|| usersEntityList.isEmpty()){
+            resultMap.put("code",400);
+            resultMap.put("message","该用户不存在或未注册");
+            return resultMap;
+        }
+
+        //注销账户
+        usersDao.deleteUser(user.getUsername());
+        resultMap.put("code", 200);
+        resultMap.put("message", "该账户已被注销");
+        return resultMap;
+    }
 }

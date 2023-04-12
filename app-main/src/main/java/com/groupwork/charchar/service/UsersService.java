@@ -22,5 +22,7 @@ public interface UsersService extends IService<UsersEntity> {
     public Map<String,Object> register(UsersEntity user);
 
     public Map<String,Object> forgetPassword(UsersEntity user);
+
+    public Map<String,Object> deleteUser(UsersEntity user);
 }
 
