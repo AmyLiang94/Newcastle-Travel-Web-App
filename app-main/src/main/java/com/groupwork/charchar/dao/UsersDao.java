@@ -4,7 +4,6 @@ import com.groupwork.charchar.entity.UsersEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,8 +13,13 @@ import java.util.List;
  */
 @Mapper
 public interface UsersDao extends BaseMapper<UsersEntity> {
+    //通过userName查找用户所有信息
     @Select("SELECT username, password, salt,answer1,answer2,answer3 FROM users where username=#{username}")
     public List<UsersEntity> selectUserName(@Param("username") String username);
+
+    //通过userName查找用户个人信息
+    @Select("SELECT username,email, phone, user_location FROM users where username=#{username}")
+    public List<UsersEntity> getByUserName(@Param("username") String username);
 
     @Update("UPDATE users SET password=#{password}, salt=#{salt} WHERE username=#{username}")
     void updatePwd(@Param("username") String username, @Param("password") String password, @Param("salt") String salt);
@@ -25,6 +29,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
 
     @Delete("DELETE FROM users WHERE username=#{username}")
     void deleteUser(@Param("username") String username);
+
 
 
 }

@@ -38,7 +38,7 @@ public class UsersController {
 }
 
     /**
-     * 列表
+     * 获取所有用户信息
      */
     @GetMapping
     public String getAll(){
@@ -48,13 +48,21 @@ public class UsersController {
     }
 
     /**
-     * 信息
+     * 通过获取单个用户信息（不建议使用）
      */
     @GetMapping("/{userId}")
     public String getById(@PathVariable Integer userId){
         UsersEntity usersEntity = usersService.getById(userId);
         System.out.println("getById bookList"+usersEntity);
         return "getById";
+    }
+    /**
+     * 通过用户名获取单个用户信息（建议使用）
+     */
+    @GetMapping("/getOneUserInfomation")
+    public UsersEntity getOneUserInfomation(@RequestBody UsersEntity users){
+        UsersEntity usersEntity = usersService.getUserInfomation(users);
+        return usersEntity;
     }
     /**
      * 注册
@@ -65,7 +73,7 @@ public class UsersController {
     }
 
     /**
-     * 修改
+     * 修改用户信息
      */
     @PutMapping("/update")
     public boolean updateUser(@RequestBody UsersEntity users) {
@@ -102,7 +110,9 @@ public class UsersController {
         System.out.println(flag);
         return "delete";
     }
-
+    /**
+     * 用户注销
+     */
     @DeleteMapping("/deleteUser")
     public Map<String,Object> deleteUser(@RequestBody UsersEntity users) {
         Map<String,Object> flag = usersService.deleteUser(users);

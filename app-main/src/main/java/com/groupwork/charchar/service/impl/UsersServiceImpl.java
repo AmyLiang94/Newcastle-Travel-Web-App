@@ -109,6 +109,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             return null;
         }
+        //用户存在多个相同名字账号，账号异常
+        if(usersEntityList.size()>1){
+            resultMap.put("code",400);
+            resultMap.put("message","该账号异常");
+            return resultMap;
+        }
         UsersEntity usersEntity2=usersEntityList.get(0);
 
         // 检查密保问题的答案是否正确
@@ -143,11 +149,36 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message","该用户不存在或未注册");
             return resultMap;
         }
-
+        //用户存在多个相同名字账号，账号异常
+        if(usersEntityList.size()>1){
+            resultMap.put("code",400);
+            resultMap.put("message","该账号异常");
+            return resultMap;
+        }
         //注销账户
         usersDao.deleteUser(user.getUsername());
         resultMap.put("code", 200);
         resultMap.put("message", "该账户已被注销");
         return resultMap;
     }
+
+    @Override
+    public UsersEntity getUserInfomation(UsersEntity user) {
+        //获取该用户名相应的用户名，加密后的密码 和 盐
+        List<UsersEntity> usersEntityList = usersDao.getByUserName(user.getUsername());
+        //该用户不存在或未注册
+        if(usersEntityList==null|| usersEntityList.isEmpty()){
+            return null;
+        }
+        //用户存在多个相同名字账号，账号异常
+        if(usersEntityList.size()>1){
+            return null;
+        }
+
+        UsersEntity usersEntity2=usersEntityList.get(0);
+        System.out.println(usersEntity2);
+        return usersEntity2;
+    }
+
+
 }
