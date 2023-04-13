@@ -30,8 +30,8 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     @Insert("INSERT INTO users(username, password,email, salt, phone, user_location, question1, answer1, question2, answer2, question3, answer3) VALUES (#{username}, #{password}, #{email},#{salt}, #{phone}, #{userLocation}, #{question1}, #{answer1},#{question2}, #{answer2}, #{question3}, #{answer3})")
     void save(UsersEntity user);
 
-    @Delete("DELETE FROM users WHERE username=#{username}")
-    void deleteUser(@Param("username") String username);
+    @Delete("DELETE FROM users WHERE email=#{email}")
+    void deleteUser(@Param("email") String email);
 
 
 

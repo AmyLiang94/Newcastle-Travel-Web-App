@@ -180,7 +180,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             return resultMap;
         }
         //注销账户
-        usersDao.deleteUser(user.getUsername());
+        usersDao.deleteUser(user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "该账户已被注销");
         return resultMap;

@@ -33,12 +33,12 @@ public class UsersController {
      */
     @GetMapping("login")
         public Map<String,Object> login(@RequestBody UsersEntity user){
-        System.out.println(user.getUsername());
+        System.out.println(user.getEmail());
         return usersService.loginAccount(user);
 }
 
     /**
-     * 获取所有用户信息
+     * 获取所有用户信息的所有信息
      */
     @GetMapping
     public String getAll(){
@@ -48,7 +48,7 @@ public class UsersController {
     }
 
     /**
-     * 通过获取单个用户信息（不建议使用）
+     * 通过id获取单个用户信息（不建议使用）
      */
     @GetMapping("/{userId}")
     public String getById(@PathVariable Integer userId){
@@ -68,7 +68,7 @@ public class UsersController {
 
 
     /**
-     * 更改用户个人信息username, Email, Phone
+     * 更改用户个人信息username, Phone
      */
     @PostMapping("/updateOneUserInfomation")
     public Map<String,Object> updateOneUserInfomation(@RequestBody UsersEntity users){
@@ -78,8 +78,8 @@ public class UsersController {
     /**
      * 注册
      */
-    @PostMapping("/save")
-    public Map<String,Object> save(@RequestBody UsersEntity users) {
+    @PostMapping("/registerUser")
+    public Map<String,Object> registerUser(@RequestBody UsersEntity users) {
         return usersService.register(users);
     }
 
