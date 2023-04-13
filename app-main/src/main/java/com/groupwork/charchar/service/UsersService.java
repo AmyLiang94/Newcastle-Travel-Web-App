@@ -22,10 +22,13 @@ public interface UsersService extends IService<UsersEntity> {
 
     public Map<String,Object> updatePassword(UsersEntity user);
 
+    public Map<String,Object> updateOneUserInformation(UsersEntity user);
+
     public Map<String,Object> forgetPassword(UsersEntity user);
 
     public Map<String,Object> deleteUser(UsersEntity user);
 
     public UsersEntity getUserInfomation(UsersEntity user);
+
 }
 

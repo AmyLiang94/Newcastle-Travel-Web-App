@@ -56,12 +56,13 @@ public class UsersController {
         System.out.println("getById bookList"+usersEntity);
         return "getById";
     }
+
     /**
      * 通过用户名获取单个用户信息（建议使用）
      */
-    @GetMapping("/getOneUserInfomation")
-    public UsersEntity getOneUserInfomation(@RequestBody UsersEntity users){
-        UsersEntity usersEntity = usersService.getUserInfomation(users);
+    @PostMapping("/updateOneUserInfomation")
+    public Map<String,Object> updateOneUserInfomation(@RequestBody UsersEntity users){
+        Map<String,Object> usersEntity = usersService.updateOneUserInformation(users);
         return usersEntity;
     }
     /**
