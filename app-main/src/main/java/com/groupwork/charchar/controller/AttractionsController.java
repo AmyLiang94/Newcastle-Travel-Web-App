@@ -84,6 +84,13 @@ public class AttractionsController {
 
     }
 
+    /**
+     * Selecting Attractions base on whether they allow wheelchair
+     * @param attrac
+     * @param wc_allowed
+     * @return
+     */
+
     @GetMapping("/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}")
     public List<AttractionsEntity> getAttractionByWheelChairAccessibility(@PathVariable List<AttractionsEntity> attrac,Integer wc_allowed){
         List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac,wc_allowed);
@@ -91,12 +98,11 @@ public class AttractionsController {
     }
 
 
-
-
-
-
-
-
+    /**
+     * Saving a attraction
+     * @param attractions
+     * @return
+     */
     @PostMapping("/save")
     public boolean saveAttractions(@RequestBody AttractionsEntity attractions) {
         attractionsService.save(attractions);

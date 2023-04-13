@@ -107,5 +107,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         return filteredAttractions;
     }
 
+    @Override
+    public List<AttractionsEntity> filterAttractionByOpeningTime(List<AttractionsEntity> attraction) {
+
+        return null;
+    }
+
 
 }
