@@ -28,7 +28,15 @@ CREATE TABLE users (
                        username VARCHAR(255) NOT NULL UNIQUE,
                        email VARCHAR(255) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
+                       salt VARCHAR(255) NOT NULL,
                        phone VARCHAR(20),
+                       user_location VARCHAR(255) NOT NULL,
                        created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                       updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                       question1 VARCHAR(255) NOT NULL,
+                       answer1 VARCHAR(255) NOT NULL,
+                       question2 VARCHAR(255) NOT NULL,
+                       answer2 VARCHAR(255) NOT NULL,
+                       question3 VARCHAR(255) NOT NULL,
+                       answer3 VARCHAR(255) NOT NULL
 );
