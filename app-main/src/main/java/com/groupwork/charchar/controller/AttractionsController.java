@@ -57,11 +57,11 @@ public class AttractionsController {
 
 
     @GetMapping("/findAttractionByID/{attractionId}")
-    public String getById(@PathVariable Integer attractionId){
+    public AttractionsEntity getById(@PathVariable Integer attractionId){
         AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
         System.out.println("getById bookList"+attractionsEntity);
 
-        return "getById";
+        return attractionsEntity;
     }
 
     /**
