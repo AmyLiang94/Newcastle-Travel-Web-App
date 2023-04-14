@@ -1,9 +1,13 @@
 package com.groupwork.charchar.service.impl;
 
 import com.google.gson.*;
+import com.google.maps.model.PlacesSearchResponse;
 import lombok.SneakyThrows;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,12 +21,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.groupwork.charchar.dao.AttractionsDao;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.service.AttractionsService;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.xml.transform.Result;
 
 
 @Service("attractionsService")
 public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, AttractionsEntity> implements AttractionsService {
     @Value("${google.maps.api.key}")
     private String key;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException {
@@ -109,6 +119,21 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public List<AttractionsEntity> filterAttractionByOpeningTime(List<AttractionsEntity> attraction) {
+        List<AttractionsEntity> filteredAttractions = new ArrayList<>();
+        String url = "https://maps.googleapis.com/maps/api/place";
+        //Build a request
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + "/nearbysearch/json")
+                .queryParam("location", "LATITUDE,LONGITUDE")
+                .queryParam("radius", "RADIUS_IN_METERS")
+                .queryParam("type", "tourist_attraction")
+                .queryParam("key", key);
+        ResponseEntity<PlacesSearchResponse> responseEntity = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, null, PlacesSearchResponse.class);
+        PlacesSearchResponse placeSearchResponse = responseEntity.getBody();
+        for (Result result: placeSearchResponse.getResults){
+
+        }
+
+
 
         return null;
     }
