@@ -1,8 +1,15 @@
 package com.groupwork.charchar.controller;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,18 +57,61 @@ public class AttractionsController {
     }
 
     /**
-     * acquire information about an attraction base on AttractionID
+     * Acquire information about an attraction base on AttractionID
+     * @param attractionId
+     * @return String
+     */
+    @GetMapping("/findAttractionByID/{attractionId}")
+    public AttractionsEntity getById(@PathVariable Integer attractionId){
+        AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
+
+        System.out.println("getById bookList"+attractionsEntity);
+
+        return attractionsEntity;
+    }
+
+    /**
+     * Returning the opening hour of the attraction of the day
      * @param attractionId
      * @return
      */
+    @GetMapping("/getOperationHoursToday/{attractionId}")
+    public String getOperationHoursToday(@PathVariable Integer attractionId){
+        LocalDate today = LocalDate.now();
+        DayOfWeek dayOfWeek = today.getDayOfWeek();
+        String tempAttractionId = attractionId.toString();
+        String operationHoursToday;
+        operationHoursToday = attractionsService.getOpeningHours(tempAttractionId,dayOfWeek);
+        return operationHoursToday;
+    }
 
+    /**
+     * Filter out the opening attractions at the time of search
+     * @param attractionsEntities
+     * @return
+     */
+    @GetMapping("/filterOpenAttractions")
+    public List<AttractionsEntity> getAttractionByOpeningStatus(@PathVariable List<AttractionsEntity> attractionsEntities){
+        List<AttractionsEntity>  filteredAttractions = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+        DayOfWeek dayOfWeek = today.getDayOfWeek();
 
-    @GetMapping("/findAttractionByID/{attractionId}")
-    public String getById(@PathVariable Integer attractionId){
-        AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
-        System.out.println("getById bookList"+attractionsEntity);
-
-        return "getById";
+        for (AttractionsEntity a : attractionsEntities){
+            Integer tempId=a.getAttractionId();//Acquire ID
+            String[] tempStringList;//Initialize a list of string to hold Opening time and Closing Time
+            String tempSlot=attractionsService.getOpeningHours(tempId.toString(), dayOfWeek);//Get the Operation Hours in string format.
+            tempStringList = tempSlot.split("-");//Break the string into 2 pieces
+            String tempSlotOpen=tempStringList[0];//Initialize the string respectively.
+            String tempSlotClose=tempStringList[1];
+            DateTimeFormatter parser = DateTimeFormatter.ofPattern("HHmm");//Parse the string format back into time format
+            LocalTime openingTime = LocalTime.parse(tempSlotOpen, parser);
+            LocalTime closingTime = LocalTime.parse(tempSlotClose, parser);
+            if (now.isAfter(openingTime)&& now.isBefore(closingTime)){
+                filteredAttractions.add(a);
+            }
+        }
+        return filteredAttractions;
     }
 
     /**
@@ -77,12 +127,6 @@ public class AttractionsController {
         return filteredAttractions;
     }
 
-    @GetMapping("/filterattractionsByStillOpening")
-    public List<AttractionsEntity> getAttractionThatStillOpen(@PathVariable List<AttractionsEntity> attrac){
-        return null;
-
-
-    }
 
     /**
      * Selecting Attractions base on whether they allow wheelchair

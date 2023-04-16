@@ -1,17 +1,28 @@
 package com.groupwork.charchar.service.impl;
 
 import com.google.gson.*;
+import com.google.maps.model.OpeningHours;
 import com.google.maps.model.PlacesSearchResponse;
 import lombok.SneakyThrows;
 import okhttp3.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URL;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +34,9 @@ import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.service.AttractionsService;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import sun.net.www.protocol.http.HttpURLConnection;
+
+import java.net.http.HttpClient;
 
 import javax.xml.transform.Result;
 
@@ -40,14 +54,14 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("text/plain");
-        RequestBody body = RequestBody.create(mediaType, "");
+        //RequestBody body = RequestBody.create(mediaType, "");
         String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
         Request request = new Request.Builder()
                 .url(url)
                 .build();
         Response response = client.newCall(request).execute();
         // 解析响应数据
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
         JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
         //获取列表
         JsonArray datas = json.getAsJsonArray("results");
@@ -99,6 +113,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 .collect(Collectors.toList());
 
 
+
         return filteredAttractions;
     }
 
@@ -116,25 +131,74 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
         return filteredAttractions;
     }
-
     @Override
-    public List<AttractionsEntity> filterAttractionByOpeningTime(List<AttractionsEntity> attraction) {
-        List<AttractionsEntity> filteredAttractions = new ArrayList<>();
-        String url = "https://maps.googleapis.com/maps/api/place";
-        //Build a request
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + "/nearbysearch/json")
-                .queryParam("location", "LATITUDE,LONGITUDE")
-                .queryParam("radius", "RADIUS_IN_METERS")
-                .queryParam("type", "tourist_attraction")
-                .queryParam("key", key);
-        ResponseEntity<PlacesSearchResponse> responseEntity = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, null, PlacesSearchResponse.class);
-        PlacesSearchResponse placeSearchResponse = responseEntity.getBody();
-        for (Result result: placeSearchResponse.getResults){
+    public String getOpeningHours(String placeId, DayOfWeek dayOfWeek) {
+        // Set up the API key and request URL
 
+        String urlString = "https://maps.googleapis.com/maps/api/place/details/json?place_id=" + placeId + "&fields=opening_hours&key=" + key;
+
+        try {
+            // Create a URL object from the request URL
+            URL url = new URL(urlString);
+
+            // Open a connection to the URL
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            // Set the request method to GET
+            connection.setRequestMethod("GET");
+
+            // Get the response code
+            int responseCode = connection.getResponseCode();
+
+            // Check if the response was successful
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // Read the response body
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                // Parse the response JSON
+                JSONObject json = new JSONObject(response.toString());
+                JSONObject result = json.getJSONObject("result");
+                JSONObject openingHours = result.getJSONObject("opening_hours");
+
+                // Extract the opening hours information for the specified day
+                JSONArray periods = openingHours.getJSONArray("periods");
+                LocalTime openingTime = null;
+                LocalTime closingTime = null;
+                for (int i = 0; i < periods.length(); i++) {
+                    JSONObject period = periods.getJSONObject(i);
+                    int dayOfWeekValue = period.getJSONObject("open").getInt("day");
+                    if (dayOfWeekValue == dayOfWeek.getValue()) {
+                        String openTimeStr = period.getJSONObject("open").getString("time");
+                        String closeTimeStr = period.getJSONObject("close").getString("time");
+                        openingTime = LocalTime.parse(openTimeStr, DateTimeFormatter.ofPattern("HHmm"));
+                        closingTime = LocalTime.parse(closeTimeStr, DateTimeFormatter.ofPattern("HHmm"));
+                        break;
+                    }
+                }
+
+                // Format the opening and closing times as strings
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
+                String openingTimeStr = openingTime.format(formatter);
+                String closingTimeStr = closingTime.format(formatter);
+
+                // Return the formatted opening and closing times
+                return openingTimeStr + " - " + closingTimeStr;
+            } else {
+                // The response was not successful
+                System.out.println("Failed to get opening hours: " + responseCode);
+            }
+        } catch (IOException e) {
+            // An error occurred while sending the request
+            e.printStackTrace();
         }
 
-
-
+        // Return null if an error occurred or if the response was not successful
         return null;
     }
 
