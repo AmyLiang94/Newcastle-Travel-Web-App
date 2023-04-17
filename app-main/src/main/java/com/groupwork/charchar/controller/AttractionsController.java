@@ -77,10 +77,9 @@ public class AttractionsController {
         return filteredAttractions;
     }
 
-    @GetMapping("/filterattractionsByStillOpening")
+    @GetMapping("/filterAttractionsByStillOpening")
     public List<AttractionsEntity> getAttractionThatStillOpen(@PathVariable List<AttractionsEntity> attrac){
         return null;
-
 
     }
 
