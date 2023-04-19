@@ -78,9 +78,10 @@ public class UsersController {
     /**
      * 注册
      */
-    @PostMapping("/registerUser")
+    @PostMapping("/registryUser")
     public Map<String,Object> registerUser(@RequestBody UsersEntity users) {
-        return usersService.register(users);
+        Map<String,Object> res = usersService.register(users);
+        return res;
     }
 
     /**
@@ -129,6 +130,11 @@ public class UsersController {
         Map<String,Object> flag = usersService.deleteUser(users);
         System.out.println(flag);
         return flag;
+    }
+
+    @GetMapping("activation")
+    public Map<String, Object> activationAccont(@RequestParam String confirmCode) {
+        return usersService.activationAccont(confirmCode);
     }
 
 }

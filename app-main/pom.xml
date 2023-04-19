@@ -21,6 +21,11 @@
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>2.2.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
 <!--        雪花算法-->
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -28,36 +33,37 @@
             <version>5.6.3</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-test</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        项目集成配置环境thyme-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-thymeleaf</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
             <version>1.1.16</version>
         </dependency>
-        <dependency>
-            <groupId>com.groupwork.charchar</groupId>
-            <artifactId>app-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
-        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>com.groupwork.charchar</groupId>-->
+<!--            <artifactId>app-common</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.projectlombok</groupId>-->
+<!--            <artifactId>lombok</artifactId>-->
+<!--            <version>1.18.24</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.groupwork.charchar</groupId>
             <artifactId>app-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.google.maps</groupId>
@@ -84,15 +90,15 @@
         </plugins>
     </build>
     <properties>
-<!--            <java.version>1.8</java.version>-->
-<!--            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
-<!--            <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>-->
-<!--            &lt;!&ndash;<thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>-->
-<!--                这里用的是org.springframework.boot下的spring-boot-starter-thymeleaf,使用<thymeleaf.version>做标签时可能与org.thymeleaf有冲突，导致包获取不正确&ndash;&gt;-->
-<!--            <springboot-thymeleaf.version>3.0.9.RELEASE</springboot-thymeleaf.version>-->
-<!--            &lt;!&ndash; 布局功能的支持程序  thymeleaf3主程序  layout2以上版本 &ndash;&gt;-->
-<!--            &lt;!&ndash; thymeleaf2   layout1&ndash;&gt;-->
-<!--            <thymeleaf-layout-dialect.version>2.3.0</thymeleaf-layout-dialect.version>-->
+            <java.version>1.8</java.version>
+            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+            <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+            <!--<thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
+                这里用的是org.springframework.boot下的spring-boot-starter-thymeleaf,使用<thymeleaf.version>做标签时可能与org.thymeleaf有冲突，导致包获取不正确-->
+            <springboot-thymeleaf.version>3.0.9.RELEASE</springboot-thymeleaf.version>
+            <!-- 布局功能的支持程序  thymeleaf3主程序  layout2以上版本 -->
+            <!-- thymeleaf2   layout1-->
+            <thymeleaf-layout-dialect.version>2.3.0</thymeleaf-layout-dialect.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>

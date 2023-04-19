@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -68,36 +69,15 @@ public class UsersEntity implements Serializable {
      */
 
     private Date updatedTime;
-    /**
-     *忘记密码功能的三个问题
-     */
-//    @TableField("question_1")
-    private String question1;
-    /**
-     *
-     */
-//    @TableField("answer_1")
-    private String answer1;
-    /**
-     *
-     */
-//    @TableField("question_2")
-    private String question2;
-    /**
-     *
-     */
-//    @TableField("answer_2")
-    private String answer2;
-    /**
-     *
-     */
-//    @TableField("question_3")
-    private String question3;
-    /**
-     *
-     */
-//    @TableField("answer_3")
-    private String answer3;
+
+    @TableField("confirm_code")
+    private String confirmCode; // 确认码
+
+    @TableField("activation_time")
+    private LocalDateTime activationTime; // 激活失效时间
+
+    @TableField("is_valid")
+    private Byte isValid; // 是否可用
 
 
 
