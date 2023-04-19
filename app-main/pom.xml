@@ -13,21 +13,11 @@
     <artifactId>app</artifactId>
     <dependencies>
         <dependency>
-            <groupId>com.groupwork.charchar</groupId>
-            <artifactId>app-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.24</version>
         </dependency>
-        <dependency>
-            <groupId>com.groupwork.charchar</groupId>
-            <artifactId>app-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.google.maps</groupId>
             <artifactId>google-maps-services</artifactId>

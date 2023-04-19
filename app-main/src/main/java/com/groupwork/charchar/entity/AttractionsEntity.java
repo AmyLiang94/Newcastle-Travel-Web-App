@@ -58,7 +58,7 @@ public class AttractionsEntity implements Serializable {
     /**
      *
      */
-    private Integer attrRating;
+    private Double attrRating;
     /**
      *
      */

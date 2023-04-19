@@ -3,6 +3,7 @@ package com.groupwork.charchar.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.google.maps.model.OpeningHours;
 import com.groupwork.charchar.entity.AttractionsEntity;
+import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
@@ -31,5 +32,6 @@ public interface AttractionsService extends IService<AttractionsEntity> {
 
 
 
+    UpdateAttractionRatingVO updateAttractionRating(Integer attractionId);
 }
 
