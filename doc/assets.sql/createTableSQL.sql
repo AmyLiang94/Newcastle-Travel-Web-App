@@ -25,18 +25,15 @@ CREATE TABLE reviews (
 );
 CREATE TABLE users (
                        user_id INT AUTO_INCREMENT PRIMARY KEY,
-                       username VARCHAR(255) NOT NULL UNIQUE,
                        email VARCHAR(255) NOT NULL UNIQUE,
+                       username VARCHAR(255) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
                        salt VARCHAR(255) NOT NULL,
                        phone VARCHAR(20),
                        user_location VARCHAR(255) NOT NULL,
                        created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                        updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                       question1 VARCHAR(255) NOT NULL,
-                       answer1 VARCHAR(255) NOT NULL,
-                       question2 VARCHAR(255) NOT NULL,
-                       answer2 VARCHAR(255) NOT NULL,
-                       question3 VARCHAR(255) NOT NULL,
-                       answer3 VARCHAR(255) NOT NULL
+                       confirm_code    varchar(255)                        null,
+                       activation_time datetime                            null,
+                       is_valid        tinyint(1)                          null
 );
