@@ -1,21 +1,12 @@
 package com.groupwork.charchar.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.crypto.SecureUtil;
-import com.groupwork.charchar.dao.UsersDao;
-import com.groupwork.charchar.service.impl.UsersServiceImpl;
+import com.groupwork.charchar.entity.UsersEntity;
+import com.groupwork.charchar.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.groupwork.charchar.entity.UsersEntity;
-import com.groupwork.charchar.service.UsersService;
-
-import javax.annotation.Resource;
-
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author wangyilong
@@ -25,6 +16,7 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("charchar/users")
 public class UsersController {
+
     @Autowired
     private UsersService usersService;
 
@@ -130,5 +122,4 @@ public class UsersController {
         System.out.println(flag);
         return flag;
     }
-
 }

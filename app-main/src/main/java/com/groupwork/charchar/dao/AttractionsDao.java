@@ -12,4 +12,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AttractionsDao extends BaseMapper<AttractionsEntity> {
 
+    AttractionsEntity getAttractionById(Integer attractionId);
+
+    int updateAttractionRating(Integer attractionId, Double attrRating);
 }
