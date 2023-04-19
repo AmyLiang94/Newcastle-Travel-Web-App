@@ -2,6 +2,7 @@ package com.groupwork.charchar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.groupwork.charchar.entity.AttractionsEntity;
+import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,5 +25,6 @@ public interface AttractionsService extends IService<AttractionsEntity> {
     List<AttractionsEntity> filterAttractionByOpeningTime(List <AttractionsEntity> attraction);
 
 
+    UpdateAttractionRatingVO updateAttractionRating(Integer attractionId);
 }
 

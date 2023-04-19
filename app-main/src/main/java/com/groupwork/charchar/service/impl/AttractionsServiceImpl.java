@@ -1,13 +1,21 @@
 package com.groupwork.charchar.service.impl;
 
 import com.google.gson.*;
+import com.groupwork.charchar.common.Constants;
+import com.groupwork.charchar.exception.AttractionNotFoundException;
+import com.groupwork.charchar.entity.ReviewsEntity;
+import com.groupwork.charchar.service.ReviewsService;
+import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import lombok.SneakyThrows;
 import okhttp3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +26,18 @@ import com.groupwork.charchar.dao.AttractionsDao;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.service.AttractionsService;
 
+import javax.annotation.Resource;
+
 
 @Service("attractionsService")
 public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, AttractionsEntity> implements AttractionsService {
+    private Logger logger = LoggerFactory.getLogger(AttractionsServiceImpl.class);
     @Value("${google.maps.api.key}")
     private String key;
+    @Resource
+    private AttractionsDao attractionsDao;
+    @Resource
+    private ReviewsService reviewsService;
 
     @Override
     public List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException {
@@ -73,7 +88,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 .url(url)
                 .method("GET", body)
                 .build();
-            Response response = client.newCall(request).execute();
+        Response response = client.newCall(request).execute();
         JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
         JsonObject walk = json.getAsJsonArray("routes").get(0).getAsJsonObject().getAsJsonArray("leg").get(0).getAsJsonObject();
         String time = walk.getAsJsonObject("duration").get("text").getAsString();
@@ -95,13 +110,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     @Override
     public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wheelchairAllow) {
         List<AttractionsEntity> filteredAttractions = new ArrayList<>();
-        for (AttractionsEntity attraction: attractions){
-            if (attraction.getWheelchairAllow() == wheelchairAllow){
+        for (AttractionsEntity attraction : attractions) {
+            if (attraction.getWheelchairAllow() == wheelchairAllow) {
                 filteredAttractions.add(attraction);
             }
         }
-
-
 
 
         return filteredAttractions;
@@ -111,6 +124,41 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     public List<AttractionsEntity> filterAttractionByOpeningTime(List<AttractionsEntity> attraction) {
 
         return null;
+    }
+
+    @Override
+    public UpdateAttractionRatingVO updateAttractionRating(Integer attractionId) {
+        AttractionsEntity attraction = attractionsDao.getAttractionById(attractionId);
+        if (attraction == null) {
+            throw new AttractionNotFoundException(Constants.ResponseCode.UN_ERROR.getCode(), Constants.ResponseCode.UN_ERROR.getInfo() + ": " + attractionId);
+        }
+        Double attrSumRating = 0d;
+        Integer reviewCount = 0;
+        List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
+        // if there is no one review the attraction, if will return a empty attraction entity.
+        if (reviews == null || reviews.size() == 0) {
+            return new UpdateAttractionRatingVO();
+        }
+        for (ReviewsEntity review : reviews) {
+                attrSumRating += review.getRating();
+            reviewCount++;
+        }
+        Double attrRating = attrSumRating / reviewCount;
+        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+        attrRating = Double.parseDouble(decimalFormat.format(attrRating));
+        try {
+            int updateStatus = attractionsDao.updateAttractionRating(attractionId, attrRating);
+            if (updateStatus == 0) {
+                throw new RuntimeException("update fail , attraction : " + attractionId);
+            }
+        } catch (Exception e) {
+            logger.error("Failed to update attraction rating, attraction ID: " + attractionId, e);
+            throw new RuntimeException("can't update, attraction : " + attractionId);
+        }
+        UpdateAttractionRatingVO updateAttraction = new UpdateAttractionRatingVO();
+        updateAttraction.setAttractionId(attractionId);
+        updateAttraction.setAttrRating(attrRating);
+        return updateAttraction;
     }
 
 
