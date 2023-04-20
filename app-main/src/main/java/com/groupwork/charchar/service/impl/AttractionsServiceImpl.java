@@ -1,9 +1,13 @@
 package com.groupwork.charchar.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.*;
 import com.groupwork.charchar.common.Constants;
-import com.groupwork.charchar.exception.AttractionNotFoundException;
+import com.groupwork.charchar.dao.AttractionsDao;
+import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.entity.ReviewsEntity;
+import com.groupwork.charchar.exception.AttractionNotFoundException;
+import com.groupwork.charchar.service.AttractionsService;
 import com.groupwork.charchar.service.ReviewsService;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import lombok.SneakyThrows;
@@ -13,20 +17,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
-import com.groupwork.charchar.dao.AttractionsDao;
-import com.groupwork.charchar.entity.AttractionsEntity;
-import com.groupwork.charchar.service.AttractionsService;
-
-import javax.annotation.Resource;
 
 
 @Service("attractionsService")
@@ -44,8 +41,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         List<AttractionsEntity> showList = new ArrayList<>();
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
-        MediaType mediaType = MediaType.parse("text/plain");
-        RequestBody body = RequestBody.create(mediaType, "");
+//        MediaType mediaType = MediaType.parse("text/plain");
+//        RequestBody body = RequestBody.create(mediaType, "");
         String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
         Request request = new Request.Builder()
                 .url(url)
@@ -82,18 +79,27 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("text/plain");
-        RequestBody body = RequestBody.create(mediaType, "");
-        String url = String.format("https://maps.googleapis.com/maps/api/directions/json?origin%f,%f&destination=%f,%f&key=%s", departLat, departLng, desLat, desLng, key);
+//        RequestBody body = RequestBody.create(mediaType, "");
+        String url = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%.6f,%.6f&destination=%.6f,%.6f&mode=walking&key=%s", departLat, departLng, desLat, desLng, key);
         Request request = new Request.Builder()
                 .url(url)
-                .method("GET", body)
                 .build();
+        System.out.println(url);
         Response response = client.newCall(request).execute();
         JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
-        JsonObject walk = json.getAsJsonArray("routes").get(0).getAsJsonObject().getAsJsonArray("leg").get(0).getAsJsonObject();
-        String time = walk.getAsJsonObject("duration").get("text").getAsString();
-        return time;
-
+        System.out.println(json.toString());
+        JsonArray routes = json.getAsJsonArray("routes");
+        System.out.println(routes.toString());
+        if (routes != null && routes.size() > 0) {
+            JsonObject firstRoute = routes.get(0).getAsJsonObject();
+            JsonArray legs = firstRoute.getAsJsonArray("legs");
+            if (legs != null && legs.size() > 0) {
+                JsonObject walk = legs.get(0).getAsJsonObject();
+                String time = walk.getAsJsonObject("duration").get("text").getAsString();
+                return time;
+            }
+        }
+        return "can't access";
     }
 
     @Override

@@ -1,14 +1,14 @@
 package com.groupwork.charchar.controller;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
+import com.groupwork.charchar.entity.AttractionsEntity;
+import com.groupwork.charchar.service.AttractionsService;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.groupwork.charchar.entity.AttractionsEntity;
-import com.groupwork.charchar.service.AttractionsService;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -41,6 +41,7 @@ public class AttractionsController {
      * @param departLng longitude of departure
      * @param desLat    latitude of destination
      * @param desLng    longitude of destination
+     *
      */
     @GetMapping("/walktime/{departLat}/{departLng}/{desLat}/{desLng}")
     public String getWalkTime(@PathVariable("departLat") double departLat,
