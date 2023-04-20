@@ -105,6 +105,7 @@ public class AttractionsController {
             LocalTime closingTime = LocalTime.parse(tempSlotClose, parser);
             if (now.isAfter(openingTime)&& now.isBefore(closingTime)){
                 filteredAttractions.add(a);
+
             }
         }
         return filteredAttractions;
