@@ -1,10 +1,12 @@
 package com.groupwork.charchar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.google.maps.model.OpeningHours;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.util.List;
 
 /**
@@ -22,7 +24,12 @@ public interface AttractionsService extends IService<AttractionsEntity> {
 
     List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List <AttractionsEntity> attractions, Integer wheelchairAllow);
 
-    List<AttractionsEntity> filterAttractionByOpeningTime(List <AttractionsEntity> attraction);
+
+
+    String getOpeningHours (String placeID, DayOfWeek dayOfWeek );
+
+
+
 
 
     UpdateAttractionRatingVO updateAttractionRating(Integer attractionId);
