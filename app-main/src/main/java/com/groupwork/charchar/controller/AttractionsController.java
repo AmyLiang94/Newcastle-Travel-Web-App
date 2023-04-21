@@ -1,20 +1,17 @@
 package com.groupwork.charchar.controller;
 
+import com.groupwork.charchar.entity.AttractionsEntity;
+import com.groupwork.charchar.service.AttractionsService;
+import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.ApplicationListenerMethodAdapter;
-import org.springframework.web.bind.annotation.*;
-import com.groupwork.charchar.entity.AttractionsEntity;
-import com.groupwork.charchar.service.AttractionsService;
+import java.util.*;
 
 
 /**
@@ -49,13 +46,14 @@ public class AttractionsController {
      * @param desLng    longitude of destination
      */
     @GetMapping("/walktime/{departLat}/{departLng}/{desLat}/{desLng}")
-    public String getWalkTime(@PathVariable("departLat") double departLat,
-                              @PathVariable("departLng") double departLng,
-                              @PathVariable("desLat") double desLat,
-                              @PathVariable("desLng") double desLng) {
+    public Map<String, String> getWalkTime(@PathVariable("departLat") double departLat,
+                                           @PathVariable("departLng") double departLng,
+                                           @PathVariable("desLat") double desLat,
+                                           @PathVariable("desLng") double desLng) {
         String walkingTime = attractionsService.getWalkTime(departLat, departLng, desLat, desLng);
-
-        return walkingTime;
+        Map<String, String> response = new HashMap<>();
+        response.put("walkingTime", walkingTime);
+        return response;
     }
 
     /**
@@ -152,8 +150,6 @@ public class AttractionsController {
             closingTimesThisWeek.add((closingTime));
 
 
-
-
         }
         operationTimesThisWeek.add(openingTimesThisWeek);
         operationTimesThisWeek.add(closingTimesThisWeek);
@@ -228,27 +224,33 @@ public class AttractionsController {
      * @return
      */
     @PostMapping("/save")
-    public boolean saveAttractions(@RequestBody AttractionsEntity attractions) {
-        attractionsService.save(attractions);
-        return true;
+    public Map<String, Boolean> saveAttractions(@RequestBody AttractionsEntity attractions) {
+        boolean success = attractionsService.save(attractions);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", success);
+        return response;
     }
 
     /**
      * 修改
      */
     @PutMapping("/update")
-    public boolean updateAttractions(@RequestBody AttractionsEntity attractions) {
-        attractionsService.updateById(attractions);
-        return true;
+    public Map<String, Boolean> updateAttractions(@RequestBody AttractionsEntity attractions) {
+        boolean success = attractionsService.updateById(attractions);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", success);
+        return response;
     }
 
     /**
      * 删除
      */
     @DeleteMapping("/delete")
-    public boolean deleteAttractions(@RequestBody Integer[] attractionsID) {
-        attractionsService.removeByIds(Arrays.asList(attractionsID));
-        return true;
+    public Map<String, Boolean> deleteAttractions(@RequestBody Integer[] attractionsID) {
+        boolean success = attractionsService.removeByIds(Arrays.asList(attractionsID));
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", success);
+        return response;
     }
 
 
