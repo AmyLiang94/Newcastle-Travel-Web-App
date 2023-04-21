@@ -2,12 +2,10 @@ package com.groupwork.charchar.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.math.BigDecimal;
-import java.io.Serializable;
-import java.util.Date;
-
 import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @author wangyilong
@@ -35,7 +33,7 @@ public class AttractionsEntity implements Serializable {
     /**
      *
      */
-    private Enum category;
+    private String category;
     /**
      *
      */
@@ -59,7 +57,7 @@ public class AttractionsEntity implements Serializable {
     /**
      *
      */
-    private Integer attrRating;
+    private Double attrRating;
     /**
      *
      */

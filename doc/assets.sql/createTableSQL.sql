@@ -2,7 +2,7 @@ CREATE TABLE attractions (
                              attraction_id INT AUTO_INCREMENT PRIMARY KEY,
                              name VARCHAR(255) NOT NULL,
                              description TEXT,
-                             category ENUM('Historical Buildings', 'Museums', 'Libraries', 'Parks') NOT NULL,
+                             category VARCHAR(255) NOT NULL,
                              latitude DECIMAL(10, 8) NOT NULL,
                              longitude DECIMAL(11, 8) NOT NULL,
                              opening_hours VARCHAR(255),
@@ -11,7 +11,7 @@ CREATE TABLE attractions (
                              attr_rating INT NOT NULL,
                              wheelchair_allow BOOLEAN,
                              pram_allow BOOLEAN,
-                             hearing_allow BOOLEAN,
+                             hearing_allow BOOLEAN
 );
 CREATE TABLE reviews (
                          review_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -20,15 +20,20 @@ CREATE TABLE reviews (
                          rating INT NOT NULL,
                          review_text TEXT,
                          create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                         update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                         update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 );
 CREATE TABLE users (
                        user_id INT AUTO_INCREMENT PRIMARY KEY,
-                       username VARCHAR(255) NOT NULL UNIQUE,
                        email VARCHAR(255) NOT NULL UNIQUE,
+                       username VARCHAR(255) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
+                       salt VARCHAR(255) NOT NULL,
                        phone VARCHAR(20),
+                       user_location VARCHAR(255) NOT NULL,
                        created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                       updated_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                       confirm_code    varchar(255)                        null,
+                       activation_time datetime                            null,
+                       is_valid        tinyint(1)                          null
 );

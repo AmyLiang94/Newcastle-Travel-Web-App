@@ -1,10 +1,13 @@
 package com.groupwork.charchar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.group.charchar.utils.PageUtils;
+import com.google.maps.model.OpeningHours;
 import com.groupwork.charchar.entity.AttractionsEntity;
+import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 
-import java.util.Map;
+import java.io.IOException;
+import java.time.DayOfWeek;
+import java.util.List;
 
 /**
  * @author wangyilong
@@ -13,6 +16,22 @@ import java.util.Map;
  */
 public interface AttractionsService extends IService<AttractionsEntity> {
 
-    PageUtils queryPage(Map<String, Object> params);
+    List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException;
+
+    String getWalkTime(double departLat, double departLng, double desLat, double desLng);
+
+    List<AttractionsEntity> filterAttractionByCategory(List<AttractionsEntity> attractions, String category);
+
+    List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List <AttractionsEntity> attractions, Integer wheelchairAllow);
+
+
+
+    String getOpeningHours (String placeID, DayOfWeek dayOfWeek );
+
+
+
+
+
+    UpdateAttractionRatingVO updateAttractionRating(Integer attractionId);
 }
 

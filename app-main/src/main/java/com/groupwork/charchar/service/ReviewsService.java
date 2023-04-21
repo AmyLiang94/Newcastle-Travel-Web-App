@@ -1,10 +1,10 @@
 package com.groupwork.charchar.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.group.charchar.utils.PageUtils;
 import com.groupwork.charchar.entity.ReviewsEntity;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author wangyilong
@@ -13,6 +13,13 @@ import java.util.Map;
  */
 public interface ReviewsService extends IService<ReviewsEntity> {
 
-    PageUtils queryPage(Map<String, Object> params);
+
+    List<ReviewsEntity> listReviewsByAttractionId(Integer attractionId);
+
+    List<ReviewsEntity> listReviewsByUserId(Integer userId);
+
+    IPage<ReviewsEntity> listReviewsByAttractionIdWithPage(Integer attractionId, Integer page, Integer size);
+
+    IPage<ReviewsEntity> listReviewsByUserIdWithPage(Integer userId, Integer page, Integer size);
 }
 
