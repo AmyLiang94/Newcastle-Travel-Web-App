@@ -103,7 +103,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             return resultMap;
         }
         // 检查密保问题的答案是否正确
-        usersDao.updateUserInformation(user.getUsername(), user.getEmail(), user.getPhone());
+        usersDao.updateUserInformation(user.getUsername(), user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "修改个人信息成功");
         return resultMap;
