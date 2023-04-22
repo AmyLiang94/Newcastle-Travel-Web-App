@@ -8,7 +8,7 @@ CREATE TABLE attractions (
                              opening_hours VARCHAR(255),
                              ticket_price DECIMAL(10, 2),
                              image_url VARCHAR(255) NOT NULL,
-                             attr_rating INT NOT NULL,
+                             attr_rating DOUBLE NOT NULL,
                              wheelchair_allow BOOLEAN,
                              pram_allow BOOLEAN,
                              hearing_allow BOOLEAN
