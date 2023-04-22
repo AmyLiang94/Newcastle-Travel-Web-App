@@ -101,7 +101,9 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (legs != null && legs.size() > 0) {
                 JsonObject walk = legs.get(0).getAsJsonObject();
                 String time = walk.getAsJsonObject("duration").get("text").getAsString();
-                return time;
+                String[] strTimeList = time.split(" ");
+                String finalTime = strTimeList [0];
+                return finalTime;
             }
         }
         return "can't access";
@@ -185,7 +187,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 String closingTimeStr = closingTime.format(formatter);
 
                 // Return the formatted opening and closing times
-                return openingTimeStr + " - " + closingTimeStr;
+                return openingTimeStr + "-" + closingTimeStr;
             } else {
                 // The response was not successful
                 System.out.println("Failed to get opening hours: " + responseCode);

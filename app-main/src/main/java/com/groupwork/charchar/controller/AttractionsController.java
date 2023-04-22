@@ -72,11 +72,11 @@ public class AttractionsController {
      * @return
      */
     @GetMapping("/findAttractionByID/{attractionId}")
-    public String getById(@PathVariable Integer attractionId) {
+    public @ResponseBody AttractionsEntity getById(@PathVariable Integer attractionId) {
         AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
         System.out.println("getById bookList" + attractionsEntity);
 
-        return "getById";
+        return attractionsEntity;
     }
 
     /**
@@ -85,7 +85,7 @@ public class AttractionsController {
      * @return
      */
     @GetMapping("/filterOpenAttractions")
-    public List<AttractionsEntity> getAttractionByOpeningStatus(@PathVariable List<AttractionsEntity> attractionsEntities){
+    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatus(@RequestBody List<AttractionsEntity> attractionsEntities){
         List<AttractionsEntity>  filteredAttractions = new ArrayList<>();
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
@@ -116,7 +116,7 @@ public class AttractionsController {
      */
 
     @GetMapping("/getOperationHoursToday/{attractionId}")
-    public String getOperationHoursToday(@PathVariable Integer attractionId){
+    public @ResponseBody String getOperationHoursToday(@PathVariable("attractionId") Integer attractionId){
         LocalDate today = LocalDate.now();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
         String tempAttractionId = attractionId.toString();
@@ -132,7 +132,7 @@ public class AttractionsController {
      */
 
     @GetMapping("/openingHoursForTheWeek/{attractionId}")
-    public List<List<LocalTime>> getOpeningHoursThisWeek ( @PathVariable Integer attactionId){
+    public @ResponseBody List<List<LocalTime>> getOpeningHoursThisWeek ( @PathVariable("attractionId") Integer attactionId){
         List<List<LocalTime>> operationTimesThisWeek = new ArrayList<>();
         List<LocalTime> openingTimesThisWeek = new ArrayList<>();
         List<LocalTime> closingTimesThisWeek = new ArrayList<>();
@@ -166,7 +166,7 @@ public class AttractionsController {
 
 
     @GetMapping("/sortAttractionByRating")
-    public List<AttractionsEntity> sortattractionsByRating (List<AttractionsEntity> attractionsEntityList){
+    public @ResponseBody List<AttractionsEntity> sortAttractionsByRating (@RequestBody List<AttractionsEntity> attractionsEntityList){
 
         for (int i = 1; i<attractionsEntityList.size(); i++){
             Double rating = attractionsEntityList.get(i).getAttrRating();
@@ -195,7 +195,8 @@ public class AttractionsController {
      * @return
      */
     @GetMapping("/filterAttractionByCategory/{category}")
-    public List<AttractionsEntity> getAttractionByCategory(@PathVariable List<AttractionsEntity> attrac, String category) {
+    public @ResponseBody List<AttractionsEntity> getAttractionByCategory(@RequestBody List<AttractionsEntity> attrac,
+                                                                         @PathVariable("category") String category) {
         List<AttractionsEntity> filteredAttractions = attractionsService.filterAttractionByCategory(attrac, category);
         System.out.println("getAttractionByCategory" + filteredAttractions);
         return filteredAttractions;
@@ -211,12 +212,73 @@ public class AttractionsController {
      */
 
     @GetMapping("/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}")
-    public List<AttractionsEntity> getAttractionByWheelChairAccessibility(@PathVariable List<AttractionsEntity> attrac, Integer wc_allowed) {
+    public @ResponseBody List<AttractionsEntity> getAttractionByWheelChairAccessibility(@RequestBody List<AttractionsEntity> attrac,
+                                                                                        @PathVariable("wc_allowed") Integer wc_allowed) {
         List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac, wc_allowed);
         return result;
     }
+    @GetMapping("/sortAttractionByDistance/")
+    public @ResponseBody List<AttractionsEntity> sortAttractionByDistance(@RequestBody List<AttractionsEntity> attractionsEntityList,
+                                                            @PathVariable ("departLat") double departLat,
+                                                            @PathVariable ("departLng")double departLng){
+        for (int i = 1; i<attractionsEntityList.size(); i++){
+            Double walkingTime = Double.parseDouble(attractionsService.getWalkTime(departLat,
+                    departLng,
+                    attractionsEntityList.get(i).getLatitude().doubleValue(),
+                    attractionsEntityList.get(i).getLongitude().doubleValue()));
+            int j;
+            for (j = i; j>0; j--){
+                Double tempWalkingTime =  Double.parseDouble(attractionsService.getWalkTime(departLat,
+                        departLng,
+                        attractionsEntityList.get(j-1).getLatitude().doubleValue(),
+                        attractionsEntityList.get(j-1).getLongitude().doubleValue()));
+                if (tempWalkingTime.compareTo(walkingTime)<0){
+                    break;
+                }
+                else {
+                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
+                }
+            }
+
+        }
+        return attractionsEntityList;
+    }
 
 
+    @GetMapping("/filterAttractionByFreeEntry/")
+    public @ResponseBody List<AttractionsEntity> getAttractionsByFreeEntry (@RequestBody List<AttractionsEntity> attractionsEntityList){
+        List<AttractionsEntity> filteredList = new ArrayList<>();
+        for (AttractionsEntity a : attractionsEntityList){
+            if (a.getTicketPrice().doubleValue()==0){
+                filteredList.add(a);
+            }
+        }
+        return filteredList;
+    }
+
+    /**
+     * 根据景点价格排序
+     *
+     */
+    @GetMapping("/sortAttractionByTicketPrice/")
+    public @ResponseBody List<AttractionsEntity> sortAttractionByTicketPrice(@RequestBody List<AttractionsEntity> attractionsEntityList){
+        for (int i = 1; i<attractionsEntityList.size(); i++){
+            Double price = attractionsEntityList.get(i).getTicketPrice().doubleValue();
+            int j;
+            for (j = i; j>0; j--){
+
+                if (attractionsEntityList.get(j-1).getTicketPrice().doubleValue()<price){
+                    break;
+                }
+                else {
+                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
+                }
+            }
+
+        }
+        return attractionsEntityList;
+
+    }
     /**
      * Saving a attraction
      *
