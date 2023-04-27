@@ -53,15 +53,8 @@ public class UsersEntity implements Serializable {
     /**
      *
      */
-    private String phone;
-    /**
-     *
-     */
-    @TableField("user_location")
-    private String userLocation;
-    /**
-     *
-     */
+
+
 
     private Date createdTime;
     /**
