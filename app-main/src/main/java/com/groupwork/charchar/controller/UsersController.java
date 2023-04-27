@@ -47,15 +47,7 @@ public class UsersController {
         return userList;
     }
 
-    /**
-     * 通过id获取单个用户信息（不建议使用）
-     */
-    @GetMapping("/{userId}")
-    public UsersEntity getById(@PathVariable Integer userId){
-        UsersEntity usersEntity = usersService.getById(userId);
-        System.out.println("getById bookList"+usersEntity);
-        return usersEntity;
-    }
+
     /**
      * 通过Email获取单个用户信息（建议使用）
      */
@@ -84,15 +76,6 @@ public class UsersController {
         return res;
     }
 
-//    /**
-//     * 修改用户信息
-//     */
-//    @PutMapping("/updateUser")
-//    public boolean updateUser(@RequestBody UsersEntity users) {
-//        boolean update=usersService.updateById(users);
-//        System.out.println(update);
-//        return update;
-//    }
     /**
      * 修改密码
      */
@@ -112,16 +95,6 @@ public class UsersController {
         return update;
     }
 
-//    /**
-//     * 删除
-//     */
-//
-//    @DeleteMapping("/{id}")
-//    public String delete(@PathVariable Integer id) {
-//        boolean flag = usersService.removeById(id);
-//        System.out.println(flag);
-//        return "delete";
-//    }
     /**
      * 用户注销
      */
