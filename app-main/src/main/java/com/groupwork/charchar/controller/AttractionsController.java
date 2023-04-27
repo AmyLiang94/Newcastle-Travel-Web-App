@@ -307,9 +307,9 @@ public class AttractionsController {
     /**
      * 删除
      */
-    @DeleteMapping("/delete")
-    public Map<String, Boolean> deleteAttractions(@PathVariable Integer[] attractionsID) {
-        boolean success = attractionsService.removeByIds(Arrays.asList(attractionsID));
+    @DeleteMapping("/delete/{attractionsID}")
+    public Map<String, Boolean> deleteAttractions(@PathVariable Integer attractionsID) {
+        boolean success = attractionsService.removeById(attractionsID);
         Map<String, Boolean> response = new HashMap<>();
         response.put("success", success);
         return response;
