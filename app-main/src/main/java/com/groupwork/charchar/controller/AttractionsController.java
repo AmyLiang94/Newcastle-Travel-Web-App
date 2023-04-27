@@ -263,17 +263,13 @@ public class AttractionsController {
     @GetMapping("/sortAttractionByTicketPrice/")
     public @ResponseBody List<AttractionsEntity> sortAttractionByTicketPrice(@RequestBody List<AttractionsEntity> attractionsEntityList){
         for (int i = 1; i<attractionsEntityList.size(); i++){
-            Double price = attractionsEntityList.get(i).getTicketPrice().doubleValue();
-            int j;
-            for (j = i; j>0; j--){
-
-                if (attractionsEntityList.get(j-1).getTicketPrice().doubleValue()<price){
-                    break;
-                }
-                else {
-                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
-                }
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0 && attractionsEntityList.get(j).getTicketPrice().doubleValue()>current.getTicketPrice().doubleValue()){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
             }
+            attractionsEntityList.set(j+1 , current);
 
         }
         return attractionsEntityList;
