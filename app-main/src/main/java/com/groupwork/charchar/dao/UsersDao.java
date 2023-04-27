@@ -27,7 +27,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     void updatePwd(@Param("email") String email, @Param("password") String password, @Param("salt") String salt);
 
     @Update("UPDATE users SET username=#{username} WHERE email=#{email}")
-    void updateUserInformation(@Param("username") String username, @Param("email") String email, @Param("phone") String phone);
+    void updateUserInformation(@Param("username") String username, @Param("email") String email);
 
     @Update("UPDATE users SET is_valid = 1 WHERE confirm_code = #{confirmCode}")
     int updateUserByConfirmCode(@Param("confirmCode") String confirmCode);
