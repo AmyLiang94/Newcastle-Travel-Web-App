@@ -20,7 +20,7 @@ import java.util.*;
  * @date 2023-03-24 15:33:03
  */
 @RestController
-@RequestMapping("product/attractions")
+@RequestMapping("charchar/attractions")
 public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;

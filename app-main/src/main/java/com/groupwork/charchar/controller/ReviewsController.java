@@ -18,7 +18,7 @@ import java.util.Map;
  * @date 2023-03-24 15:33:03
  */
 @RestController
-@RequestMapping("product/reviews")
+@RequestMapping("charchar/reviews")
 public class ReviewsController {
     @Autowired
     private ReviewsService reviewsService;
