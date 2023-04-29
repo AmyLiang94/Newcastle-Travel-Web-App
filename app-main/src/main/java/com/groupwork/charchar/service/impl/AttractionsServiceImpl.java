@@ -23,13 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import sun.net.www.protocol.http.HttpURLConnection;
 
 import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
@@ -101,7 +101,9 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (legs != null && legs.size() > 0) {
                 JsonObject walk = legs.get(0).getAsJsonObject();
                 String time = walk.getAsJsonObject("duration").get("text").getAsString();
-                return time;
+                String[] strTimeList = time.split(" ");
+                String finalTime = strTimeList [0];
+                return finalTime;
             }
         }
         return "can't access";
@@ -185,7 +187,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 String closingTimeStr = closingTime.format(formatter);
 
                 // Return the formatted opening and closing times
-                return openingTimeStr + " - " + closingTimeStr;
+                return openingTimeStr + "-" + closingTimeStr;
             } else {
                 // The response was not successful
                 System.out.println("Failed to get opening hours: " + responseCode);
