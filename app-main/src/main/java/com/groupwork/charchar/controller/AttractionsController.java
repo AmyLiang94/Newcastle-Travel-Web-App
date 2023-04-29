@@ -201,10 +201,6 @@ public class AttractionsController {
         return filteredAttractions;
     }
 
-    @GetMapping("/filterattractionsByStillOpening")
-    public List<AttractionsEntity> getAttractionThatStillOpen(@PathVariable List<AttractionsEntity> attrac) {
-        return null;
-    }
 
     /**
      * 根据轮椅使用过滤景点
