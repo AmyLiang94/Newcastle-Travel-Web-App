@@ -218,26 +218,30 @@ public class AttractionsController {
     public @ResponseBody List<AttractionsEntity> sortAttractionByDistance(@RequestBody List<AttractionsEntity> attractionsEntityList,
                                                             @PathVariable ("departLat") double departLat,
                                                             @PathVariable ("departLng")double departLng){
+
+
         for (int i = 1; i<attractionsEntityList.size(); i++){
-            Double walkingTime = Double.parseDouble(attractionsService.getWalkTime(departLat,
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0
+                    &&
+                    Double.parseDouble(attractionsService.getWalkTime(departLat,
                     departLng,
-                    attractionsEntityList.get(i).getLatitude().doubleValue(),
-                    attractionsEntityList.get(i).getLongitude().doubleValue()));
-            int j;
-            for (j = i; j>0; j--){
-                Double tempWalkingTime =  Double.parseDouble(attractionsService.getWalkTime(departLat,
-                        departLng,
-                        attractionsEntityList.get(j-1).getLatitude().doubleValue(),
-                        attractionsEntityList.get(j-1).getLongitude().doubleValue()));
-                if (tempWalkingTime.compareTo(walkingTime)<0){
-                    break;
-                }
-                else {
-                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
-                }
+                    attractionsEntityList.get(j).getLatitude().doubleValue(),
+                    attractionsEntityList.get(j).getLongitude().doubleValue()))
+                    <
+                    Double.parseDouble(attractionsService.getWalkTime(departLat,
+                    departLng,
+                    current.getLatitude().doubleValue(),
+                    current.getLongitude().doubleValue()))
+                    ){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
             }
+            attractionsEntityList.set(j+1 , current);
 
         }
+
         return attractionsEntityList;
     }
 
