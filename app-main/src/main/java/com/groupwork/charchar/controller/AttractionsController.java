@@ -167,22 +167,19 @@ public class AttractionsController {
 
     @GetMapping("/sortAttractionByRating")
     public @ResponseBody List<AttractionsEntity> sortAttractionsByRating (@RequestBody List<AttractionsEntity> attractionsEntityList){
-
         for (int i = 1; i<attractionsEntityList.size(); i++){
-            Double rating = attractionsEntityList.get(i).getAttrRating();
-            int j;
-            for (j = i; j>0; j--){
-
-                if (attractionsEntityList.get(j-1).getAttrRating().compareTo(rating)<0){
-                    break;
-                }
-                else {
-                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
-                }
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0 && attractionsEntityList.get(j).getAttrRating()<current.getAttrRating()){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
             }
+            attractionsEntityList.set(j+1 , current);
 
         }
         return attractionsEntityList;
+
+
 
 
     }
@@ -211,13 +208,13 @@ public class AttractionsController {
      * @return
      */
 
-    @GetMapping("/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}")
+    @GetMapping("/filterAttractionByWheelChairAccessibility/{wc_allowed}")
     public @ResponseBody List<AttractionsEntity> getAttractionByWheelChairAccessibility(@RequestBody List<AttractionsEntity> attrac,
                                                                                         @PathVariable("wc_allowed") Integer wc_allowed) {
         List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac, wc_allowed);
         return result;
     }
-    @GetMapping("/sortAttractionByDistance/")
+    @GetMapping("/sortAttractionByDistance/{departLat}/{departLng}")
     public @ResponseBody List<AttractionsEntity> sortAttractionByDistance(@RequestBody List<AttractionsEntity> attractionsEntityList,
                                                             @PathVariable ("departLat") double departLat,
                                                             @PathVariable ("departLng")double departLng){
@@ -265,7 +262,7 @@ public class AttractionsController {
         for (int i = 1; i<attractionsEntityList.size(); i++){
             AttractionsEntity current = attractionsEntityList.get(i);
             int j = i-1;
-            while (j>=0 && attractionsEntityList.get(j).getTicketPrice().doubleValue()>current.getTicketPrice().doubleValue()){
+            while (j>=0 && attractionsEntityList.get(j).getTicketPrice().doubleValue()<current.getTicketPrice().doubleValue()){
                 attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
                 j--;
             }

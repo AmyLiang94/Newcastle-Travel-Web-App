@@ -120,10 +120,10 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     }
 
     @Override
-    public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wheelchairAllow) {
+    public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wc_allowed) {
         List<AttractionsEntity> filteredAttractions = new ArrayList<>();
         for (AttractionsEntity attraction: attractions){
-            if (attraction.getWheelchairAllow() == wheelchairAllow){
+            if (attraction.getWheelchairAllow() == wc_allowed){
                 filteredAttractions.add(attraction);
             }
         }
