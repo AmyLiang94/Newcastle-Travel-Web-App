@@ -1,13 +1,15 @@
 package com.groupwork.charchar.controller;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import com.groupwork.charchar.entity.ReviewsEntity;
 import com.groupwork.charchar.service.ReviewsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -69,27 +71,33 @@ public class ReviewsController {
      * 保存
      */
     @PostMapping("/save")
-    public boolean saveReview(@RequestBody ReviewsEntity reviews) {
-        reviewsService.save(reviews);
-        return true;
+    public Map<String, Boolean> saveReview(@RequestBody ReviewsEntity reviews) {
+        boolean success = reviewsService.save(reviews);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", success);
+        return response;
     }
 
     /**
      * 修改
      */
     @PutMapping("/update")
-    public boolean updateReview(@RequestBody ReviewsEntity reviews) {
-        reviewsService.updateById(reviews);
-        return true;
+    public Map<String, Boolean> updateReview(@RequestBody ReviewsEntity reviews) {
+        boolean success = reviewsService.updateById(reviews);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", success);
+        return response;
     }
 
     /**
      * 删除
      */
     @DeleteMapping("/delete")
-    public boolean deleteReview(@RequestBody Integer[] reviewIds) {
-        reviewsService.removeByIds(Arrays.asList(reviewIds));
-        return true;
+    public Map<String, Boolean> deleteReview(@RequestBody Integer[] reviewIds) {
+        boolean success = reviewsService.removeByIds(Arrays.asList(reviewIds));
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", success);
+        return response;
     }
 
 }
