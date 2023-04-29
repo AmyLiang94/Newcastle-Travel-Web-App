@@ -37,6 +37,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -79,14 +81,14 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         return showList;
     }
 
-    // 返回的数据类似："57 mins"
+    // 返回的数据类似："57" 单位：分钟
     @SneakyThrows
     @Override
     public String getWalkTime(double departLat, double departLng, double desLat, double desLng) {
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
-        String url = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%.6f,%.6f&destination=%.6f,%.6f&mode=walking&key=%s", departLat, departLng, desLat, desLng, key);
+        String url = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%.15f,%.15f&destination=%.15f,%.15f&mode=walking&key=%s", departLat, departLng, desLat, desLng, key);
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -101,9 +103,24 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (legs != null && legs.size() > 0) {
                 JsonObject walk = legs.get(0).getAsJsonObject();
                 String time = walk.getAsJsonObject("duration").get("text").getAsString();
-                String[] strTimeList = time.split(" ");
-                String finalTime = strTimeList [0];
-                return finalTime;
+
+                Pattern pattern = Pattern.compile("(\\d+)\\s+(\\w+)");
+                Matcher matcher = pattern.matcher(time);
+
+                int totalMinutes = 0;
+                while (matcher.find()) {
+                    int value = Integer.parseInt(matcher.group(1));
+                    String unit = matcher.group(2);
+
+                    if ("days".equalsIgnoreCase(unit)) {
+                        totalMinutes += value * 24 * 60;
+                    } else if ("hours".equalsIgnoreCase(unit)) {
+                        totalMinutes += value * 60;
+                    } else if ("mins".equalsIgnoreCase(unit) || "min".equalsIgnoreCase(unit)) {
+                        totalMinutes += value;
+                    }
+                }
+                return String.valueOf(totalMinutes);
             }
         }
         return "can't access";
