@@ -137,10 +137,10 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     }
 
     @Override
-    public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wheelchairAllow) {
+    public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wc_allowed) {
         List<AttractionsEntity> filteredAttractions = new ArrayList<>();
         for (AttractionsEntity attraction: attractions){
-            if (attraction.getWheelchairAllow() == wheelchairAllow){
+            if (attraction.getWheelchairAllow() == wc_allowed){
                 filteredAttractions.add(attraction);
             }
         }
@@ -218,6 +218,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         return null;
     }
 
+
     @Override
     public UpdateAttractionRatingVO updateAttractionRating(Integer attractionId) {
         AttractionsEntity attraction = attractionsDao.getAttractionById(attractionId);
@@ -228,7 +229,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         Integer reviewCount = 0;
         List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
         // if there is no one review the attraction, if will return a empty attraction entity.
-        if (reviews == null || reviews.size() == 0) {
+        if (null == reviews || reviews.size() == 0) {
             return new UpdateAttractionRatingVO();
         }
         for (ReviewsEntity review : reviews) {

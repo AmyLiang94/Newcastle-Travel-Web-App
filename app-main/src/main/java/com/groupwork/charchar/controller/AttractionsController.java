@@ -166,22 +166,19 @@ public class AttractionsController {
 
     @GetMapping("/sortAttractionByRating")
     public @ResponseBody List<AttractionsEntity> sortAttractionsByRating (@RequestBody List<AttractionsEntity> attractionsEntityList){
-
         for (int i = 1; i<attractionsEntityList.size(); i++){
-            Double rating = attractionsEntityList.get(i).getAttrRating();
-            int j;
-            for (j = i; j>0; j--){
-
-                if (attractionsEntityList.get(j-1).getAttrRating().compareTo(rating)<0){
-                    break;
-                }
-                else {
-                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
-                }
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0 && attractionsEntityList.get(j).getAttrRating()<current.getAttrRating()){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
             }
+            attractionsEntityList.set(j+1 , current);
 
         }
         return attractionsEntityList;
+
+
 
 
     }
@@ -210,36 +207,40 @@ public class AttractionsController {
      * @return
      */
 
-    @GetMapping("/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}")
+    @GetMapping("/filterAttractionByWheelChairAccessibility/{wc_allowed}")
     public @ResponseBody List<AttractionsEntity> getAttractionByWheelChairAccessibility(@RequestBody List<AttractionsEntity> attrac,
                                                                                         @PathVariable("wc_allowed") Integer wc_allowed) {
         List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac, wc_allowed);
         return result;
     }
-    @GetMapping("/sortAttractionByDistance/")
+    @GetMapping("/sortAttractionByDistance/{departLat}/{departLng}")
     public @ResponseBody List<AttractionsEntity> sortAttractionByDistance(@RequestBody List<AttractionsEntity> attractionsEntityList,
                                                             @PathVariable ("departLat") double departLat,
                                                             @PathVariable ("departLng")double departLng){
+
+
         for (int i = 1; i<attractionsEntityList.size(); i++){
-            Double walkingTime = Double.parseDouble(attractionsService.getWalkTime(departLat,
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0
+                    &&
+                    Double.parseDouble(attractionsService.getWalkTime(departLat,
                     departLng,
-                    attractionsEntityList.get(i).getLatitude().doubleValue(),
-                    attractionsEntityList.get(i).getLongitude().doubleValue()));
-            int j;
-            for (j = i; j>0; j--){
-                Double tempWalkingTime =  Double.parseDouble(attractionsService.getWalkTime(departLat,
-                        departLng,
-                        attractionsEntityList.get(j-1).getLatitude().doubleValue(),
-                        attractionsEntityList.get(j-1).getLongitude().doubleValue()));
-                if (tempWalkingTime.compareTo(walkingTime)<0){
-                    break;
-                }
-                else {
-                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
-                }
+                    attractionsEntityList.get(j).getLatitude().doubleValue(),
+                    attractionsEntityList.get(j).getLongitude().doubleValue()))
+                    <
+                    Double.parseDouble(attractionsService.getWalkTime(departLat,
+                    departLng,
+                    current.getLatitude().doubleValue(),
+                    current.getLongitude().doubleValue()))
+                    ){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
             }
+            attractionsEntityList.set(j+1 , current);
 
         }
+
         return attractionsEntityList;
     }
 
@@ -262,17 +263,13 @@ public class AttractionsController {
     @GetMapping("/sortAttractionByTicketPrice/")
     public @ResponseBody List<AttractionsEntity> sortAttractionByTicketPrice(@RequestBody List<AttractionsEntity> attractionsEntityList){
         for (int i = 1; i<attractionsEntityList.size(); i++){
-            Double price = attractionsEntityList.get(i).getTicketPrice().doubleValue();
-            int j;
-            for (j = i; j>0; j--){
-
-                if (attractionsEntityList.get(j-1).getTicketPrice().doubleValue()<price){
-                    break;
-                }
-                else {
-                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
-                }
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0 && attractionsEntityList.get(j).getTicketPrice().doubleValue()<current.getTicketPrice().doubleValue()){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
             }
+            attractionsEntityList.set(j+1 , current);
 
         }
         return attractionsEntityList;
