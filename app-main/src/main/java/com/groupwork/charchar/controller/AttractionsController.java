@@ -1,8 +1,10 @@
 package com.groupwork.charchar.controller;
 
+import com.google.maps.errors.ApiException;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.service.AttractionsService;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,32 +80,28 @@ public class AttractionsController {
 
         return attractionsEntity;
     }
-
     /**
-     * 开门景点
+     * 过滤开门景点 二式
      * @param attractionsEntities
      * @return
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws ApiException
      */
-    @GetMapping("/filterOpenAttractions")
-    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatus(@RequestBody List<AttractionsEntity> attractionsEntities){
-        List<AttractionsEntity>  filteredAttractions = new ArrayList<>();
+    @GetMapping("/filterOpenAttractionsMK2")
+    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatusMK2(@RequestBody List<AttractionsEntity> attractionsEntities)
+            throws IOException, InterruptedException, ApiException, JSONException {
+
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
-
+        List <AttractionsEntity> filteredAttractions = new ArrayList<>();
         for (AttractionsEntity a : attractionsEntities){
-            Integer tempId=a.getAttractionId();//Acquire ID
-            String[] tempStringList;//Initialize a list of string to hold Opening time and Closing Time
-            String tempSlot=attractionsService.getOpeningHours(tempId.toString(), dayOfWeek);//Get the Operation Hours in string format.
-            tempStringList = tempSlot.split("-");//Break the string into 2 pieces
-            String tempSlotOpen=tempStringList[0];//Initialize the string respectively.
-            String tempSlotClose=tempStringList[1];
-            DateTimeFormatter parser = DateTimeFormatter.ofPattern("HHmm");//Parse the string format back into time format
-            LocalTime openingTime = LocalTime.parse(tempSlotOpen, parser);
-            LocalTime closingTime = LocalTime.parse(tempSlotClose, parser);
-            if (now.isAfter(openingTime)&& now.isBefore(closingTime)){
-                filteredAttractions.add(a);
+            String tempPlaceID =attractionsService.getGooglePlaceIDByCoordinate(a.getLatitude().doubleValue(),a.getLongitude().doubleValue());
 
+            int openingStatus=attractionsService.getCurrentOpeningStatus(tempPlaceID);
+            if (openingStatus == 1){
+                filteredAttractions.add(a);
             }
         }
         return filteredAttractions;
@@ -127,34 +125,18 @@ public class AttractionsController {
 
     /**
      * 本周7天营业时间
-     * @param attactionId
+     *
      * @return
      */
 
-    @GetMapping("/openingHoursForTheWeek/{attractionId}")
-    public @ResponseBody List<List<LocalTime>> getOpeningHoursThisWeek ( @PathVariable("attractionId") Integer attactionId){
-        List<List<LocalTime>> operationTimesThisWeek = new ArrayList<>();
-        List<LocalTime> openingTimesThisWeek = new ArrayList<>();
-        List<LocalTime> closingTimesThisWeek = new ArrayList<>();
-        for (int i=0; i<7 ;i++){
-            String[] tempStringList;
-            DayOfWeek temDOW = DayOfWeek.of(i);
-            String tempSlot=attractionsService.getOpeningHours(attactionId.toString(), temDOW);//Get the Operation Hours in string format.
-            tempStringList = tempSlot.split("-");//Break the string into 2 pieces
-            String tempSlotOpen=tempStringList[0];//Initialize the string respectively.
-            String tempSlotClose=tempStringList[1];
-            DateTimeFormatter parser = DateTimeFormatter.ofPattern("HHmm");//Parse the string format back into time format
-            LocalTime openingTime = LocalTime.parse(tempSlotOpen, parser);
-            LocalTime closingTime = LocalTime.parse(tempSlotClose, parser);
-            openingTimesThisWeek.add((openingTime));
-            closingTimesThisWeek.add((closingTime));
+    @GetMapping("/openingHoursForTheWeek/")
+    public @ResponseBody List<String> getOpeningHoursThisWeek ( AttractionsEntity attractionsEntity) throws JSONException, IOException {
+        String tempPlaceID = attractionsService.getGooglePlaceIDByName(attractionsEntity.getAttractionName());
+        List<String> timeList = new ArrayList<>();
+        timeList = attractionsService.getOpeningHourMK2(tempPlaceID);
+        return timeList;
 
 
-        }
-        operationTimesThisWeek.add(openingTimesThisWeek);
-        operationTimesThisWeek.add(closingTimesThisWeek);
-
-        return operationTimesThisWeek;
 
     }
 
@@ -276,6 +258,29 @@ public class AttractionsController {
         return attractionsEntityList;
 
     }
+    /**
+     * 获取谷歌PLaceID By Coordinates
+     *
+     */
+    @GetMapping("/getAttractionGooglePlaceID/{lat}/{lng}")
+    public @ResponseBody String getAttractionGooglePlaceID(@PathVariable ("lat") double lat,
+                                                           @PathVariable ("lng") double lng) throws IOException, InterruptedException, ApiException {
+        String result = null;
+        result = attractionsService.getGooglePlaceIDByCoordinate(lat,lng);
+        return result;
+    }
+    /**
+     * 获取谷歌PlaceID By Name
+     */
+    @GetMapping("/getAttractionGooglePlaceIDByName/{attractionName}")
+    public @ResponseBody String getAttractionGooglePlaceIDByName(@PathVariable ("attractionName") String attractionName)
+            throws JSONException, IOException {
+        String result = null;
+        result = attractionsService.getGooglePlaceIDByName(attractionName);
+        return result;
+    }
+
+
     /**
      * Saving a attraction
      *

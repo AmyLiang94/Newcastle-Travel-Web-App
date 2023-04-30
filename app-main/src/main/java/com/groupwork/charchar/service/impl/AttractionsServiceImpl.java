@@ -5,6 +5,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.LatLng;
 import com.groupwork.charchar.common.Constants;
 import com.groupwork.charchar.dao.AttractionsDao;
 import com.groupwork.charchar.entity.AttractionsEntity;
@@ -14,15 +19,19 @@ import com.groupwork.charchar.service.AttractionsService;
 import com.groupwork.charchar.service.ReviewsService;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import lombok.SneakyThrows;
+import models.OpeningHours;
+import models.PlaceDetailsResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.io.BufferedReader;
@@ -37,6 +46,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -129,6 +139,86 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return filteredAttractions;
     }
+    @Override
+    public List<String> getOpeningHourMK2(String placeID) throws JSONException, IOException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + placeID + "&fields=opening_hours&key=" + key)
+                .build();
+        List<String> hoursList = new ArrayList<>();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("opening_hours")) {
+                JSONObject openingHours = result.getJSONObject("opening_hours");
+                JSONArray periods = openingHours.getJSONArray("periods");
+
+                String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+                for (int i = 0; i < daysOfWeek.length; i++) {
+                    String dayOfWeek = daysOfWeek[i];
+                    boolean isOpen = false;
+                    for (int j = 0; j < periods.length(); j++) {
+                        JSONObject period = periods.getJSONObject(j);
+                        JSONObject open = period.getJSONObject("open");
+                        int openDay = open.getInt("day");
+                        if (openDay == i) {
+                            isOpen = true;
+                            String openTime = open.getString("time");
+                            JSONObject close = period.getJSONObject("close");
+                            String closeTime = close.getString("time");
+                            hoursList.add( openTime + "-" + closeTime);
+                        }
+                    }
+                    if (!isOpen) {
+                        hoursList.add("Closed");
+                    }
+                }
+                System.out.println(hoursList);
+            } else {
+                System.out.println("Opening hours information is not available for this place.");
+            }
+        }
+
+
+        return hoursList;
+    }
+
+    @Override
+    public int getCurrentOpeningStatus(String placeID) throws JSONException, IOException {
+        int openStatus = 4;
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + placeID + "&fields=opening_hours&key=" + key)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+
+            if (result.has("opening_hours")) {
+                JSONObject openingHours = result.getJSONObject("opening_hours");
+                boolean openNow = openingHours.getBoolean("open_now");
+                System.out.println("Is the shop open now? " + openNow);
+                if (openNow == true){
+                    openStatus = 1;
+                } else if (openNow == false) {
+                    openStatus = 0;
+                }
+            } else {
+                System.out.println("Opening hours information is not available for this place.");
+                openStatus = -1;
+            }
+        }
+
+        return openStatus;
+
+
+    }
     @SneakyThrows
     @Override
     public String getOpeningHours(String placeId, DayOfWeek dayOfWeek) {
@@ -199,6 +289,47 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
         // Return null if an error occurred or if the response was not successful
         return null;
+    }
+
+    @Override
+    public String getGooglePlaceIDByCoordinate(Double lat, Double lng) throws IOException, InterruptedException, ApiException {
+        GeoApiContext context = new GeoApiContext.Builder()
+                .apiKey("AIzaSyCnKm5wzoA_118wavVZZmyNQRWxa_1oVoM")
+                .build();
+        GeocodingResult[] results = GeocodingApi.newRequest(context)
+                .latlng(new LatLng(lat, lng)).await();
+        System.out.println(results[0].placeId);
+
+        return results[0].placeId;
+    }
+
+    @Override
+    public String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException {
+
+
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + attractionName + "&inputtype=textquery&fields=place_id&key=" + key)
+                .build();
+        String tempPlaceId = null;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONArray candidates = json.getJSONArray("candidates");
+
+            if (candidates.length() > 0) {
+                JSONObject candidate = candidates.getJSONObject(0);
+                tempPlaceId = candidate.getString("place_id");
+
+                System.out.println("Place ID: " + tempPlaceId);
+            } else {
+                System.out.println("No place found with that name.");
+            }
+        }
+        return tempPlaceId;
     }
 
 
