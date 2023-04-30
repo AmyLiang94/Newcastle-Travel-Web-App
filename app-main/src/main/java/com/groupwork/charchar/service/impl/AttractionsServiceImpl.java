@@ -201,6 +201,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         return null;
     }
 
+
     @Override
     public UpdateAttractionRatingVO updateAttractionRating(Integer attractionId) {
         AttractionsEntity attraction = attractionsDao.getAttractionById(attractionId);
