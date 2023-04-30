@@ -35,14 +35,17 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
 
     @Override
     public Map<String, Object> loginAccount(UsersEntity user) {
-
+//    public Integer loginAccount(UsersEntity user) {
         //创建map记录输出用户输入的账户密码注册或者未注册，密码不正确等
-        Map<String, Object> resultMap = new HashMap<>();
+       Map<String, Object> resultMap = new HashMap<>();
+//        ArrayList<Integer> arrayList=new ArrayList<>();
         //判断输入的是否是邮箱
         if (!isEmail(user.getEmail())) {
             resultMap.put("code", 400);
             resultMap.put("message", "请输入正确的邮箱");
             return resultMap;
+//            arrayList.add(0,200);
+//            return arrayList.get(0);
         }
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
         //该用户不存在或未注册
@@ -50,26 +53,36 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("code", 400);
             resultMap.put("message", "该用户不存在或未注册");
             return resultMap;
+//            arrayList.add(1,400);
+//            return arrayList.get(1);
         }
         //用户存在多个相同名字账号，账号异常
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
             resultMap.put("message", "账号异常");
             return resultMap;
+//            arrayList.add(1,400);
+//            return arrayList.get(1);
+
         }
         //查询到一个用户，进行密码对比(一个email只有一个用户所以是get（0）)
         UsersEntity usersEntity2 = usersEntityList.get(0);
         //用户输入的密码和盐进行加密
         String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity2.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
         if (!usersEntity2.getPassword().equals(md5Pwd)) {
-//        System.out.println(md5Pwd+"=?"+usersEntity2.getUsername());
+        System.out.println(md5Pwd+"=?"+usersEntity2.getUsername());
             resultMap.put("code", 400);
             resultMap.put("message", "输入的密码不正确");
             return resultMap;
+//            arrayList.add(1,400);
+//            return arrayList.get(1);
         }
         resultMap.put("code", 200);
         resultMap.put("message", "登陆成功");
+        resultMap.put("data", user.getEmail());
         return resultMap;
+//        arrayList.add(0,200);
+//        return arrayList.get(0);
     }
 
     //执行该方法前应该先执行loginAccount
@@ -150,7 +163,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         int result = usersDao.save(user);
         if (result != 0) {
             // 发送邮件时间很慢（可以使用异步方式发送：多线程、消息队列）
-            String activationUrl = "http://localhost:8080/charchar/users/activation?confirmCode=" + confirmCode;
+            String activationUrl = "http://localhost:9090/charchar/users/activation?confirmCode=" + confirmCode;
             sendMail(activationUrl, user.getEmail());
             resultMap.put("code", 200);
             resultMap.put("message", "注册成功，请前往邮箱激活");
