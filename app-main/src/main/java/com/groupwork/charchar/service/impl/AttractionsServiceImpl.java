@@ -228,7 +228,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         Integer reviewCount = 0;
         List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
         // if there is no one review the attraction, if will return a empty attraction entity.
-        if (reviews == null || reviews.size() == 0) {
+        if (null == reviews || reviews.size() == 0) {
             return new UpdateAttractionRatingVO();
         }
         for (ReviewsEntity review : reviews) {
