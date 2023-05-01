@@ -23,11 +23,18 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     @Select("SELECT email, activation_time FROM users WHERE confirm_code = #{confirmCode} AND is_valid = 0")
     UsersEntity selectUserByConfirmCode(@Param("confirmCode") String confirmCode);
 
+    @Select("SELECT verification_code FROM users WHERE email=#{email}")
+    public List<UsersEntity> findVerifiCode(@Param("email") String email);
+
+
     @Update("UPDATE users SET password=#{password}, salt=#{salt} WHERE email=#{email}")
     void updatePwd(@Param("email") String email, @Param("password") String password, @Param("salt") String salt);
 
     @Update("UPDATE users SET username=#{username} WHERE email=#{email}")
     void updateUserInformation(@Param("username") String username, @Param("email") String email);
+
+    @Update("UPDATE users SET verification_code=#{verificationCode} WHERE email=#{email}")
+    void updateVertificationCode(@Param("email") String email,@Param("verificationCode") String verificationCode);
 
     @Update("UPDATE users SET is_valid = 1 WHERE confirm_code = #{confirmCode}")
     int updateUserByConfirmCode(@Param("confirmCode") String confirmCode);

@@ -36,5 +36,7 @@ public interface UsersService extends IService<UsersEntity> {
 
     public boolean isEmail(String email);
 
+    public Map<String, Object> updateVerificationCode(UsersEntity users);
+
 }
 

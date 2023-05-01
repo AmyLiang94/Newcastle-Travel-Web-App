@@ -80,6 +80,15 @@ public class UsersController {
         Map<String,Object> res = usersService.register(users);
         return res;
     }
+    /**
+     * 发送验证码
+     */
+    @CrossOrigin(origins = "http://localhost:8080")
+    @PostMapping("/sendVerificationCode")
+    public Map<String,Object> sendVerificationCode(@RequestBody UsersEntity users) {
+        Map<String,Object> res = usersService.updateVerificationCode(users);
+        return res;
+    }
 
     /**
      * 修改密码
@@ -94,7 +103,7 @@ public class UsersController {
     /**
      * 忘记密码
      */
-
+    @CrossOrigin(origins = "http://localhost:8080")
     @PutMapping("/forgetUserPassword")
     public Map<String,Object> forgetUserPassword(@RequestBody UsersEntity users) {
         Map<String,Object> update=usersService.forgetPassword(users);
@@ -117,5 +126,7 @@ public class UsersController {
     public Map<String, Object> activationAccont(@RequestParam String confirmCode) {
         return usersService.activationAccont(confirmCode);
     }
+
+
 
 }

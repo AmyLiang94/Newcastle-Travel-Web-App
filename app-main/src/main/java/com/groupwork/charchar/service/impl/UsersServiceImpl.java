@@ -181,6 +181,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         Map<String, Object> resultMap = new HashMap<>();
         //通过邮箱获取该用户
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
+        List<UsersEntity> usersEntityList2 = usersDao.findVerifiCode(user.getEmail());
         //确认该用户是否存在
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
@@ -193,6 +194,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message", "该账号异常");
             return resultMap;
         }
+        UsersEntity usersEntity2 = usersEntityList2.get(0);
+        System.out.println(user.getVerificationCode()+"=="+usersEntity2.getVerificationCode());
+        if (!((usersEntity2.getVerificationCode()).equals(user.getVerificationCode()))){
+            resultMap.put("code", 400);
+            resultMap.put("message", "您输入的验证码不正确");
+            return resultMap;
+        }
         // 通过上述判定后，创建临时密码
         int num = (int) ((Math.random() * 9 + 1) * 100000);
         String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
@@ -200,13 +208,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //生成新的盐和加密后的新密码一并保存到数据库
         usersDao.updatePwd(user.getEmail(), md5Pwd, salt);
         // 发送邮件得到临时密码（可以使用异步方式发送：多线程、消息队列）
-        System.out.println(String.valueOf(num));
         String activationUrl = "新的密码已生成请尽快更改" + String.valueOf(num);
         sendMail(activationUrl, user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "请前往邮箱获取临时密码");
         return resultMap;
-
     }
 
 
@@ -333,6 +339,25 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         Pattern pattern = Pattern.compile(emailRegex);
         return pattern.matcher(email).matches();
+    }
+
+    @Override
+    public Map<String, Object> updateVerificationCode(UsersEntity user) {
+        Map<String, Object> resultMap = new HashMap<>();
+        Random random = new Random();
+        int randomNumber = random.nextInt(900000) + 100000;
+        String vertifi=String.valueOf(randomNumber);
+        usersDao.updateVertificationCode(user.getEmail(),vertifi);
+        String activationUrl = "这是您的验证码请妥善保管" + vertifi;
+        sendMail(activationUrl, user.getEmail());
+        if (vertifi !=null) {
+            resultMap.put("code", 200);
+            resultMap.put("message", "验证码发送成功");
+        } else {
+            resultMap.put("code", 400);
+            resultMap.put("message", "验证码发送失败");
+        }
+        return resultMap;
     }
 
 
