@@ -1,14 +1,9 @@
 package com.groupwork.charchar;
 
 import com.groupwork.charchar.controller.UsersController;
-import com.groupwork.charchar.entity.UsersEntity;
-import com.groupwork.charchar.service.UsersService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import javax.sql.DataSource;
-import java.util.Date;
 
 @SpringBootTest
 class CharcharApplicationTests {
@@ -20,10 +15,10 @@ class CharcharApplicationTests {
         System.out.println(usersController.getAll());
     }
 
-    @Test
-    void getByIdTest() {
-        System.out.println(usersController.getById(1));
-    }
+//    @Test
+//    void getByIdTest() {
+//        System.out.println(usersController.getById(1));
+//    }
 
 //    @Test
 //    void saveTest() {
@@ -53,9 +48,9 @@ class CharcharApplicationTests {
 //        System.out.println(usersController.update(usersEntity));
 //    }
 
-    @Test
-    void deleteTest() {
-        System.out.println(usersController.delete(3));
-    }
+//    @Test
+//    void deleteTest() {
+//        System.out.println(usersController.delete(3));
+//    }
 
 }

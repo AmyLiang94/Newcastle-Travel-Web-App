@@ -20,7 +20,7 @@
         <result property="hearingAllow" column="hearing_allow"/>
     </resultMap>
     <select id="getAttractionById" parameterType="Integer" resultType="com.groupwork.charchar.entity.AttractionsEntity">
-        select attraction_id, name, description, category, latitude, longitude, opening_hours, ticket_price, image_url, attr_rating, wheelchair_allow, pram_allow, hearing_allow
+        select attraction_id, attraction_name, description, category, latitude, longitude, opening_hours, ticket_price, image_url, attr_rating, wheelchair_allow, pram_allow, hearing_allow
         from attractions
         where attraction_id = #{attractionId};
     </select>

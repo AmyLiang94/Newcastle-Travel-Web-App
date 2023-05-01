@@ -20,7 +20,7 @@ import java.util.*;
  * @date 2023-03-24 15:33:03
  */
 @RestController
-@RequestMapping("product/attractions")
+@RequestMapping("charchar/attractions")
 public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;
@@ -84,7 +84,7 @@ public class AttractionsController {
      * @return
      */
     @GetMapping("/filterOpenAttractions")
-    public List<AttractionsEntity> getAttractionByOpeningStatus(@PathVariable List<AttractionsEntity> attractionsEntities){
+    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatus(@RequestBody List<AttractionsEntity> attractionsEntities){
         List<AttractionsEntity>  filteredAttractions = new ArrayList<>();
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
@@ -115,7 +115,7 @@ public class AttractionsController {
      */
 
     @GetMapping("/getOperationHoursToday/{attractionId}")
-    public String getOperationHoursToday(@PathVariable Integer attractionId){
+    public @ResponseBody String getOperationHoursToday(@PathVariable("attractionId") Integer attractionId){
         LocalDate today = LocalDate.now();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
         String tempAttractionId = attractionId.toString();
@@ -131,7 +131,7 @@ public class AttractionsController {
      */
 
     @GetMapping("/openingHoursForTheWeek/{attractionId}")
-    public List<List<LocalTime>> getOpeningHoursThisWeek ( @PathVariable Integer attactionId){
+    public @ResponseBody List<List<LocalTime>> getOpeningHoursThisWeek ( @PathVariable("attractionId") Integer attactionId){
         List<List<LocalTime>> operationTimesThisWeek = new ArrayList<>();
         List<LocalTime> openingTimesThisWeek = new ArrayList<>();
         List<LocalTime> closingTimesThisWeek = new ArrayList<>();
@@ -165,23 +165,20 @@ public class AttractionsController {
 
 
     @GetMapping("/sortAttractionByRating")
-    public List<AttractionsEntity> sortattractionsByRating (List<AttractionsEntity> attractionsEntityList){
-
+    public @ResponseBody List<AttractionsEntity> sortAttractionsByRating (@RequestBody List<AttractionsEntity> attractionsEntityList){
         for (int i = 1; i<attractionsEntityList.size(); i++){
-            Double rating = attractionsEntityList.get(i).getAttrRating();
-            int j;
-            for (j = i; j>0; j--){
-
-                if (attractionsEntityList.get(j-1).getAttrRating().compareTo(rating)<0){
-                    break;
-                }
-                else {
-                    attractionsEntityList.set(j,attractionsEntityList.get(j-1));
-                }
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0 && attractionsEntityList.get(j).getAttrRating()<current.getAttrRating()){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
             }
+            attractionsEntityList.set(j+1 , current);
 
         }
         return attractionsEntityList;
+
+
 
 
     }
@@ -194,16 +191,13 @@ public class AttractionsController {
      * @return
      */
     @GetMapping("/filterAttractionByCategory/{category}")
-    public List<AttractionsEntity> getAttractionByCategory(@PathVariable List<AttractionsEntity> attrac, String category) {
+    public @ResponseBody List<AttractionsEntity> getAttractionByCategory(@RequestBody List<AttractionsEntity> attrac,
+                                                                         @PathVariable("category") String category) {
         List<AttractionsEntity> filteredAttractions = attractionsService.filterAttractionByCategory(attrac, category);
         System.out.println("getAttractionByCategory" + filteredAttractions);
         return filteredAttractions;
     }
 
-    @GetMapping("/filterattractionsByStillOpening")
-    public List<AttractionsEntity> getAttractionThatStillOpen(@PathVariable List<AttractionsEntity> attrac) {
-        return null;
-    }
 
     /**
      * 根据轮椅使用过滤景点
@@ -213,13 +207,74 @@ public class AttractionsController {
      * @return
      */
 
-    @GetMapping("/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}")
-    public List<AttractionsEntity> getAttractionByWheelChairAccessibility(@PathVariable List<AttractionsEntity> attrac, Integer wc_allowed) {
+    @GetMapping("/filterAttractionByWheelChairAccessibility/{wc_allowed}")
+    public @ResponseBody List<AttractionsEntity> getAttractionByWheelChairAccessibility(@RequestBody List<AttractionsEntity> attrac,
+                                                                                        @PathVariable("wc_allowed") Integer wc_allowed) {
         List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac, wc_allowed);
         return result;
     }
+    @GetMapping("/sortAttractionByDistance/{departLat}/{departLng}")
+    public @ResponseBody List<AttractionsEntity> sortAttractionByDistance(@RequestBody List<AttractionsEntity> attractionsEntityList,
+                                                            @PathVariable ("departLat") double departLat,
+                                                            @PathVariable ("departLng")double departLng){
 
 
+        for (int i = 1; i<attractionsEntityList.size(); i++){
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0
+                    &&
+                    Double.parseDouble(attractionsService.getWalkTime(departLat,
+                    departLng,
+                    attractionsEntityList.get(j).getLatitude().doubleValue(),
+                    attractionsEntityList.get(j).getLongitude().doubleValue()))
+                    <
+                    Double.parseDouble(attractionsService.getWalkTime(departLat,
+                    departLng,
+                    current.getLatitude().doubleValue(),
+                    current.getLongitude().doubleValue()))
+                    ){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
+            }
+            attractionsEntityList.set(j+1 , current);
+
+        }
+
+        return attractionsEntityList;
+    }
+
+
+    @GetMapping("/filterAttractionByFreeEntry/")
+    public @ResponseBody List<AttractionsEntity> getAttractionsByFreeEntry (@RequestBody List<AttractionsEntity> attractionsEntityList){
+        List<AttractionsEntity> filteredList = new ArrayList<>();
+        for (AttractionsEntity a : attractionsEntityList){
+            if (a.getTicketPrice().doubleValue()==0){
+                filteredList.add(a);
+            }
+        }
+        return filteredList;
+    }
+
+    /**
+     * 根据景点价格排序
+     *
+     */
+    @GetMapping("/sortAttractionByTicketPrice/")
+    public @ResponseBody List<AttractionsEntity> sortAttractionByTicketPrice(@RequestBody List<AttractionsEntity> attractionsEntityList){
+        for (int i = 1; i<attractionsEntityList.size(); i++){
+            AttractionsEntity current = attractionsEntityList.get(i);
+            int j = i-1;
+            while (j>=0 && attractionsEntityList.get(j).getTicketPrice().doubleValue()<current.getTicketPrice().doubleValue()){
+                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+                j--;
+            }
+            attractionsEntityList.set(j+1 , current);
+
+        }
+        return attractionsEntityList;
+
+    }
     /**
      * Saving a attraction
      *
@@ -248,13 +303,11 @@ public class AttractionsController {
     /**
      * 删除
      */
-    @DeleteMapping("/delete")
-    public Map<String, Boolean> deleteAttractions(@RequestBody Integer[] attractionsID) {
-        boolean success = attractionsService.removeByIds(Arrays.asList(attractionsID));
+    @DeleteMapping("/delete/{attractionsID}")
+    public Map<String, Boolean> deleteAttractions(@PathVariable Integer attractionsID) {
+        boolean success = attractionsService.removeById(attractionsID);
         Map<String, Boolean> response = new HashMap<>();
         response.put("success", success);
         return response;
     }
-
-
 }

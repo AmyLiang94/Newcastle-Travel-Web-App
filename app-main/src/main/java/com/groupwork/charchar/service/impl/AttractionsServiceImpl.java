@@ -23,13 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import sun.net.www.protocol.http.HttpURLConnection;
 
 import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
@@ -37,6 +37,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -79,14 +81,14 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         return showList;
     }
 
-    // 返回的数据类似："57 mins"
+    // 返回的数据类似："57" 单位：分钟
     @SneakyThrows
     @Override
     public String getWalkTime(double departLat, double departLng, double desLat, double desLng) {
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
-        String url = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%.6f,%.6f&destination=%.6f,%.6f&mode=walking&key=%s", departLat, departLng, desLat, desLng, key);
+        String url = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%.15f,%.15f&destination=%.15f,%.15f&mode=walking&key=%s", departLat, departLng, desLat, desLng, key);
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -101,7 +103,24 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (legs != null && legs.size() > 0) {
                 JsonObject walk = legs.get(0).getAsJsonObject();
                 String time = walk.getAsJsonObject("duration").get("text").getAsString();
-                return time;
+
+                Pattern pattern = Pattern.compile("(\\d+)\\s+(\\w+)");
+                Matcher matcher = pattern.matcher(time);
+
+                int totalMinutes = 0;
+                while (matcher.find()) {
+                    int value = Integer.parseInt(matcher.group(1));
+                    String unit = matcher.group(2);
+
+                    if ("days".equalsIgnoreCase(unit)) {
+                        totalMinutes += value * 24 * 60;
+                    } else if ("hours".equalsIgnoreCase(unit)) {
+                        totalMinutes += value * 60;
+                    } else if ("mins".equalsIgnoreCase(unit) || "min".equalsIgnoreCase(unit)) {
+                        totalMinutes += value;
+                    }
+                }
+                return String.valueOf(totalMinutes);
             }
         }
         return "can't access";
@@ -118,10 +137,10 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     }
 
     @Override
-    public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wheelchairAllow) {
+    public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wc_allowed) {
         List<AttractionsEntity> filteredAttractions = new ArrayList<>();
         for (AttractionsEntity attraction: attractions){
-            if (attraction.getWheelchairAllow() == wheelchairAllow){
+            if (attraction.getWheelchairAllow() == wc_allowed){
                 filteredAttractions.add(attraction);
             }
         }
@@ -185,7 +204,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 String closingTimeStr = closingTime.format(formatter);
 
                 // Return the formatted opening and closing times
-                return openingTimeStr + " - " + closingTimeStr;
+                return openingTimeStr + "-" + closingTimeStr;
             } else {
                 // The response was not successful
                 System.out.println("Failed to get opening hours: " + responseCode);
@@ -199,6 +218,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         return null;
     }
 
+
     @Override
     public UpdateAttractionRatingVO updateAttractionRating(Integer attractionId) {
         AttractionsEntity attraction = attractionsDao.getAttractionById(attractionId);
@@ -209,7 +229,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         Integer reviewCount = 0;
         List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
         // if there is no one review the attraction, if will return a empty attraction entity.
-        if (reviews == null || reviews.size() == 0) {
+        if (null == reviews || reviews.size() == 0) {
             return new UpdateAttractionRatingVO();
         }
         for (ReviewsEntity review : reviews) {
