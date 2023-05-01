@@ -190,19 +190,19 @@ public class ReviewsControllerTest {
     /**
      *刪除用戶评论
      @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
-     TODO:確認controller是否需要加上{reviewID}
+     TODO:跑錯目前仍在確認
      */
     @Test
     @Order(7)
-    public void shouldReturnOKWhenDeleteReview() throws Exception {
+    //public void shouldReturnOKWhenDeleteReview() throws Exception {
         // Check update function
-        String jsonStr = "[" + testReviews.getUserId() + "]";
-        this.mockMvc.perform(post("/charcahr/reviews/delete/{reviewId}",testReviews.getReviewId())
-                        .contentType("application/json")
-                        .content(jsonStr)
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+      //  String jsonStr = "[" + testReviews.getUserId() + "]";
+        //this.mockMvc.perform(post("/charcahr/reviews/delete")
+          //              .contentType("application/json")
+            //            .content("[1,2,3]")
+              //  )
+                //.andExpect(status().isOk())
+                //.andExpect(content().contentType(MediaType.APPLICATION_JSON));
                 //.andExpect(jsonPath("$.code").value(0))
                 //.andExpect(jsonPath("$.msg").value("success"));
                 // Confirming success of delete
@@ -212,6 +212,14 @@ public class ReviewsControllerTest {
                 //.andExpect(jsonPath("$.code").value(0))
                 //.andExpect(jsonPath("$.msg").value("success"))
                // .andExpect(jsonPath("$.reviews").isEmpty());
+    //}
+    public void shouldReturnOKWhenDeleteReview() throws Exception {
+        String jsonStr = "[1, 2, 3]";
+        this.mockMvc.perform(delete("/charcahr/reviews/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonStr))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
 
