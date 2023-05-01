@@ -26,8 +26,8 @@ public interface AttractionsService extends IService<AttractionsEntity> {
     String getOpeningHours (String placeID, DayOfWeek dayOfWeek );
     List<String> getOpeningHourMK2(String placeID) throws JSONException, IOException;
     int getCurrentOpeningStatus(String placeID) throws JSONException, IOException;
-    String getGooglePlaceIDByCoordinate(Double lat, Double lng) throws IOException, InterruptedException, ApiException;
     String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException;
+    String getGooglePlaceIDByCoordinateAndName(String attractionName, String attractionAddress) throws IOException, JSONException;
 
 
 

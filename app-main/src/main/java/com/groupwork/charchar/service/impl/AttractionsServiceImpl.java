@@ -40,6 +40,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.SQLOutput;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -291,16 +292,35 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         return null;
     }
 
-    @Override
-    public String getGooglePlaceIDByCoordinate(Double lat, Double lng) throws IOException, InterruptedException, ApiException {
-        GeoApiContext context = new GeoApiContext.Builder()
-                .apiKey("AIzaSyCnKm5wzoA_118wavVZZmyNQRWxa_1oVoM")
-                .build();
-        GeocodingResult[] results = GeocodingApi.newRequest(context)
-                .latlng(new LatLng(lat, lng)).await();
-        System.out.println(results[0].placeId);
 
-        return results[0].placeId;
+    @Override
+    public String getGooglePlaceIDByCoordinateAndName(String attractionName, String attractionAddress) throws IOException, JSONException {
+        System.out.println(attractionName);
+        System.out.println(attractionAddress);
+        OkHttpClient client = new OkHttpClient();
+
+        String input = attractionName + " " + attractionAddress;
+        System.out.println(input);
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + input + "&inputtype=textquery&fields=place_id&key=" + key)
+                .build();
+        String tempPlaceId = null;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONArray candidates = json.getJSONArray("candidates");
+
+            if (candidates.length() > 0) {
+                JSONObject candidate = candidates.getJSONObject(0);
+                tempPlaceId = candidate.getString("place_id");
+
+                System.out.println("Place ID: " + tempPlaceId);
+            } else {
+                System.out.println("No place found with that name and address.");
+            }
+        }
+        return tempPlaceId;
     }
 
     @Override

@@ -59,7 +59,7 @@ public class AttractionsController {
     }
 
     /**
-     *
+     *更新评分Updating Rating
      */
     @PostMapping("/update/rating/{attractionId}")
     public UpdateAttractionRatingVO updateAttractionRating(@PathVariable Integer attractionId) {
@@ -96,8 +96,9 @@ public class AttractionsController {
         LocalTime now = LocalTime.now();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
         List <AttractionsEntity> filteredAttractions = new ArrayList<>();
+
         for (AttractionsEntity a : attractionsEntities){
-            String tempPlaceID =attractionsService.getGooglePlaceIDByCoordinate(a.getLatitude().doubleValue(),a.getLongitude().doubleValue());
+            String tempPlaceID =attractionsService.getGooglePlaceIDByCoordinateAndName(a.getAttractionName(), "Home");
 
             int openingStatus=attractionsService.getCurrentOpeningStatus(tempPlaceID);
             if (openingStatus == 1){
@@ -114,7 +115,7 @@ public class AttractionsController {
      */
 
     @GetMapping("/getOperationHoursToday/{attractionId}")
-    public @ResponseBody String getOperationHoursToday(@PathVariable("attractionId") Integer attractionId){
+    public @ResponseBody String getOperationHoursToday(@PathVariable("attractionId") String attractionId){
         LocalDate today = LocalDate.now();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
         String tempAttractionId = attractionId.toString();
@@ -129,10 +130,14 @@ public class AttractionsController {
      * @return
      */
 
-    @GetMapping("/openingHoursForTheWeek/")
-    public @ResponseBody List<String> getOpeningHoursThisWeek ( AttractionsEntity attractionsEntity) throws JSONException, IOException {
-        String tempPlaceID = attractionsService.getGooglePlaceIDByName(attractionsEntity.getAttractionName());
-        List<String> timeList = new ArrayList<>();
+    @GetMapping("/openingHoursForTheWeek/{attractionAddress}")
+    public @ResponseBody List<String> getOpeningHoursThisWeek (@RequestBody AttractionsEntity attractionsEntity,
+                                                                @PathVariable("attractionAddress") String attractionAddress)
+            throws JSONException, IOException {
+        String attractionName = attractionsEntity.getAttractionName();
+        System.out.println(attractionName);
+        String tempPlaceID = attractionsService.getGooglePlaceIDByCoordinateAndName(attractionsEntity.getAttractionName(),attractionAddress);
+        List<String> timeList;
         timeList = attractionsService.getOpeningHourMK2(tempPlaceID);
         return timeList;
 
@@ -196,6 +201,14 @@ public class AttractionsController {
         List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac, wc_allowed);
         return result;
     }
+
+    /**
+     * 根据距离排序
+     * @param attractionsEntityList
+     * @param departLat
+     * @param departLng
+     * @return
+     */
     @GetMapping("/sortAttractionByDistance/{departLat}/{departLng}")
     public @ResponseBody List<AttractionsEntity> sortAttractionByDistance(@RequestBody List<AttractionsEntity> attractionsEntityList,
                                                             @PathVariable ("departLat") double departLat,
@@ -227,7 +240,11 @@ public class AttractionsController {
         return attractionsEntityList;
     }
 
-
+    /**
+     * 根据景点免费分类
+     * @param attractionsEntityList
+     * @return
+     */
     @GetMapping("/filterAttractionByFreeEntry/")
     public @ResponseBody List<AttractionsEntity> getAttractionsByFreeEntry (@RequestBody List<AttractionsEntity> attractionsEntityList){
         List<AttractionsEntity> filteredList = new ArrayList<>();
@@ -258,17 +275,7 @@ public class AttractionsController {
         return attractionsEntityList;
 
     }
-    /**
-     * 获取谷歌PLaceID By Coordinates
-     *
-     */
-    @GetMapping("/getAttractionGooglePlaceID/{lat}/{lng}")
-    public @ResponseBody String getAttractionGooglePlaceID(@PathVariable ("lat") double lat,
-                                                           @PathVariable ("lng") double lng) throws IOException, InterruptedException, ApiException {
-        String result = null;
-        result = attractionsService.getGooglePlaceIDByCoordinate(lat,lng);
-        return result;
-    }
+
     /**
      * 获取谷歌PlaceID By Name
      */
@@ -279,6 +286,23 @@ public class AttractionsController {
         result = attractionsService.getGooglePlaceIDByName(attractionName);
         return result;
     }
+
+    /**
+     * 获取谷歌ID By Name ans Address
+     * @param attractionName
+     * @param attractionAddress
+     * @return
+     * @throws JSONException
+     * @throws IOException
+     */
+
+    @GetMapping("/getAttractionGooglePlaceIDByNameAndCoord/{attractionName}/{attractionAddress}")
+    public @ResponseBody String getAttractionGooglePlaceIDByNameAndCoord(@PathVariable ("attractionName") String attractionName, @PathVariable ("attractionAddress") String attractionAddress)
+            throws JSONException, IOException {
+        return attractionsService.getGooglePlaceIDByCoordinateAndName(attractionName,attractionAddress);
+    }
+
+
 
 
     /**
