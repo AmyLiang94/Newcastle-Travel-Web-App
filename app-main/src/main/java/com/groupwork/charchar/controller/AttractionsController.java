@@ -1,5 +1,4 @@
 package com.groupwork.charchar.controller;
-
 import com.google.maps.errors.ApiException;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.service.AttractionsService;
@@ -7,17 +6,14 @@ import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-
 /**
- * @author wangyilong
+ * @author Jiahe "Tony"
  * @email 571379772@qq.com
  * @date 2023-03-24 15:33:03
  */
@@ -26,8 +22,6 @@ import java.util.*;
 public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;
-
-
     /**
      * 返回范围内的景点
      */
@@ -38,7 +32,6 @@ public class AttractionsController {
         List<AttractionsEntity> res = attractionsService.getNearByLocation(latitude, longitude, radius);
         return res;
     }
-
     /**
      * 获取步行时间
      *
@@ -57,39 +50,34 @@ public class AttractionsController {
         response.put("walkingTime", walkingTime);
         return response;
     }
-
     /**
      *更新评分Updating Rating
      */
     @PostMapping("/update/rating/{attractionId}")
-    public UpdateAttractionRatingVO updateAttractionRating(@PathVariable Integer attractionId) {
+    public UpdateAttractionRatingVO updateAttractionRating(
+            @PathVariable Integer attractionId) {
         UpdateAttractionRatingVO updateEntity = attractionsService.updateAttractionRating(attractionId);
         return updateEntity;
     }
-
     /**
      * acquire information about an attraction base on AttractionID
      *
-     * @param attractionId
-     * @return
      */
     @GetMapping("/findAttractionByID/{attractionId}")
-    public @ResponseBody AttractionsEntity getById(@PathVariable Integer attractionId) {
+    public @ResponseBody AttractionsEntity getById(
+            @PathVariable Integer attractionId) {
         AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
         System.out.println("getById bookList" + attractionsEntity);
 
         return attractionsEntity;
     }
     /**
-     * 过滤开门景点 二式
-     * @param attractionsEntities
-     * @return
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws ApiException
+     * 过滤开门景点 二式改
+     *
      */
     @GetMapping("/filterOpenAttractionsMK2")
-    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatus(@RequestBody List<AttractionsEntity> attractionsEntities)
+    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatus(
+            @RequestBody List<AttractionsEntity> attractionsEntities)
             throws IOException, InterruptedException, ApiException, JSONException {
 
         LocalDate today = LocalDate.now();
@@ -101,37 +89,20 @@ public class AttractionsController {
             String tempPlaceID =attractionsService.getGooglePlaceIDByCoordinateAndName(a.getAttractionName(), a.getAttractionAddress());
 
             int openingStatus=attractionsService.getCurrentOpeningStatus(tempPlaceID);
-            if (openingStatus == 1){
+            if (openingStatus != 0){
                 filteredAttractions.add(a);
             }
         }
         return filteredAttractions;
     }
-
-    /**
-     * 今天营业时间
-     * @param attractionId
-     * @return
-     */
-
-    @GetMapping("/getOperationHoursToday/{attractionId}")
-    public @ResponseBody String getOperationHoursToday(@PathVariable("attractionId") String attractionId){
-        LocalDate today = LocalDate.now();
-        DayOfWeek dayOfWeek = today.getDayOfWeek();
-        String tempAttractionId = attractionId.toString();
-        String operationHoursToday;
-        operationHoursToday = attractionsService.getOpeningHours(tempAttractionId,dayOfWeek);
-        return operationHoursToday;
-    }
-
     /**
      * 本周7天营业时间
      *
-     * @return
-     */
 
+     */
     @GetMapping("/openingHoursForTheWeek/")
-    public @ResponseBody List<String> getOpeningHoursThisWeek (@RequestBody AttractionsEntity attractionsEntity)
+    public @ResponseBody List<String> getOpeningHoursThisWeek (
+            @RequestBody AttractionsEntity attractionsEntity)
             throws JSONException, IOException {
         String attractionName = attractionsEntity.getAttractionName();
         System.out.println(attractionName);
@@ -139,20 +110,14 @@ public class AttractionsController {
         List<String> timeList;
         timeList = attractionsService.getOpeningHourMK2(tempPlaceID);
         return timeList;
-
-
-
     }
-
     /**
      * 根据评分排序景点
-     * @param attractionsEntityList
-     * @return
+
      */
-
-
     @GetMapping("/sortAttractionByRating")
-    public @ResponseBody List<AttractionsEntity> sortAttractionsByRating (@RequestBody List<AttractionsEntity> attractionsEntityList){
+    public @ResponseBody List<AttractionsEntity> sortAttractionsByRating (
+            @RequestBody List<AttractionsEntity> attractionsEntityList){
         for (int i = 1; i<attractionsEntityList.size(); i++){
             AttractionsEntity current = attractionsEntityList.get(i);
             int j = i-1;
@@ -169,13 +134,9 @@ public class AttractionsController {
 
 
     }
-
-
     /**
      * 根据种类过滤景点
-     * @param attrac
-     * @param category
-     * @return
+
      */
     @GetMapping("/filterAttractionByCategory/{category}")
     public @ResponseBody List<AttractionsEntity> getAttractionByCategory(@RequestBody List<AttractionsEntity> attrac,
@@ -184,29 +145,19 @@ public class AttractionsController {
         System.out.println("getAttractionByCategory" + filteredAttractions);
         return filteredAttractions;
     }
-
-
     /**
      * 根据轮椅使用过滤景点
-     *
-     * @param attrac
-     * @param wc_allowed
-     * @return
      */
-
     @GetMapping("/filterAttractionByWheelChairAccessibility/{wc_allowed}")
-    public @ResponseBody List<AttractionsEntity> getAttractionByWheelChairAccessibility(@RequestBody List<AttractionsEntity> attrac,
-                                                                                        @PathVariable("wc_allowed") Integer wc_allowed) {
+    public @ResponseBody List<AttractionsEntity> getAttractionByWheelChairAccessibility(
+            @RequestBody List<AttractionsEntity> attrac,
+            @PathVariable("wc_allowed") Integer wc_allowed) {
         List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac, wc_allowed);
         return result;
     }
-
     /**
      * 根据距离排序
-     * @param attractionsEntityList
-     * @param departLat
-     * @param departLng
-     * @return
+     *
      */
     @GetMapping("/sortAttractionByDistance/{departLat}/{departLng}")
     public @ResponseBody List<AttractionsEntity> sortAttractionByDistance(@RequestBody List<AttractionsEntity> attractionsEntityList,
@@ -238,14 +189,13 @@ public class AttractionsController {
 
         return attractionsEntityList;
     }
-
     /**
      * 根据景点免费分类
-     * @param attractionsEntityList
-     * @return
+     *
      */
     @GetMapping("/filterAttractionByFreeEntry/")
-    public @ResponseBody List<AttractionsEntity> getAttractionsByFreeEntry (@RequestBody List<AttractionsEntity> attractionsEntityList){
+    public @ResponseBody List<AttractionsEntity> getAttractionsByFreeEntry (
+            @RequestBody List<AttractionsEntity> attractionsEntityList){
         List<AttractionsEntity> filteredList = new ArrayList<>();
         for (AttractionsEntity a : attractionsEntityList){
             if (a.getTicketPrice().doubleValue()==0){
@@ -254,13 +204,13 @@ public class AttractionsController {
         }
         return filteredList;
     }
-
     /**
      * 根据景点价格排序
      *
      */
     @GetMapping("/sortAttractionByTicketPrice/")
-    public @ResponseBody List<AttractionsEntity> sortAttractionByTicketPrice(@RequestBody List<AttractionsEntity> attractionsEntityList){
+    public @ResponseBody List<AttractionsEntity> sortAttractionByTicketPrice(
+            @RequestBody List<AttractionsEntity> attractionsEntityList){
         for (int i = 1; i<attractionsEntityList.size(); i++){
             AttractionsEntity current = attractionsEntityList.get(i);
             int j = i-1;
@@ -274,41 +224,31 @@ public class AttractionsController {
         return attractionsEntityList;
 
     }
-
     /**
      * 获取谷歌PlaceID By Name
      */
     @GetMapping("/getAttractionGooglePlaceIDByName/{attractionName}")
-    public @ResponseBody String getAttractionGooglePlaceIDByName(@PathVariable ("attractionName") String attractionName)
+    public @ResponseBody String getAttractionGooglePlaceIDByName(
+            @PathVariable ("attractionName") String attractionName)
             throws JSONException, IOException {
         String result = null;
         result = attractionsService.getGooglePlaceIDByName(attractionName);
         return result;
     }
-
     /**
      * 获取谷歌ID By Name ans Address
-     * @param attractionName
-     * @param attractionAddress
-     * @return
-     * @throws JSONException
-     * @throws IOException
+     *
      */
-
     @GetMapping("/getAttractionGooglePlaceIDByNameAndCoord/{attractionName}/{attractionAddress}")
-    public @ResponseBody String getAttractionGooglePlaceIDByNameAndCoord(@PathVariable ("attractionName") String attractionName, @PathVariable ("attractionAddress") String attractionAddress)
+    public @ResponseBody String getAttractionGooglePlaceIDByNameAndCoord(
+            @PathVariable ("attractionName") String attractionName,
+            @PathVariable ("attractionAddress") String attractionAddress)
             throws JSONException, IOException {
         return attractionsService.getGooglePlaceIDByCoordinateAndName(attractionName,attractionAddress);
     }
-
-
-
-
     /**
      * Saving a attraction
      *
-     * @param attractions
-     * @return
      */
     @PostMapping("/save")
     public Map<String, Boolean> saveAttractions(@RequestBody AttractionsEntity attractions) {
@@ -317,7 +257,6 @@ public class AttractionsController {
         response.put("success", success);
         return response;
     }
-
     /**
      * 修改
      */
@@ -328,7 +267,6 @@ public class AttractionsController {
         response.put("success", success);
         return response;
     }
-
     /**
      * 删除
      */

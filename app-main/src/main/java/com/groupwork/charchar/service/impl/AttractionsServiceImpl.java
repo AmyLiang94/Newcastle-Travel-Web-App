@@ -60,7 +60,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     private AttractionsDao attractionsDao;
     @Resource
     private ReviewsService reviewsService;
-
     @Override
     public List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException {
         List<AttractionsEntity> showList = new ArrayList<>();
@@ -89,7 +88,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return showList;
     }
-
     // 返回的数据类似："57 mins"
     @SneakyThrows
     @Override
@@ -129,7 +127,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
         return filteredAttractions;
     }
-
     @Override
     public List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List<AttractionsEntity> attractions, Integer wc_allowed) {
         List<AttractionsEntity> filteredAttractions = new ArrayList<>();
@@ -185,7 +182,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
         return hoursList;
     }
-
     @Override
     public int getCurrentOpeningStatus(String placeID) throws JSONException, IOException {
         int openStatus = 4;
@@ -197,10 +193,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 .build();
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
             JSONObject json = new JSONObject(response.body().string());
             JSONObject result = json.getJSONObject("result");
-
             if (result.has("opening_hours")) {
                 JSONObject openingHours = result.getJSONObject("opening_hours");
                 boolean openNow = openingHours.getBoolean("open_now");
@@ -215,84 +209,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 openStatus = -1;
             }
         }
-
         return openStatus;
-
-
     }
-    @SneakyThrows
-    @Override
-    public String getOpeningHours(String placeId, DayOfWeek dayOfWeek) {
-        // Set up the API key and request URL
-
-        String urlString = "https://maps.googleapis.com/maps/api/place/details/json?place_id=" + placeId + "&fields=opening_hours&key=" + key;
-
-        try {
-            // Create a URL object from the request URL
-            URL url = new URL(urlString);
-
-            // Open a connection to the URL
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            // Set the request method to GET
-            connection.setRequestMethod("GET");
-
-            // Get the response code
-            int responseCode = connection.getResponseCode();
-
-            // Check if the response was successful
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                // Read the response body
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
-
-                // Parse the response JSON
-                JSONObject json = new JSONObject(response.toString());
-                JSONObject result = json.getJSONObject("result");
-                JSONObject openingHours = result.getJSONObject("opening_hours");
-
-                // Extract the opening hours information for the specified day
-                JSONArray periods = openingHours.getJSONArray("periods");
-                LocalTime openingTime = null;
-                LocalTime closingTime = null;
-                for (int i = 0; i < periods.length(); i++) {
-                    JSONObject period = periods.getJSONObject(i);
-                    int dayOfWeekValue = period.getJSONObject("open").getInt("day");
-                    if (dayOfWeekValue == dayOfWeek.getValue()) {
-                        String openTimeStr = period.getJSONObject("open").getString("time");
-                        String closeTimeStr = period.getJSONObject("close").getString("time");
-                        openingTime = LocalTime.parse(openTimeStr, DateTimeFormatter.ofPattern("HHmm"));
-                        closingTime = LocalTime.parse(closeTimeStr, DateTimeFormatter.ofPattern("HHmm"));
-                        break;
-                    }
-                }
-
-                // Format the opening and closing times as strings
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
-                String openingTimeStr = openingTime.format(formatter);
-                String closingTimeStr = closingTime.format(formatter);
-
-                // Return the formatted opening and closing times
-                return openingTimeStr + "-" + closingTimeStr;
-            } else {
-                // The response was not successful
-                System.out.println("Failed to get opening hours: " + responseCode);
-            }
-        } catch (IOException e) {
-            // An error occurred while sending the request
-            e.printStackTrace();
-        }
-
-        // Return null if an error occurred or if the response was not successful
-        return null;
-    }
-
-
     @Override
     public String getGooglePlaceIDByCoordinateAndName(String attractionName, String attractionAddress) throws IOException, JSONException {
         System.out.println(attractionName);
@@ -322,7 +240,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return tempPlaceId;
     }
-
     @Override
     public String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException {
 
@@ -351,8 +268,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return tempPlaceId;
     }
-
-
     @Override
     public UpdateAttractionRatingVO updateAttractionRating(Integer attractionId) {
         AttractionsEntity attraction = attractionsDao.getAttractionById(attractionId);
