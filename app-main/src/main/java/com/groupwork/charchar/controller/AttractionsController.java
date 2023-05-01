@@ -89,7 +89,7 @@ public class AttractionsController {
      * @throws ApiException
      */
     @GetMapping("/filterOpenAttractionsMK2")
-    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatusMK2(@RequestBody List<AttractionsEntity> attractionsEntities)
+    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatus(@RequestBody List<AttractionsEntity> attractionsEntities)
             throws IOException, InterruptedException, ApiException, JSONException {
 
         LocalDate today = LocalDate.now();
@@ -98,7 +98,7 @@ public class AttractionsController {
         List <AttractionsEntity> filteredAttractions = new ArrayList<>();
 
         for (AttractionsEntity a : attractionsEntities){
-            String tempPlaceID =attractionsService.getGooglePlaceIDByCoordinateAndName(a.getAttractionName(), "Home");
+            String tempPlaceID =attractionsService.getGooglePlaceIDByCoordinateAndName(a.getAttractionName(), a.getAttractionAddress());
 
             int openingStatus=attractionsService.getCurrentOpeningStatus(tempPlaceID);
             if (openingStatus == 1){
@@ -130,13 +130,12 @@ public class AttractionsController {
      * @return
      */
 
-    @GetMapping("/openingHoursForTheWeek/{attractionAddress}")
-    public @ResponseBody List<String> getOpeningHoursThisWeek (@RequestBody AttractionsEntity attractionsEntity,
-                                                                @PathVariable("attractionAddress") String attractionAddress)
+    @GetMapping("/openingHoursForTheWeek/")
+    public @ResponseBody List<String> getOpeningHoursThisWeek (@RequestBody AttractionsEntity attractionsEntity)
             throws JSONException, IOException {
         String attractionName = attractionsEntity.getAttractionName();
         System.out.println(attractionName);
-        String tempPlaceID = attractionsService.getGooglePlaceIDByCoordinateAndName(attractionsEntity.getAttractionName(),attractionAddress);
+        String tempPlaceID = attractionsService.getGooglePlaceIDByCoordinateAndName(attractionsEntity.getAttractionName(),attractionsEntity.getAttractionAddress());
         List<String> timeList;
         timeList = attractionsService.getOpeningHourMK2(tempPlaceID);
         return timeList;
