@@ -53,7 +53,7 @@ public class UsersController {
     /**
      * 通过Email获取单个用户信息（建议使用）
      */
-    @CrossOrigin(origins = "http://localhost:8080")
+
     @GetMapping("/getUserInformation")
     public UsersEntity getUserInformation(@RequestBody UsersEntity users){
         UsersEntity usersEntity = usersService.getUserInfomation(users);
@@ -94,7 +94,7 @@ public class UsersController {
     /**
      * 忘记密码
      */
-    @CrossOrigin(origins = "http://localhost:8080")
+
     @PutMapping("/forgetUserPassword")
     public Map<String,Object> forgetUserPassword(@RequestBody UsersEntity users) {
         Map<String,Object> update=usersService.forgetPassword(users);
@@ -105,14 +105,14 @@ public class UsersController {
     /**
      * 用户注销
      */
-    @CrossOrigin(origins = "http://localhost:8080")
+
     @DeleteMapping("/deleteUser")
     public Map<String,Object> deleteUser(@RequestBody UsersEntity users) {
         Map<String,Object> flag = usersService.deleteUser(users);
         System.out.println(flag);
         return flag;
     }
-    @CrossOrigin(origins = "http://localhost:8080")
+
     @GetMapping("/activation")
     public Map<String, Object> activationAccont(@RequestParam String confirmCode) {
         return usersService.activationAccont(confirmCode);

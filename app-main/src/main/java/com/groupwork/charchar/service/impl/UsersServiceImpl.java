@@ -110,9 +110,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             return resultMap;
         }
         //用户存在多个相同名字账号，账号异常
-        if (usersEntityList.size() > 1) {
+        if (usersEntityList.size() > 1||usersEntityList.get(0).getUsername().equals(user.getUsername())) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号异常");
+            resultMap.put("message", "该账号重名或异常");
             return resultMap;
         }
         // 检查密保问题的答案是否正确
