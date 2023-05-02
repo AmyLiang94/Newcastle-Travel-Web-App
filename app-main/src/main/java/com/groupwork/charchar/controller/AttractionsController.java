@@ -30,7 +30,7 @@ public class AttractionsController {
      * 返回范围内的景点
      */
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
-    public List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
+    public @ResponseBody List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
                                                      @PathVariable("longitude") double longitude,
                                                      @PathVariable("radius") double radius) throws IOException {
         List<AttractionsEntity> res = attractionsService.getNearByLocation(latitude, longitude, radius);
