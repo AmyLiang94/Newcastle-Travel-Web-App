@@ -1,14 +1,11 @@
 package com.groupwork.charchar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.google.maps.errors.ApiException;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
-import models.OpeningHours;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.time.DayOfWeek;
 import java.util.List;
 
 /**
