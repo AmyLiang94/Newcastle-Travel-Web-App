@@ -70,6 +70,9 @@ public class AttractionsEntity implements Serializable {
      *
      */
     private Integer hearingAllow;
-    private String address;
+    /**
+     *
+     */
+    private String attractionAddress;
 
 }
