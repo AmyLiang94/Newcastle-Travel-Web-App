@@ -276,7 +276,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true);
             // 设置邮件主题
-            message.setSubject("欢迎来到乐字节 - 个人账号激活");
+            message.setSubject("Welcome to CharChar Services");
             // 设置邮件发送者
             message.setFrom(mailUsername);
             // 设置邮件接受者，可以多个
@@ -348,7 +348,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         int randomNumber = random.nextInt(900000) + 100000;
         String vertifi=String.valueOf(randomNumber);
         usersDao.updateVertificationCode(user.getEmail(),vertifi);
-        String activationUrl = "这是您的验证码请妥善保管" + vertifi;
+        String activationUrl = "This is your verification code, please keep it safe" + vertifi;
         sendMail(activationUrl, user.getEmail());
         if (vertifi !=null) {
             resultMap.put("code", 200);
