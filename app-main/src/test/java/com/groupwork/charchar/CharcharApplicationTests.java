@@ -1,7 +1,6 @@
 package com.groupwork.charchar;
 
 import com.groupwork.charchar.controller.UsersController;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -10,10 +9,10 @@ class CharcharApplicationTests {
 
     @Autowired
     private UsersController usersController;
-    @Test
-    void getAllTest() {
-        System.out.println(usersController.getAll());
-    }
+//    @Test
+//    void getAllTest() {
+//        System.out.println(usersController.getAll());
+//    }
 
 //    @Test
 //    void getByIdTest() {

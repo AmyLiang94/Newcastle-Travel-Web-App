@@ -157,7 +157,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         int result = usersDao.save(user);
         if (result != 0) {
             // 发送邮件时间很慢（可以使用异步方式发送：多线程、消息队列）
-            String activationUrl = "http://localhost:9090/charchar/users/activation?confirmCode=" + confirmCode;
+            String activationUrl = "http://1.12.235.241:9090/charchar/users/activation?confirmCode=" + confirmCode;
             sendMail(activationUrl, user.getEmail());
             resultMap.put("code", 200);
             resultMap.put("message", "注册成功，请前往邮箱激活");
