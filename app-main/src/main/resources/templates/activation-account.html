@@ -23,6 +23,11 @@
 <head>
   <title>Email from Charchar App</title>
   <style>
+    .container {
+      background-color: #FFA500; /* 将背景颜色更改为浅蓝色 */
+      padding: 5px;
+      border-radius: 5px; /* 添加圆角效果 */
+    }
     img {
       max-width: 80%;
       height: auto;
@@ -43,13 +48,16 @@
   <p>You are receiving this email because you have recently registered as a new user and have either sent a verification code or changed your password. Alternatively, you may have requested a password reset using your email address.</p>
   <p>If you have not performed any of these actions, please ignore this email. There is no need to unsubscribe or take any further action.</p>
   <hr>
+  <div class="container">
   <p><strong>Important Information:</strong></p>
+  </div>
   <p>The following information is provided by our system:</p>
   <p>To activate your account or obtain a new verification code, simply click on the following link:</p>
   <p><a th:href="@{${Url}}"><span th:text="${Url}"></span></a></p>
   <p>Thank you for choosing Charchar App. If you have any questions or concerns, please feel free to contact our support team.</p>
   <p>Best regards,</p>
   <p>The Charchar Management Team</p>
+
 </div>
 </body>
 </html>

@@ -80,6 +80,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         resultMap.put("code", 200);
         resultMap.put("message", "登陆成功");
         resultMap.put("data", user.getEmail());
+        resultMap.put("userId",usersEntityList.get(0).getUserId());
         return resultMap;
 //        arrayList.add(0,200);
 //        return arrayList.get(0);
