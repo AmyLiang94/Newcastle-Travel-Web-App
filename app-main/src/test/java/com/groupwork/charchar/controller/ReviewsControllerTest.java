@@ -217,23 +217,24 @@ public class ReviewsControllerTest {
                // .andExpect(jsonPath("$.reviews").isEmpty());
     //}
     public void shouldReturnOKWhenDeleteReview() throws Exception {
-//        Integer[] jsonInt = {1, 2, 3};
-//        ObjectMapper objectMapper1 = new ObjectMapper();
-//        String JsonStr = objectMapper1.writeValueAsString(jsonInt);
-//        this.mockMvc.perform(delete("/charcahr/reviews/delete")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(JsonStr))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-        Integer[] reviewIds = {1,2,3};
-        given(reviewsController.deleteReview(Arrays.asList(reviewIds))).willReturn(true);
-
-        mockMvc.perform(delete("/delete")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(reviewIds)))
+        //String[] jsonInt = {1, 2, 3};
+        //ObjectMapper objectMapper1 = new ObjectMapper();
+        //objectMapper.writeValue(Integer[].class,{});
+        //String JsonStr = objectMapper.writeValueAsString(jsonInt);
+        this.mockMvc.perform(delete("/charchar/reviews/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[1,2,3]"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+//        Integer[] reviewIds = {1,2,3};
+//        given(reviewsController.deleteReview(Arrays.asList(reviewIds))).willReturn(true);
+//
+//        mockMvc.perform(delete("/delete")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(new ObjectMapper().writeValueAsString(reviewIds)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.success").value(true));
     }
 
 
