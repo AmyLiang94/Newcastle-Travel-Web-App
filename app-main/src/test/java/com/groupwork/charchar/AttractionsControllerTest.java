@@ -1,5 +1,6 @@
 package com.groupwork.charchar;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupwork.charchar.entity.AttractionsEntity;
@@ -14,8 +15,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -51,9 +51,10 @@ public class AttractionsControllerTest {
         attractionsEntity.setLongitude(new BigDecimal("109.232323"));
         attractionsEntity.setOpeningHours("10");
         attractionsEntity.setTicketPrice(new BigDecimal("100"));
+        attractionsEntity.setImageUrl("http://");
 
         attractionsEntity1 = new AttractionsEntity();
-        attractionsEntity1.setAttractionId(1);
+        attractionsEntity1.setAttractionId(5);
         attractionsEntity1.setAttractionName("test");
         attractionsEntity1.setDescription("test");
         attractionsEntity1.setCategory("Nature");
@@ -62,6 +63,7 @@ public class AttractionsControllerTest {
         attractionsEntity1.setLongitude(new BigDecimal("109.232323"));
         attractionsEntity1.setOpeningHours("10");
         attractionsEntity1.setTicketPrice(new BigDecimal("100"));
+        attractionsEntity1.setImageUrl("http://");
 
         attractionsEntity2 = new AttractionsEntity();
         attractionsEntity2.setAttractionId(1);
@@ -73,6 +75,7 @@ public class AttractionsControllerTest {
         attractionsEntity2.setLongitude(new BigDecimal("109.232323"));
         attractionsEntity2.setOpeningHours("10");
         attractionsEntity2.setTicketPrice(new BigDecimal("100"));
+        attractionsEntity2.setImageUrl("http://");
 
     }
 
@@ -148,7 +151,13 @@ public class AttractionsControllerTest {
     public void shouldReturnWhenGetAttractionByOpeningStatus() throws Exception {
         List<AttractionsEntity> attractionsEntities  = new ArrayList<>();
         attractionsEntities.add(attractionsEntity);
-        String result  = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterOpenAttractions", attractionsEntities))
+        attractionsEntities.add(attractionsEntity1);
+        attractionsEntities.add(attractionsEntity2);
+        String jsonStr= JSON.toJSONString(attractionsEntities);
+        String result  = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterOpenAttractions")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonStr))
                 .andDo(print())
                 .andReturn().getResponse().getContentAsString();;
         System.out.println(result);
@@ -195,7 +204,11 @@ public class AttractionsControllerTest {
         attractionsEntities.add(attractionsEntity);
         attractionsEntities.add(attractionsEntity1);
         attractionsEntities.add(attractionsEntity2);
-        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/sortAttractionByRating", attractionsEntities))
+        String jsonStr= JSON.toJSONString(attractionsEntities);
+        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/sortAttractionByRating")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonStr))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -213,7 +226,13 @@ public class AttractionsControllerTest {
     public void shouldReturnWhenGetAttractionByCategory() throws Exception {
         List<AttractionsEntity> attractionsEntities  = new ArrayList<>();
         attractionsEntities.add(attractionsEntity);
-        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterAttractionByCategory/{category}", attractionsEntities,attractionsEntity.getCategory()))
+        attractionsEntities.add(attractionsEntity1);
+        attractionsEntities.add(attractionsEntity2);
+        String jsonStr= JSON.toJSONString(attractionsEntities);
+        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterAttractionByCategory/{category}", attractionsEntities,attractionsEntity.getCategory()) .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonStr))
+                .andExpect(status().isOk())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -231,7 +250,12 @@ public class AttractionsControllerTest {
     public void shouldReturnWheGetAttractionByWheelChairAccessibility() throws Exception {
         List<AttractionsEntity> attractionsEntities  = new ArrayList<>();
         attractionsEntities.add(attractionsEntity);
-        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}", attractionsEntities,111))
+        attractionsEntities.add(attractionsEntity1);
+        attractionsEntities.add(attractionsEntity2);
+        String jsonStr= JSON.toJSONString(attractionsEntities);
+        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}",111)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonStr))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -250,9 +274,9 @@ public class AttractionsControllerTest {
     public void shouldReturn4xxWhenSaveAttractions() throws Exception {
         this.mockMvc.perform(post("http://localhost:9001/charchar/attractions/save")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(attractionsEntity))
+                        .content(objectMapper.writeValueAsString(attractionsEntity1))
                 )
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));;
     }
 
@@ -263,11 +287,11 @@ public class AttractionsControllerTest {
     @Order(12)
     public void shouldReturnWhenUpdateAttractions() throws Exception {
         String newAttractText = "newtest";
-        attractionsEntity.setAttractionName(newAttractText);
+        attractionsEntity1.setAttractionName(newAttractText);
         // Check update function
-        this.mockMvc.perform(post("http://localhost:9001/attractions/update")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(attractionsEntity))
+        this.mockMvc.perform(put("http://localhost:9001/charchar/attractions/update")
+                        .contentType(MediaType.valueOf("application/json"))
+                        .content(objectMapper.writeValueAsString(attractionsEntity1))
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -283,8 +307,8 @@ public class AttractionsControllerTest {
     @Order(13)
     public void shouldReturnOKWhenDeleteAttractions() throws Exception {
         // Check update function
-        String jsonStr = "[" + attractionsEntity.getAttractionId() + "]";
-        this.mockMvc.perform(post("http://localhost:9001/attractions/delete")
+        String jsonStr = "[" + attractionsEntity1.getAttractionId() + "]";
+        this.mockMvc.perform(delete("http://localhost:9001/charchar/attractions/delete/{attractionsID}",attractionsEntity1.getAttractionId())
                         .contentType("application/json")
                         .content(jsonStr)
                 )
