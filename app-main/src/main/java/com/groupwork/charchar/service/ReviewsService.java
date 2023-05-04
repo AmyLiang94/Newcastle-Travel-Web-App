@@ -21,5 +21,9 @@ public interface ReviewsService extends IService<ReviewsEntity> {
     IPage<ReviewsEntity> listReviewsByAttractionIdWithPage(Integer attractionId, Integer page, Integer size);
 
     IPage<ReviewsEntity> listReviewsByUserIdWithPage(Integer userId, Integer page, Integer size);
+
+    ReviewsEntity getReviewEntityById(int reviewId);
+
+    List<ReviewsEntity> getReviewsByAttractionId(int attractionId);
 }
 
