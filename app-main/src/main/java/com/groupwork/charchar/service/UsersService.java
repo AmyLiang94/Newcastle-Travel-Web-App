@@ -13,7 +13,7 @@ import java.util.Map;
 @Transactional
 public interface UsersService extends IService<UsersEntity> {
     public Map<String,Object> loginAccount(UsersEntity user);
-
+//public Integer loginAccount(UsersEntity user);
     public Map<String,Object> register(UsersEntity user);
 
     public Map<String,Object> updatePassword(UsersEntity user);
@@ -31,6 +31,8 @@ public interface UsersService extends IService<UsersEntity> {
     public Map<String, Object> activationAccont(String confirmCode);
 
     public boolean isEmail(String email);
+
+    public Map<String, Object> updateVerificationCode(UsersEntity users);
 
 }
 

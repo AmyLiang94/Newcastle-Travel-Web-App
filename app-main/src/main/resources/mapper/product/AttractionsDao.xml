@@ -18,6 +18,7 @@
         <result property="wheelchairAllow" column="wheelchair_allow"/>
         <result property="pramAllow" column="pram_allow"/>
         <result property="hearingAllow" column="hearing_allow"/>
+        <result property="address" column="address"/>
     </resultMap>
     <select id="getAttractionById" parameterType="Integer" resultType="com.groupwork.charchar.entity.AttractionsEntity">
         select attraction_id, attraction_name, description, category, latitude, longitude, opening_hours, ticket_price, image_url, attr_rating, wheelchair_allow, pram_allow, hearing_allow

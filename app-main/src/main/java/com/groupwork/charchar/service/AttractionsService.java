@@ -1,12 +1,11 @@
 package com.groupwork.charchar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.google.maps.model.OpeningHours;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
+import org.json.JSONException;
 
 import java.io.IOException;
-import java.time.DayOfWeek;
 import java.util.List;
 
 /**
@@ -19,14 +18,20 @@ public interface AttractionsService extends IService<AttractionsEntity> {
     List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException;
 
     String getWalkTime(double departLat, double departLng, double desLat, double desLng);
-
     List<AttractionsEntity> filterAttractionByCategory(List<AttractionsEntity> attractions, String category);
-
     List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List <AttractionsEntity> attractions, Integer wheelchairAllow);
-
-
-
-    String getOpeningHours (String placeID, DayOfWeek dayOfWeek );
+    List<String> getOpeningHourMK2(String placeID) throws JSONException, IOException;
+    int getCurrentOpeningStatus(String placeID) throws JSONException, IOException;
+    String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException;
+    String getGooglePlaceIDByCoordinateAndName(String attractionName, String attractionAddress) throws IOException, JSONException;
+    int getWheelChair_AccessblityByGoogleID(String attractionGoogleID)throws IOException, JSONException;
+    String getCategoryByGoogleID(String attractionGoogleID)throws IOException, JSONException;
+    double getRatingByGoogleID(String attractionGoogleID) throws IOException, JSONException;
+    String getPhoneNumberByGoogleID(String attractionGoogleI) throws IOException, JSONException;
+    String getOfficalWebsiteByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+    int getTotalNumberOfRatingsByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+    String getAddressByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+    String getOverViewByGoogleID(String attractionGoogleI)throws IOException, JSONException;
 
 
 
