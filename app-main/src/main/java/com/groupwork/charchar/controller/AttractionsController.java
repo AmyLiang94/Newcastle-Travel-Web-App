@@ -106,7 +106,7 @@ public class AttractionsController {
             throws JSONException, IOException {
         String attractionName = attractionsEntity.getAttractionName();
         System.out.println(attractionName);
-        String tempPlaceID = attractionsService.getGooglePlaceIDByCoordinateAndName(attractionsEntity.getAttractionName(),attractionsEntity.getAttractionAddress());
+        String tempPlaceID = attractionsService.getGooglePlaceIDByCoordinateAndName(attractionsEntity.getAttractionName(),"Tynemouth, Station Terrace, Tynemouth, North Shields NE30 4RE");
         List<String> timeList;
         timeList = attractionsService.getOpeningHourMK2(tempPlaceID);
         return timeList;
@@ -246,6 +246,81 @@ public class AttractionsController {
             throws JSONException, IOException {
         return attractionsService.getGooglePlaceIDByCoordinateAndName(attractionName,attractionAddress);
     }
+
+    /**
+     *通过Google ID获取地点轮椅使用
+     */
+    @GetMapping("/getWC_AccessiilityFromGoogle/{attractionGoogleID}")
+    public @ResponseBody int getWC_AccessiilityFromGoogle (@PathVariable("attractionGoogleID") String googleID)
+            throws JSONException, IOException {
+
+        return attractionsService.getWheelChair_AccessblityByGoogleID(googleID);
+    }
+    /**
+     * 通过Google ID获取地点评分
+     */
+    @GetMapping("/getRatingFromGoogle/{attractionGoogleID}")
+    public @ResponseBody double getRatingFromGoogle (@PathVariable("attractionGoogleID") String googleID)
+            throws JSONException, IOException {
+
+        return attractionsService.getRatingByGoogleID(googleID);
+    }
+    /**
+     * 通过Google ID获取地点种类
+     */
+    @GetMapping("/getCategoryFromGoogle/{attractionGoogleID}")
+    public @ResponseBody String getCategoryFromGoogle (@PathVariable("attractionGoogleID") String googleID)
+            throws JSONException, IOException {
+        return attractionsService.getCategoryByGoogleID(googleID);
+    }
+
+    /**
+     * 通过Google ID获取地点地址
+     */
+    @GetMapping("/getAddressFromGoogle/{attractionGoogleID}")
+    public @ResponseBody String getAddressFromGoogle (@PathVariable("attractionGoogleID") String googleID)
+            throws JSONException, IOException {
+        return attractionsService.getAddressByGoogleID(googleID);
+    }
+    /**
+     * 通过Google ID 获得地点电话
+     */
+    @GetMapping("/getPhoneFromGoogle/{attractionGoogleID}")
+    public @ResponseBody String getPhoneFromGoogle (@PathVariable("attractionGoogleID") String googleID)
+            throws JSONException, IOException {
+        return attractionsService.getPhoneNumberByGoogleID(googleID);
+    }
+    /**
+     * 通过Google ID获取地点官网
+     */
+    @GetMapping("/getOfficalWebsiteFromGoogle/{attractionGoogleID}")
+    public @ResponseBody String getOfficalWebsiteFromGoogle (@PathVariable("attractionGoogleID") String googleID)
+            throws JSONException, IOException {
+        return attractionsService.getOfficalWebsiteByGoogleID(googleID);
+    }
+    /**
+     * 通过Google ID获取地点总评分数量
+     */
+    @GetMapping("/getNumberOfReviewsFromGoogle/{attractionGoogleID}")
+    public @ResponseBody int getNumberOfReviewsFromGoogle (@PathVariable("attractionGoogleID") String googleID)
+            throws JSONException, IOException {
+        return attractionsService.getTotalNumberOfRatingsByGoogleID(googleID);
+    }
+    /**
+     * 通过Google ID获取地点简介
+     */
+    @GetMapping("/getOverViewFromGoogle/{attractionGoogleID}")
+    public @ResponseBody String getOverViewFromGoogle (@PathVariable("attractionGoogleID") String googleID)
+            throws JSONException, IOException {
+        return attractionsService.getOverViewByGoogleID(googleID);
+    }
+
+
+
+
+
+
+
     /**
      * Saving a attraction
      *
