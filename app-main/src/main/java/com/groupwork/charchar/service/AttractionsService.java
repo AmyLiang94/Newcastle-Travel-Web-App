@@ -24,6 +24,16 @@ public interface AttractionsService extends IService<AttractionsEntity> {
     int getCurrentOpeningStatus(String placeID) throws JSONException, IOException;
     String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException;
     String getGooglePlaceIDByCoordinateAndName(String attractionName, String attractionAddress) throws IOException, JSONException;
+    int getWheelChair_AccessblityByGoogleID(String attractionGoogleID)throws IOException, JSONException;
+    String getCategoryByGoogleID(String attractionGoogleID)throws IOException, JSONException;
+    double getRatingByGoogleID(String attractionGoogleID) throws IOException, JSONException;
+    String getPhoneNumberByGoogleID(String attractionGoogleI) throws IOException, JSONException;
+    String getOfficalWebsiteByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+    int getTotalNumberOfRatingsByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+    String getAddressByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+    String getOverViewByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+
+
 
 
 

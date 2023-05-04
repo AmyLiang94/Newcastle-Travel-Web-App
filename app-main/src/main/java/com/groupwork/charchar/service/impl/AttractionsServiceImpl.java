@@ -15,6 +15,7 @@ import com.groupwork.charchar.service.ReviewsService;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import lombok.SneakyThrows;
 
+import okhttp3.Address;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -241,6 +242,201 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return tempPlaceId;
     }
+
+
+
+    @Override
+    public int getWheelChair_AccessblityByGoogleID(String attractionGoogleID) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleID + "&fields=wheelchair_accessible_entrance&key=" + key)
+                .build();
+        boolean wheelchairAccessible = false;
+        int accessibility = -1;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("wheelchair_accessible_entrance")) {
+                wheelchairAccessible = result.getBoolean("wheelchair_accessible_entrance");
+                System.out.println(wheelchairAccessible);
+                if (wheelchairAccessible == true){
+                    accessibility = 1;
+                }else if (wheelchairAccessible == false){
+                    accessibility = 0;
+                }
+                // do something with the wheelchairAccessible value
+            } else {
+                System.out.println("Accessibility not Specified");
+            }
+        }
+        return accessibility;
+    }
+
+    @Override
+    public String getCategoryByGoogleID(String attractionGoogleID) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleID + "&fields=types&key=" + key)
+                .build();
+        String category = null;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("types")) {
+                category = result.getString("types");
+
+            } else {
+                category="Category not Specified";
+            }
+        }
+        return category;
+    }
+
+    @Override
+    public double getRatingByGoogleID(String attractionGoogleID) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleID + "&fields=rating&key=" + key)
+                .build();
+        double rating = 0;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("rating")) {
+                rating = result.getDouble("rating");
+
+            } else {
+                rating = -1 ;
+            }
+        }
+        return rating;
+    }
+
+    @Override
+    public String getPhoneNumberByGoogleID(String attractionGoogleI) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=formatted_phone_number&key=" + key)
+                .build();
+        String phone = null;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("formatted_phone_number")) {
+                phone = result.getString("formatted_phone_number");
+
+            } else {
+                phone="Phone Number not Specified";
+            }
+        }
+        return phone;
+
+
+    }
+    @Override
+    public String getAddressByGoogleID(String attractionGoogleI) throws IOException, JSONException {
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=formatted_address&key=" + key)
+                .build();
+        String address = null;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("formatted_address")) {
+                address = result.getString("formatted_address");
+
+            } else {
+                address="Address not Specified";
+            }
+        }
+        return address;
+
+    }
+
+    @Override
+    public String getOverViewByGoogleID(String attractionGoogleI) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=editorial_summary&key=" + key)
+                .build();
+        String overview = null;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("editorial_summary")) {
+                overview = result.getString("editorial_summary");
+
+            } else {
+                overview="overview not Specified";
+            }
+        }
+        return overview;
+
+    }
+
+    @Override
+    public String getOfficalWebsiteByGoogleID(String attractionGoogleI) throws IOException, JSONException {
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=website&key=" + key)
+                .build();
+        String website = null;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("website")) {
+                website = result.getString("website");
+
+            } else {
+                website="Phone not Specified";
+            }
+        }
+        return website;
+
+    }
+    @Override
+    public int getTotalNumberOfRatingsByGoogleID(String attractionGoogleI) throws IOException, JSONException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=user_ratings_total&key=" + key)
+                .build();
+        int NOR = 0;
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            JSONObject json = new JSONObject(response.body().string());
+            JSONObject result = json.getJSONObject("result");
+            if (result.has("user_ratings_total")) {
+                NOR = result.getInt("user_ratings_total");
+
+            } else {
+                NOR=-1;
+            }
+        }
+        return NOR;
+
+    }
+
+
+
+
     @Override
     public String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException {
 
