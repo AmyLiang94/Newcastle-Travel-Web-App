@@ -74,6 +74,9 @@ public class AttractionsEntity implements Serializable {
     /**
      *
      */
-    private String attractionAddress;
-
+    private String address;
+    /**
+     *
+     */
+    private String placeId;
 }
