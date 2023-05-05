@@ -78,16 +78,16 @@ public class ReviewsController {
         return response;
     }
 
-    /**
-     * 修改
-     */
-    @PutMapping("/update")
-    public Map<String, Boolean> updateReview(@RequestBody ReviewsEntity reviews) {
-        boolean success = reviewsService.updateById(reviews);
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("success", success);
-        return response;
-    }
+//    /**
+//     * 修改
+//     */
+//    @PutMapping("/update")
+//    public Map<String, Boolean> updateReview(@RequestBody ReviewsEntity reviews) {
+//        boolean success = reviewsService.updateById(reviews);
+//        Map<String, Boolean> response = new HashMap<>();
+//        response.put("success", success);
+//        return response;
+//    }
 
     /**
      * 删除

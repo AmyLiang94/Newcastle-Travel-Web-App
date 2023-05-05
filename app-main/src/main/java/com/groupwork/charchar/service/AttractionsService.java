@@ -15,11 +15,11 @@ import java.util.List;
  */
 public interface AttractionsService extends IService<AttractionsEntity> {
 
-    List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException;
+    List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException;
 
     String getWalkTime(double departLat, double departLng, double desLat, double desLng);
-    List<AttractionsEntity> filterAttractionByCategory(List<AttractionsEntity> attractions, String category);
-    List<AttractionsEntity> filterAttractionByWheelChairAccessibility(List <AttractionsEntity> attractions, Integer wheelchairAllow);
+    List<AttractionsEntity> filterAttractionByCategory(List<Integer> attractions, String category);
+    List<String> filterAttractionByWheelChairAccessibility(List <String> attractionGoogleId, Integer wheelchairAllow) throws JSONException, IOException;
     List<String> getOpeningHourMK2(String placeID) throws JSONException, IOException;
     int getCurrentOpeningStatus(String placeID) throws JSONException, IOException;
     String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException;
@@ -32,6 +32,9 @@ public interface AttractionsService extends IService<AttractionsEntity> {
     int getTotalNumberOfRatingsByGoogleID(String attractionGoogleI)throws IOException, JSONException;
     String getAddressByGoogleID(String attractionGoogleI)throws IOException, JSONException;
     String getOverViewByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+    String getNameByGoogleID(String attractionGoogleI)throws IOException, JSONException;
+    double getLatCoordByGoogleID(String attractionGoogleID)throws IOException, JSONException;
+    double getLngCoordByGoogleID(String attractionGoogleID)throws IOException, JSONException;
 
 
 

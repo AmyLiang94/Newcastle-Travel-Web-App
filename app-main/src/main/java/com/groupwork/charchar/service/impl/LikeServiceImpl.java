@@ -30,7 +30,7 @@ public class LikeServiceImpl implements ILikeService {
     private ReviewsService reviewsService;
 
     @Override
-    public void like(int userId, int reviewId) {
+    public void like(Integer userId, Integer reviewId) {
         try {
             String likeKey = RedisKeyUtil.getRedisLikeKey(reviewId);
             Boolean isMember = redisTemplate.opsForSet().isMember(likeKey, userId);
@@ -51,7 +51,7 @@ public class LikeServiceImpl implements ILikeService {
 
     }
 
-    public long findLikeCount(int reviewId) {
+    public long findLikeCount(Integer reviewId) {
         try {
             String likeKey = RedisKeyUtil.getRedisLikeKey(reviewId);
             return redisTemplate.opsForSet().size(likeKey);
@@ -68,7 +68,7 @@ public class LikeServiceImpl implements ILikeService {
      * @param reviewId
      * @return
      */
-    public int findCurUserLikeStatus(int userId, int reviewId) {
+    public int findCurUserLikeStatus(Integer userId, Integer reviewId) {
         try {
             String likeKey = RedisKeyUtil.getRedisLikeKey(reviewId);
             return redisTemplate.opsForSet().isMember(likeKey, userId) ? 1 : 0;
@@ -83,7 +83,7 @@ public class LikeServiceImpl implements ILikeService {
      *
      * @param attractionId
      */
-    public void updateReviewLikeCount(int attractionId) {
+    public void updateReviewLikeCount(Integer attractionId) {
         // 获取与attractionId相关的所有评论
         List<ReviewsEntity> reviewsEntities = reviewsService.getReviewsByAttractionId(attractionId);
         String key = RedisKeyUtil.getRedisAttractionReviewKey(attractionId);
@@ -105,7 +105,7 @@ public class LikeServiceImpl implements ILikeService {
      * @return
      */
 
-    public List<TopReviewsVO> getTopReviews(int attractionId, int topN) {
+    public List<TopReviewsVO> getTopReviews(Integer attractionId, Integer topN) {
         String key = RedisKeyUtil.getRedisAttractionReviewKey(attractionId);
         Set<Integer> ids = redisTemplate.opsForZSet().reverseRange(key, 0, topN - 1);
         List<TopReviewsVO> topReviewsInfo = new ArrayList<>();
