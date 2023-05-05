@@ -15,7 +15,7 @@ public class LikeController {
     @Resource
     ILikeService likeService;
     @PostMapping("/giveLike")
-    public Map<String, Object> like(int userId, int reviewId) {
+    public Map<String, Object> like(Integer userId, Integer reviewId) {
         likeService.like(userId, reviewId);
         long likeCount = likeService.findLikeCount(reviewId);
         int likeStatus = likeService.findCurUserLikeStatus(userId, reviewId);
@@ -30,7 +30,7 @@ public class LikeController {
      * @param attractionId
      */
     @PostMapping("/updateReviewLike")
-    public void updateReviewLikeCount(int attractionId) {
+    public void updateReviewLikeCount(Integer attractionId) {
         likeService.updateReviewLikeCount(attractionId);
     }
 
@@ -41,8 +41,8 @@ public class LikeController {
      * @return
      */
     @GetMapping("/getTopReviews/{attractionId}/{topN}")
-    public List<TopReviewsVO> getTopReviews(@PathVariable("attractionId")int attractionId,
-                                            @PathVariable("topN")int topN) {
+    public List<TopReviewsVO> getTopReviews(@PathVariable("attractionId")Integer attractionId,
+                                            @PathVariable("topN")Integer topN) {
         return likeService.getTopReviews(attractionId, topN);
     }
 }
