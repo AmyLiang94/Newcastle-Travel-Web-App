@@ -24,8 +24,8 @@ public interface UsersService extends IService<UsersEntity> {
 
     public Map<String,Object> deleteUser(UsersEntity user);
 
-    public UsersEntity getUserInfomation(UsersEntity user);
-
+//    public UsersEntity getUserInfomation(UsersEntity user);
+//    public Map<String,Object> getUserInfomation(UsersEntity user);
     public void sendMail(String Url, String email);
 
     public Map<String, Object> activationAccont(String confirmCode);
