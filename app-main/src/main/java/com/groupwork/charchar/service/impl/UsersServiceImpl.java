@@ -15,6 +15,7 @@ import org.thymeleaf.TemplateEngine;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -37,7 +38,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     public Map<String, Object> loginAccount(UsersEntity user) {
 //    public Integer loginAccount(UsersEntity user) {
         //创建map记录输出用户输入的账户密码注册或者未注册，密码不正确等
-       Map<String, Object> resultMap = new HashMap<>();
+//       Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new ConcurrentHashMap<>();
 //        ArrayList<Integer> arrayList=new ArrayList<>();
         //判断输入的是否是邮箱
         if (!isEmail(user.getEmail())) {
@@ -70,7 +72,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //用户输入的密码和盐进行加密
         String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity2.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
         if (!usersEntity2.getPassword().equals(md5Pwd)) {
-        System.out.println(md5Pwd+"=?"+usersEntity2.getUsername());
+//        System.out.println(md5Pwd+"=?"+usersEntity2.getUsername());
             resultMap.put("code", 400);
             resultMap.put("message", "输入的密码不正确");
             return resultMap;
@@ -81,6 +83,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         resultMap.put("message", "登陆成功");
         resultMap.put("data", user.getEmail());
         resultMap.put("userId",usersEntityList.get(0).getUserId());
+        System.out.println("login");
         return resultMap;
 //        arrayList.add(0,200);
 //        return arrayList.get(0);
@@ -89,20 +92,29 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     //执行该方法前应该先执行loginAccount
     @Override
     public Map<String, Object> updatePassword(UsersEntity user) {
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new ConcurrentHashMap<>();
+        //List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
+        //该用户不存在或未注册
+//        System.out.println(usersEntityList.get(0).getPassword()+"="+null);
+//        if (user.getPassword().equals(null)) {
+//            resultMap.put("code", 400);
+//            resultMap.put("message", "密码不能为空");
+//            return resultMap;
+//        }
         String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
         String md5Pwd = SecureUtil.md5(user.getPassword() + salt);
         //生成新的盐和加密后的新密码一并保存到数据库
         usersDao.updatePwd(user.getEmail(), md5Pwd, salt);
         resultMap.put("code", 200);
         resultMap.put("message", "修改密码成功");
+        System.out.println("updatePassword");
         return resultMap;
     }
 
     //调用login方法后再调用
     @Override
     public Map<String, Object> updateOneUserInformation(UsersEntity user) {
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new ConcurrentHashMap<>();
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
         //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
@@ -120,13 +132,14 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         usersDao.updateUserInformation(user.getUsername(), user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "修改个人信息成功");
+        System.out.println("updateOneUserInformation");
         return resultMap;
     }
 
 
     @Override
     public Map<String, Object> register(UsersEntity user) {
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new ConcurrentHashMap<>();
         //判断输入的是否是邮箱
         if (!isEmail(user.getEmail())) {
             resultMap.put("code", 400);
@@ -164,10 +177,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         int result = usersDao.save(user);
         if (result != 0) {
             // 发送邮件时间很慢（可以使用异步方式发送：多线程、消息队列）
-            String activationUrl = "http://localhost:9090/charchar/users/activation?confirmCode=" + confirmCode;
+            String activationUrl = "http://1.12.235.241:9090/charchar/users/activation?confirmCode=" + confirmCode;
             sendMail(activationUrl, user.getEmail());
             resultMap.put("code", 200);
             resultMap.put("message", "注册成功，请前往邮箱激活");
+            System.out.println("register");
         } else {
             resultMap.put("code", 400);
             resultMap.put("message", "注册失败");
@@ -179,7 +193,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     @Override
     public Map<String, Object> forgetPassword(UsersEntity user) {
         //运行结果记录列表
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new ConcurrentHashMap<>();
         //通过邮箱获取该用户
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
         List<UsersEntity> usersEntityList2 = usersDao.findVerifiCode(user.getEmail());
@@ -213,6 +227,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         sendMail(activationUrl, user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "请前往邮箱获取临时密码");
+        System.out.println("forgetPassword");
         return resultMap;
     }
 
@@ -220,7 +235,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     //执行该方法前应该先执行loginAccount再调用
     @Override
     public Map<String, Object> deleteUser(UsersEntity user) {
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new ConcurrentHashMap<>();
         //获取该用户名相应的用户名，加密后的密码 和 盐
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
 
@@ -241,28 +256,49 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         usersDao.deleteUser(user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "该账户已被注销");
+        System.out.println("deleteUser");
         return resultMap;
     }
 
-    @Override
-    public UsersEntity getUserInfomation(UsersEntity user) {
-        //获取该用户名相应的用户名，加密后的密码 和 盐
-        List<UsersEntity> usersEntityList = usersDao.getByUserEmail(user.getEmail());
-        //该用户不存在或未注册
-        if (usersEntityList == null || usersEntityList.isEmpty()) {
-            System.out.println("账号未注册");
-            return null;
-        }
-        //用户存在多个相同名字账号，账号异常
-        if (usersEntityList.size() > 1) {
-            System.out.println("账号异常");
-            return null;
-        }
-
-        UsersEntity usersEntity2 = usersEntityList.get(0);
-        System.out.println(usersEntity2);
-        return usersEntity2;
-    }
+//    @Override
+////    public UsersEntity getUserInfomation(UsersEntity user) {
+//    public Map<String, Object> getUserInfomation(UsersEntity user) {
+//        Map<String, Object> resultMap = new HashMap<>();
+//
+//        //获取该用户名相应的用户名，加密后的密码 和 盐
+//        List<UsersEntity> usersEntityList = usersDao.getByUserEmail(user.getEmail());
+//        //该用户不存在或未注册
+////        if (usersEntityList == null || usersEntityList.isEmpty()) {
+////            System.out.println("账号未注册");
+////            return null;
+////        }
+////        //用户存在多个相同名字账号，账号异常
+////        if (usersEntityList.size() > 1) {
+////            System.out.println("账号异常");
+////            return null;
+////        }
+//        if (usersEntityList == null || usersEntityList.isEmpty()) {
+//            resultMap.put("code", 400);
+//            resultMap.put("message", "该用户不存在或未注册");
+//            return resultMap;
+//        }
+//        //用户存在多个相同名字账号，账号异常
+//        if (usersEntityList.size() > 1) {
+//            resultMap.put("code", 400);
+//            resultMap.put("message", "该账号异常");
+//            return resultMap;
+//        }
+//
+////        UsersEntity usersEntity2 = usersEntityList.get(0);
+////        System.out.println(usersEntity2);
+////        return usersEntity2;
+//        resultMap.put("code", 200);
+//        resultMap.put("message", "获取成功");
+//        resultMap.put("userId",usersEntityList.get(0).getUserId());
+//        resultMap.put("email",usersEntityList.get(0).getEmail());
+//        resultMap.put("username",usersEntityList.get(0).getUsername());
+//        return resultMap;
+//    }
 
     @Value("${spring.mail.username}")
     private String mailUsername;
@@ -303,7 +339,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
 
     @Override
     public Map<String, Object> activationAccont(String confirmCode) {
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new ConcurrentHashMap<>();
         // 根据确认码查询用户
         UsersEntity user = usersDao.selectUserByConfirmCode(confirmCode);
         // 判断激活时间是否超时
@@ -344,7 +380,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
 
     @Override
     public Map<String, Object> updateVerificationCode(UsersEntity user) {
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new ConcurrentHashMap<>();
         Random random = new Random();
         int randomNumber = random.nextInt(900000) + 100000;
         String vertifi=String.valueOf(randomNumber);

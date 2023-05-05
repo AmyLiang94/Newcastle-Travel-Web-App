@@ -36,7 +36,7 @@ public class UsersController {
 //    @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping("/login")
         public Map<String,Object> login(@RequestBody UsersEntity user){
-        System.out.println(user.getEmail());
+//        System.out.println(user.getEmail());
         return usersService.loginAccount(user);
 }
 
@@ -55,12 +55,15 @@ public class UsersController {
      * 通过Email获取单个用户信息（建议使用）
      */
 
-    @GetMapping("/getUserInformation")
-    public UsersEntity getUserInformation(@RequestBody UsersEntity users){
-        UsersEntity usersEntity = usersService.getUserInfomation(users);
-        System.out.println("getById bookList"+usersEntity);
-        return usersEntity;
-    }
+//    @GetMapping("/getUserInformation")
+////    public UsersEntity getUserInformation(@RequestBody UsersEntity users){
+//    public Map<String, Object> getUserInformation(@RequestBody UsersEntity users){
+////        UsersEntity usersEntity = usersService.getUserInfomation(users);
+////        System.out.println("getById bookList"+usersEntity);
+////        return usersEntity;
+//        Map<String,Object> usersEntity = usersService.getUserInfomation(users);
+//        return usersEntity;
+//    }
 
 
     /**
