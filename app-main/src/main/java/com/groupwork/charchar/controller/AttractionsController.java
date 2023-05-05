@@ -17,11 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 /**
- * @author Jiahe "Tony"
+ * @author Jiahe "Tony" & Yilong Wang
  * @email 571379772@qq.com
  * @date 2023-03-24 15:33:03
  */
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("charchar/attractions")
 public class AttractionsController {
     @Autowired
