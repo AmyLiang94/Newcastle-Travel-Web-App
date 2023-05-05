@@ -32,7 +32,7 @@ public class AttractionsController {
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
     public @ResponseBody List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
                                                      @PathVariable("longitude") double longitude,
-                                                     @PathVariable("radius") double radius) throws IOException {
+                                                     @PathVariable("radius") double radius) throws IOException, JSONException {
         List<AttractionsEntity> res = attractionsService.getNearByLocation(latitude, longitude, radius);
         return res;
     }
@@ -64,7 +64,7 @@ public class AttractionsController {
         return updateEntity;
     }
     /**
-     * acquire information about an attraction base on AttractionID
+     * 通过本地AttractionID 获取地点信息
      *
      */
     @GetMapping("/findAttractionByID/{attractionId}")
@@ -79,62 +79,49 @@ public class AttractionsController {
      *
      */
     @GetMapping("/filterOpenAttractionsMK2")
-    public @ResponseBody List<AttractionsEntity> getAttractionByOpeningStatus(
-            @RequestBody List<AttractionsEntity> attractionsEntities)
+    public @ResponseBody List<String> getAttractionByOpeningStatus(
+            @RequestBody List<String> attractionsGoogleIDs)
             throws IOException, InterruptedException, ApiException, JSONException {
 
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
-        List <AttractionsEntity> filteredAttractions = new ArrayList<>();
+        List <String > filteredAttractionsGoogleID = new ArrayList<>();
 
-        for (AttractionsEntity a : attractionsEntities){
-            String tempPlaceID =attractionsService.getGooglePlaceIDByCoordinateAndName(a.getAttractionName(), a.getAttractionAddress());
+        for (String a : attractionsGoogleIDs){
 
-            int openingStatus=attractionsService.getCurrentOpeningStatus(tempPlaceID);
+
+            int openingStatus=attractionsService.getCurrentOpeningStatus(a);
             if (openingStatus != 0){
-                filteredAttractions.add(a);
+                filteredAttractionsGoogleID.add(a);
             }
         }
-        return filteredAttractions;
+        return filteredAttractionsGoogleID;
     }
-    /**
-     * 本周7天营业时间
-     *
 
-     */
-    @GetMapping("/openingHoursForTheWeek/")
-    public @ResponseBody List<String> getOpeningHoursThisWeek (
-            @RequestBody AttractionsEntity attractionsEntity)
-            throws JSONException, IOException {
-        String attractionName = attractionsEntity.getAttractionName();
-        System.out.println(attractionName);
-        String tempPlaceID = attractionsService.getGooglePlaceIDByCoordinateAndName(attractionsEntity.getAttractionName(),"Tynemouth, Station Terrace, Tynemouth, North Shields NE30 4RE");
-        List<String> timeList;
-        timeList = attractionsService.getOpeningHourMK2(tempPlaceID);
-        return timeList;
-    }
     /**
      * 根据评分排序景点
 
      */
-    @GetMapping("/sortAttractionByRating")
-    public @ResponseBody List<AttractionsEntity> sortAttractionsByRating (
-            @RequestBody List<AttractionsEntity> attractionsEntityList){
-        for (int i = 1; i<attractionsEntityList.size(); i++){
-            AttractionsEntity current = attractionsEntityList.get(i);
+    @GetMapping("/sortAttractionByRating/")
+    public @ResponseBody List<String> sortAttractionsByRating (
+            @RequestBody List<String> attractionsGoogleIDs) throws JSONException, IOException {
+        for (int i = 1; i<attractionsGoogleIDs.size(); i++){
+            String current = attractionsGoogleIDs.get(i);
             int j = i-1;
-            while (j>=0 && attractionsEntityList.get(j).getAttrRating()<current.getAttrRating()){
-                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+            while (j>=0 && getRatingFromGoogle(attractionsGoogleIDs.get(j))<getRatingFromGoogle(current)){
+                attractionsGoogleIDs.set(j+1 , attractionsGoogleIDs.get(j));
                 j--;
             }
-            attractionsEntityList.set(j+1 , current);
+            attractionsGoogleIDs.set(j+1 , current);
 
         }
-        return attractionsEntityList;
-
-
-
+        for (String s : attractionsGoogleIDs){
+            System.out.println(s);
+            System.out.println(attractionsService.getNameByGoogleID(s));
+            System.out.println(attractionsService.getRatingByGoogleID(s));
+        }
+        return attractionsGoogleIDs;
 
     }
     /**
@@ -142,9 +129,9 @@ public class AttractionsController {
 
      */
     @GetMapping("/filterAttractionByCategory/{category}")
-    public @ResponseBody List<AttractionsEntity> getAttractionByCategory(@RequestBody List<AttractionsEntity> attrac,
+    public @ResponseBody List<AttractionsEntity> getAttractionByCategory(@RequestBody List<Integer> attractionIDs,
                                                                          @PathVariable("category") String category) {
-        List<AttractionsEntity> filteredAttractions = attractionsService.filterAttractionByCategory(attrac, category);
+        List<AttractionsEntity> filteredAttractions = attractionsService.filterAttractionByCategory(attractionIDs, category);
         System.out.println("getAttractionByCategory" + filteredAttractions);
         return filteredAttractions;
     }
@@ -152,10 +139,10 @@ public class AttractionsController {
      * 根据轮椅使用过滤景点
      */
     @GetMapping("/filterAttractionByWheelChairAccessibility/{wc_allowed}")
-    public @ResponseBody List<AttractionsEntity> getAttractionByWheelChairAccessibility(
-            @RequestBody List<AttractionsEntity> attrac,
-            @PathVariable("wc_allowed") Integer wc_allowed) {
-        List<AttractionsEntity> result = attractionsService.filterAttractionByWheelChairAccessibility(attrac, wc_allowed);
+    public @ResponseBody List<String> getAttractionByWheelChairAccessibility(
+            @RequestBody List<String> attracGoogleId,
+            @PathVariable("wc_allowed") Integer wc_allowed) throws JSONException, IOException {
+        List<String> result = attractionsService.filterAttractionByWheelChairAccessibility(attracGoogleId, wc_allowed);
         return result;
     }
     /**
@@ -163,34 +150,28 @@ public class AttractionsController {
      *
      */
     @GetMapping("/sortAttractionByDistance/{departLat}/{departLng}")
-    public @ResponseBody List<AttractionsEntity> sortAttractionByDistance(@RequestBody List<AttractionsEntity> attractionsEntityList,
+    public @ResponseBody List<String> sortAttractionByDistance(@RequestBody List<String> attractionsGoogleIdList,
                                                             @PathVariable ("departLat") double departLat,
-                                                            @PathVariable ("departLng")double departLng){
+                                                            @PathVariable ("departLng")double departLng) throws JSONException, IOException {
 
 
-        for (int i = 1; i<attractionsEntityList.size(); i++){
-            AttractionsEntity current = attractionsEntityList.get(i);
+        for (int i = 1; i<attractionsGoogleIdList.size(); i++){
+            String current = attractionsGoogleIdList.get(i);
             int j = i-1;
-            while (j>=0
-                    &&
-                    Double.parseDouble(attractionsService.getWalkTime(departLat,
-                    departLng,
-                    attractionsEntityList.get(j).getLatitude().doubleValue(),
-                    attractionsEntityList.get(j).getLongitude().doubleValue()))
-                    <
-                    Double.parseDouble(attractionsService.getWalkTime(departLat,
-                    departLng,
-                    current.getLatitude().doubleValue(),
-                    current.getLongitude().doubleValue()))
-                    ){
-                attractionsEntityList.set(j+1 , attractionsEntityList.get(j));
+            while (j>=0 && Double.parseDouble(attractionsService.getWalkTime(departLat,departLng,attractionsService.getLatCoordByGoogleID(attractionsGoogleIdList.get(j)),attractionsService.getLngCoordByGoogleID(attractionsGoogleIdList.get(j))))<
+                    Double.parseDouble(attractionsService.getWalkTime(departLat,departLng,attractionsService.getLatCoordByGoogleID(current),attractionsService.getLngCoordByGoogleID(current)))
+            )
+
+
+            {
+                attractionsGoogleIdList.set(j+1 , attractionsGoogleIdList.get(j));
                 j--;
             }
-            attractionsEntityList.set(j+1 , current);
+            attractionsGoogleIdList.set(j+1 , current);
 
         }
 
-        return attractionsEntityList;
+        return attractionsGoogleIdList;
     }
     /**
      * 根据景点免费分类
@@ -226,6 +207,20 @@ public class AttractionsController {
         }
         return attractionsEntityList;
 
+    }
+    /**
+     * 本周7天营业时间
+     *
+
+     */
+    @GetMapping("/openingHoursForTheWeek/{attractionGoogleID}")
+    public @ResponseBody List<String> getOpeningHoursThisWeek (
+            @PathVariable ("attractionGoogleID") String attractionGoogleID)
+            throws JSONException, IOException {
+
+        List<String> timeList;
+        timeList = attractionsService.getOpeningHourMK2(attractionGoogleID);
+        return timeList;
     }
     /**
      * 获取谷歌PlaceID By Name
