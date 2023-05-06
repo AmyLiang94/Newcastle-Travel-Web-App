@@ -280,7 +280,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             JSONObject result = json.getJSONObject("result");
             if (result.has("wheelchair_accessible_entrance")) {
                 wheelchairAccessible = result.getBoolean("wheelchair_accessible_entrance");
-                System.out.println(wheelchairAccessible);
                 if (wheelchairAccessible == true){
                     accessibility = 1;
                 }else if (wheelchairAccessible == false){
@@ -288,7 +287,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 }
                 // do something with the wheelchairAccessible value
             } else {
-                System.out.println("Accessibility not Specified");
+                accessibility=-1;
             }
         }
         return accessibility;
