@@ -21,54 +21,67 @@ public class UsersController {
     private UsersService usersService;
 
     /**
-     * 登录
+     * login
+     * @param user
+     * @return
      */
-    @PostMapping("/login")//登录
+    @PostMapping("/login")
         public Map<String,Object> login(@RequestBody UsersEntity user){
         return usersService.loginAccount(user);
 }
+
     /**
-     * 更改用户个人信息username, Phone
+     * Change username
+     * @param users
+     * @return
      */
 
-    @PostMapping("/updateOneUserInfomation")//Change username
+    @PostMapping("/updateOneUserInfomation")
     public Map<String,Object> updateOneUserInfomation(@RequestBody UsersEntity users){
         Map<String,Object> usersEntity = usersService.updateOneUserInformation(users);
         return usersEntity;
     }
-    /**
-     * 注册
-     */
 
-    @PostMapping("/registryUser")//User Registration
+    /**
+     * User Registration
+     * @param users
+     * @return
+     */
+    @PostMapping("/registryUser")
     public Map<String,Object> registerUser(@RequestBody UsersEntity users) {
         Map<String,Object> res = usersService.register(users);
         return res;
     }
-    /**
-     * 发送验证码
-     */
 
-    @PostMapping("/sendVerificationCode")//Send verification code
+    /**
+     * Send verification code
+     * @param users
+     * @return
+     */
+    @PostMapping("/sendVerificationCode")
     public Map<String,Object> sendVerificationCode(@RequestBody UsersEntity users) {
         Map<String,Object> res = usersService.updateVerificationCode(users);
         return res;
     }
 
     /**
-     * 修改密码
+     * Change password
+     * @param users
+     * @return
      */
 
-    @PutMapping("/updateUserPassword")//Change password
+    @PutMapping("/updateUserPassword")
     public Map<String,Object> updateUserPassword(@RequestBody UsersEntity users) {
         Map<String,Object> update=usersService.updatePassword(users);
         return update;
     }
-    /**
-     * 忘记密码
-     */
 
-    @PutMapping("/forgetUserPassword")//Forgot your password
+    /**
+     * Forgot your password
+     * @param users
+     * @return
+     */
+    @PutMapping("/forgetUserPassword")
     public Map<String,Object> forgetUserPassword(@RequestBody UsersEntity users) {
         Map<String,Object> update=usersService.forgetPassword(users);
         return update;
@@ -84,11 +97,15 @@ public class UsersController {
         return flag;
     }
 
-    @GetMapping("/activation")//Activate account
+    /**
+     * Activate account
+     * @param confirmCode
+     * @return
+     */
+    @GetMapping("/activation")
     public Map<String, Object> activationAccont(@RequestParam String confirmCode) {
         return usersService.activationAccont(confirmCode);
     }
-
 
 
 }

@@ -7,44 +7,91 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 /**
- * @author wangyilong
- * @email 571379772@qq.com
+ * @author Eastman
+ * @email 931654949@qq.com
  * @date 2023-03-24 15:33:03
  */
 @Mapper
 public interface UsersDao extends BaseMapper<UsersEntity> {
-    //Get some user information by email
+    /**
+     *
+     * @param email
+     * @return  user_id, username, email, password, salt
+     */
     @Select("SELECT  user_id, username, email, password, salt FROM users where email=#{email}")
     public List<UsersEntity> selectEmail(@Param("email") String email);
 
+    /**
+     *
+     * @param email
+     * @return  user_id,username,email
+     */
     //通过userName查找用户个人信息
     @Select("SELECT user_id,username,email FROM users where email=#{email}")
     public List<UsersEntity> getByUserEmail(@Param("email") String email);
 
+    /**
+     *
+     * @param confirmCode
+     * @return  email, activation_time
+     */
     @Select("SELECT email, activation_time FROM users WHERE confirm_code = #{confirmCode} AND is_valid = 0")
     UsersEntity selectUserByConfirmCode(@Param("confirmCode") String confirmCode);
 
+    /**
+     *
+     * @param email
+     * @return  verification_code
+     */
     @Select("SELECT verification_code FROM users WHERE email=#{email}")
     public List<UsersEntity> findVerifiCode(@Param("email") String email);
 
+    /**
+     *
+     * @param email
+     * @param password
+     * @param salt
+     */
     @Update("UPDATE users SET password=#{password}, salt=#{salt} WHERE email=#{email}")
     void updatePwd(@Param("email") String email, @Param("password") String password, @Param("salt") String salt);
 
+    /**
+     *
+     * @param username
+     * @param email
+     */
     @Update("UPDATE users SET username=#{username} WHERE email=#{email}")
     void updateUserInformation(@Param("username") String username, @Param("email") String email);
 
+    /**
+     *
+     * @param email
+     * @param verificationCode
+     */
     @Update("UPDATE users SET verification_code=#{verificationCode} WHERE email=#{email}")
     void updateVertificationCode(@Param("email") String email,@Param("verificationCode") String verificationCode);
 
+    /**
+     *
+     * @param confirmCode
+     * @return
+     */
     @Update("UPDATE users SET is_valid = 1 WHERE confirm_code = #{confirmCode}")
     int updateUserByConfirmCode(@Param("confirmCode") String confirmCode);
 
+    /**
+     *
+     * @param user
+     * @return
+     */
     @Insert("INSERT INTO users(username, password,email, salt, confirm_code, activation_time, is_valid) VALUES (#{username}, #{password}, #{email}, #{salt}, #{confirmCode}, #{activationTime}, #{isValid})")
     int save(UsersEntity user);
 
+    /**
+     *
+     * @param email
+     */
     @Delete("DELETE FROM users WHERE email=#{email}")
     void deleteUser(@Param("email") String email);
-
-
 
 }
