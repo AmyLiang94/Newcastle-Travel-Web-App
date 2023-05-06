@@ -74,9 +74,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             double rating = curPlace.has("rating") ? curPlace.get("rating").getAsDouble() : 0.0;
             String placeId = curPlace.get("place_id").getAsString();
             String overview = getOverViewByGoogleID(placeId);
-            uniqueId =uniqueId++;
             Random rand = new Random();
-            double ticketPrice = Math.round(rand.nextDouble() * 170) / 10.0;
+//            double ticketPrice = Math.round(rand.nextDouble() * 170) / 10.0;
             int randomNumber = rand.nextInt(2) + 1;
             String Category = null;
             if (randomNumber == 1){
@@ -90,19 +89,18 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             int WC_Accessibilty = getWheelChair_AccessblityByGoogleID(placeId);
 
             AttractionsEntity attractions = new AttractionsEntity();
-            attractions.setAttractionId(uniqueId);
+
             attractions.setAttractionName(name);
             attractions.setDescription(overview);
             attractions.setCategory(Category);
             attractions.setLatitude(BigDecimal.valueOf(lat));
             attractions.setLongitude(BigDecimal.valueOf(lng));
-            attractions.setTicketPrice(BigDecimal.valueOf(ticketPrice));
+//            attractions.setTicketPrice(BigDecimal.valueOf(ticketPrice));
             attractions.setAttrRating(rating);
             attractions.setWheelchairAllow(WC_Accessibilty);
             attractions.setPlaceId(placeId);
             attractions.setAddress(address);
             attractions.setImageUrl(photo);
-            save(attractions);
             showList.add(attractions);
         }
         return showList;

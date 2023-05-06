@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 /**
  * @author Jiahe "Tony"
@@ -171,6 +170,30 @@ public class AttractionsController {
         return attractionsGoogleIdList;
     }
     /**
+     * 根据景点热门程度排序
+     */
+    @GetMapping("/sortAttractionByPopularity/")
+    public @ResponseBody List<String> sortAttractionByPopular(@RequestBody List<String> attractionsGoogleIdList) throws JSONException, IOException {
+        for (int i = 1; i<attractionsGoogleIdList.size(); i++){
+            String current = attractionsGoogleIdList.get(i);
+            int j = i-1;
+            while (j>=0 && attractionsService.getTotalNumberOfRatingsByGoogleID(attractionsGoogleIdList.get(j))
+                    <
+                    attractionsService.getTotalNumberOfRatingsByGoogleID(current)){
+                attractionsGoogleIdList.set(j+1 , attractionsGoogleIdList.get(j));
+                j--;
+            }
+            attractionsGoogleIdList.set(j+1 , current);
+
+        }
+        for (String s : attractionsGoogleIdList){
+            System.out.println(s);
+            System.out.println(attractionsService.getNameByGoogleID(s));
+            System.out.println(attractionsService.getTotalNumberOfRatingsByGoogleID(s));
+        }
+        return attractionsGoogleIdList;
+    }
+    /**
      * 根据景点免费分类
      *
      */
@@ -205,20 +228,7 @@ public class AttractionsController {
         return attractionsEntityList;
 
     }
-    /**
-     * 本周7天营业时间
-     *
 
-     */
-    @GetMapping("/openingHoursForTheWeek/{attractionGoogleID}")
-    public @ResponseBody List<String> getOpeningHoursThisWeek (
-            @PathVariable ("attractionGoogleID") String attractionGoogleID)
-            throws JSONException, IOException {
-
-        List<String> timeList;
-        timeList = attractionsService.getOpeningHourMK2(attractionGoogleID);
-        return timeList;
-    }
     /**
      * 获取谷歌PlaceID By Name
      */
@@ -309,12 +319,40 @@ public class AttractionsController {
             throws JSONException, IOException {
         return attractionsService.getOverViewByGoogleID(googleID);
     }
+    /**
+     * 本周7天营业时间
+     *
+
+     */
+    @GetMapping("/openingHoursForTheWeek/{attractionGoogleID}")
+    public @ResponseBody List<String> getOpeningHoursThisWeek (
+            @PathVariable ("attractionGoogleID") String attractionGoogleID)
+            throws JSONException, IOException {
+
+        List<String> timeList;
+        timeList = attractionsService.getOpeningHourMK2(attractionGoogleID);
+        return timeList;
+    }
+
+
+    /**
+     * 保存一堆景点
+     */
+    @PostMapping("/save/AttractionList/{latitude}/{longitude}/{radius}")
+    public void saveAttractionsList(@PathVariable ("latitude") double lat,
+                                    @PathVariable ("longitude") double lng,
+                                    @PathVariable ("radius") double rad) throws JSONException, IOException {
+        Map<String, Boolean> response = new HashMap<>();
+        List <AttractionsEntity> tempattractionList= attractionsService.getNearByLocation(lat, lng,rad);
+        for (AttractionsEntity a :tempattractionList){
+             boolean success = attractionsService.save(a);
+            response.put("success", success);
+        }
 
 
 
 
-
-
+    }
 
     /**
      * Saving a attraction
