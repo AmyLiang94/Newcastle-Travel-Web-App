@@ -12,16 +12,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
 import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 @Service("usersService")
 public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> implements UsersService {
@@ -271,7 +274,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     @Override
-    public Map<String, Object> activationAccont(String confirmCode) {
+    public Map<String, Object> activationAccount(String confirmCode) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
         // 根据确认码查询用户
         UsersEntity user = usersDao.selectUserByConfirmCode(confirmCode);
