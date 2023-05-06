@@ -31,15 +31,23 @@ import javax.mail.internet.MimeMessage;
  * @email 931654949@qq.com
  * @date 2023-05-02 15:33:03
  */
+
+/**
+
+ * The implementation of the UsersService interface.
+
+ * Uses UsersDao for data access.
+ */
 @Service("usersService")
 public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> implements UsersService {
     @Autowired
     private UsersDao usersDao;
 
     /**
-     * Login Account method
-     * @param user
-     * @return
+
+     * Attempts to log in the user and returns a Map with a response code and message.
+     * @param user The user to log in.
+     * @return A Map containing the response code and message.
      */
     @Override
     public Map<String, Object> loginAccount(UsersEntity user) {
@@ -85,9 +93,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     /**
-     * Update Password method
-     * @param user
-     * @return
+
+     * Changes the user's password and returns a Map with a response code and message.
+     * @param user The user whose password is to be changed.
+     * @return A Map containing the response code and message.
      */
     @Override
     public Map<String, Object> updatePassword(UsersEntity user) {
@@ -125,9 +134,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     /**
-     * Update One User Information method
-     * @param user
-     * @return
+
+     * Changes the user's information and returns a Map with a response code and message.
+     * @param user The user whose information is to be changed.
+     * @return A Map containing the response code and message.
      */
     //调用login方法后再调用
     @Override
@@ -154,9 +164,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     /**
-     * Register method
-      * @param user
-     * @return
+     * Register user method
+     * @param user the user to register
+     * @return a map containing the result of the operation
      */
     @Override
     public Map<String, Object> register(UsersEntity user) {
@@ -210,9 +220,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     /**
-     * Forget Password method
-     * @param user
-     * @return
+     * Forget password method
+     * @param user the user to reset the password for
+     * @return a map containing the result of the operation
      */
     @Override
     public Map<String, Object> forgetPassword(UsersEntity user) {
@@ -255,9 +265,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     /**
-     * Delete User method
-     * @param user
-     * @return
+     * This method deletes a user account.
+     * @param user The user account to be deleted.
+     * @return A map containing the result of the operation.
      */
     //执行该方法前应该先执行loginAccount再调用
     @Override
@@ -295,25 +305,25 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     /**
-     *
+     * This field holds the email address of the mail sender.
      */
     @Value("${spring.mail.username}")
     private String mailUsername;
     /**
-     *
+     * This field holds an instance of the JavaMailSender class for sending emails.
      */
     @Resource
     private JavaMailSender javaMailSender;
     /**
-     *
+     * This field holds an instance of the TemplateEngine class for creating email templates.
      */
     @Resource
     private TemplateEngine templateEngine;
 
     /**
-     * sendMail method
-     * @param Url
-     * @param email
+     * This method sends an email to the specified email address.
+     * @param Url The URL to be sent in the email.
+     * @param email The email address to send the email to.
      */
     @Override
     public void sendMail(String Url, String email) {
@@ -342,9 +352,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     /**
-     * Activation Account method
-     * @param confirmCode
-     * @return
+     * This method activates a user account based on the confirmation code.
+     * @param confirmCode The confirmation code used to activate the account.
+     * @return A map containing the result of the operation.
      */
     @Override
     public Map<String, Object> activationAccount(String confirmCode) {
@@ -374,17 +384,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         }
         return resultMap;
     }
-    //判断输入的是否是邮箱
-    //以字母或数字开头：^[a-zA-Z0-9._%+-]+
-    //邮箱账号部分包括：字母、数字、点号、下划线、加号、减号：[a-zA-Z0-9._%+-]+
-    //必须包含一个“@”符号：@
-    //域名可以由字母、数字、点号、减号组成：[a-zA-Z0-9.-]+
-    //域名后缀至少有两个字母：\.[a-zA-Z]{2,}$
 
     /**
-     * Determine if it is the correct email address
-     * @param email
-     * @return
+     * Determines if the given email address is valid.
+     * @param email The email address to be validated
+     * Returns true if the email address is valid, otherwise returns false.
      */
     @Override
     public boolean isEmail(String email) {
@@ -394,9 +398,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
     /**
-     * Update VerificationCode method
-     * @param user
-     * @return
+     * Updates the verification code for the specified user and sends an email containing the code.
+     * @param user the user to update the verification code for
+     * @return a map containing the result of the operation, including a code and message
      */
     @Override
     public Map<String, Object> updateVerificationCode(UsersEntity user) {
