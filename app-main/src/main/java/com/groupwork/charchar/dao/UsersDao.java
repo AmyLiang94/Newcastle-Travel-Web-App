@@ -13,6 +13,7 @@ import java.util.List;
  */
 @Mapper
 public interface UsersDao extends BaseMapper<UsersEntity> {
+    //Get some user information by email
     @Select("SELECT  user_id, username, email, password, salt FROM users where email=#{email}")
     public List<UsersEntity> selectEmail(@Param("email") String email);
 
@@ -33,7 +34,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     void updateUserInformation(@Param("username") String username, @Param("email") String email);
 
     @Update("UPDATE users SET verification_code=#{verificationCode} WHERE email=#{email}")
-    void updateVertificationCode(@Param("email") String email,@Param("verificationCode") String verificationCode);
+    void updateVertificationCode(@Param("email") String email, @Param("verificationCode") String verificationCode);
 
     @Update("UPDATE users SET is_valid = 1 WHERE confirm_code = #{confirmCode}")
     int updateUserByConfirmCode(@Param("confirmCode") String confirmCode);
@@ -43,7 +44,6 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
 
     @Delete("DELETE FROM users WHERE email=#{email}")
     void deleteUser(@Param("email") String email);
-
 
 
 }
