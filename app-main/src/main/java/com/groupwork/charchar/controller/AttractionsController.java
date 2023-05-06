@@ -66,7 +66,6 @@ public class AttractionsController {
     public @ResponseBody AttractionsEntity getById(
             @PathVariable Integer attractionId) {
         AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
-        System.out.println("getById bookList" + attractionsEntity);
 
         return attractionsEntity;
     }
@@ -112,11 +111,7 @@ public class AttractionsController {
             attractionsGoogleIDs.set(j+1 , current);
 
         }
-        for (String s : attractionsGoogleIDs){
-            System.out.println(s);
-            System.out.println(attractionsService.getNameByGoogleID(s));
-            System.out.println(attractionsService.getRatingByGoogleID(s));
-        }
+
         return attractionsGoogleIDs;
 
     }
@@ -128,7 +123,6 @@ public class AttractionsController {
     public @ResponseBody List<AttractionsEntity> getAttractionByCategory(@RequestBody List<Integer> attractionIDs,
                                                                          @PathVariable("category") String category) {
         List<AttractionsEntity> filteredAttractions = attractionsService.filterAttractionByCategory(attractionIDs, category);
-        System.out.println("getAttractionByCategory" + filteredAttractions);
         return filteredAttractions;
     }
     /**
@@ -186,11 +180,7 @@ public class AttractionsController {
             attractionsGoogleIdList.set(j+1 , current);
 
         }
-        for (String s : attractionsGoogleIdList){
-            System.out.println(s);
-            System.out.println(attractionsService.getNameByGoogleID(s));
-            System.out.println(attractionsService.getTotalNumberOfRatingsByGoogleID(s));
-        }
+
         return attractionsGoogleIdList;
     }
     /**

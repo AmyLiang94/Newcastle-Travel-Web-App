@@ -118,9 +118,9 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 .build();
         Response response = client.newCall(request).execute();
         JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
-        System.out.println(json.toString());
+
         JsonArray routes = json.getAsJsonArray("routes");
-        System.out.println(routes.toString());
+
         if (routes != null && routes.size() > 0) {
             JsonObject firstRoute = routes.get(0).getAsJsonObject();
             JsonArray legs = firstRoute.getAsJsonArray("legs");
@@ -197,9 +197,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                         hoursList.add("Closed");
                     }
                 }
-                System.out.println(hoursList);
+
             } else {
-                System.out.println("Opening hours information is not available for this place.");
             }
         }
         return hoursList;
@@ -235,12 +234,10 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     }
     @Override
     public String getGooglePlaceIDByCoordinateAndName(String attractionName, String attractionAddress) throws IOException, JSONException {
-        System.out.println(attractionName);
-        System.out.println(attractionAddress);
+
         OkHttpClient client = new OkHttpClient();
 
         String input = attractionName + " " + attractionAddress;
-        System.out.println(input);
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + input + "&inputtype=textquery&fields=place_id&key=" + key)
                 .build();
@@ -255,9 +252,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 JSONObject candidate = candidates.getJSONObject(0);
                 tempPlaceId = candidate.getString("place_id");
 
-                System.out.println("Place ID: " + tempPlaceId);
             } else {
-                System.out.println("No place found with that name and address.");
             }
         }
         return tempPlaceId;
@@ -453,7 +448,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             lat = jsonResponse.getJSONObject("result").getJSONObject("geometry").getJSONObject("location").getDouble("lat");
 
             // Print the coordinates
-            System.out.println("Latitude: " + lat);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -488,7 +482,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             lng = jsonResponse.getJSONObject("result").getJSONObject("geometry").getJSONObject("location").getDouble("lng");
 
             // Print the coordinates
-            System.out.println("Latitude: " + lng);
+
 
         } catch (IOException e) {
             e.printStackTrace();
