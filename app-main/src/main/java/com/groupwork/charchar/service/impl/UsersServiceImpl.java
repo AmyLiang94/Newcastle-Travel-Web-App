@@ -12,36 +12,43 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.TemplateEngine;
 
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
-
+/**
+ * @author Eastman
+ * @email 931654949@qq.com
+ * @date 2023-05-02 15:33:03
+ */
 @Service("usersService")
 public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> implements UsersService {
     @Autowired
     private UsersDao usersDao;
 
+    /**
+     * Login Account method
+     * @param user
+     * @return
+     */
     @Override
     public Map<String, Object> loginAccount(UsersEntity user) {
-        //创建map记录输出用户输入的账户密码注册或者未注册，密码不正确等
+        //Create map record to output user entered account password registered or unregistered, incorrect password, etc.
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
-//        ArrayList<Integer> arrayList=new ArrayList<>();
-        //判断输入的是否是邮箱
+
+        //Determine if the input is an email address
         if (!isEmail(user.getEmail())) {
             resultMap.put("code", 400);
             resultMap.put("message", "请输入正确的邮箱");
             return resultMap;
         }
+        //Determine if a user exists in the database
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
         //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
@@ -49,20 +56,20 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message", "该用户不存在或未注册");
             return resultMap;
         }
-        //用户存在多个相同名字账号，账号异常
+        //Multiple accounts with the same name exist for users, determine account anomalies
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
             resultMap.put("message", "账号异常");
             return resultMap;
         }
-        //查询到一个用户，进行密码对比(一个email只有一个用户所以是get（0）)
+        //Query for a user and do a password comparison (an email has only one user so it's get (0))
         UsersEntity usersEntity2 = usersEntityList.get(0);
-        //用户输入的密码和盐进行加密
+        //Snowflake number encryption by adding salt to the password entered by the user
         String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity2.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
+        //Determine if the password entered is correct
         if (!usersEntity2.getPassword().equals(md5Pwd)) {
-//        System.out.println(md5Pwd+"=?"+usersEntity2.getUsername());
             resultMap.put("code", 400);
-            resultMap.put("message", "输入的密码不正确");
+            resultMap.put("message", "The password entered is incorrect");
             return resultMap;
         }
         resultMap.put("code", 200);
@@ -73,10 +80,36 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
 
     }
 
-    //执行该方法前应该先执行loginAccount
+    /**
+     * Update Password method
+     * @param user
+     * @return
+     */
     @Override
     public Map<String, Object> updatePassword(UsersEntity user) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
+        //通过邮箱获取该用户
+        List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
+        List<UsersEntity> usersEntityList2 = usersDao.findVerifiCode(user.getEmail());
+        //确认该用户是否存在
+        if (usersEntityList == null || usersEntityList.isEmpty()) {
+            resultMap.put("code", 400);
+            resultMap.put("message", "该账号不存在");
+            return resultMap;
+        }
+        //用户存在多个相同名字账号，账号异常
+        if (usersEntityList.size() > 1) {
+            resultMap.put("code", 400);
+            resultMap.put("message", "该账号异常");
+            return resultMap;
+        }
+        UsersEntity usersEntity2 = usersEntityList2.get(0);
+        System.out.println((usersEntity2.getVerificationCode()+"="+user.getVerificationCode()));
+        if (!((usersEntity2.getVerificationCode()).equals(user.getVerificationCode()))){
+            resultMap.put("code", 400);
+            resultMap.put("message", "您输入的验证码不正确");
+            return resultMap;
+        }
         String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
         String md5Pwd = SecureUtil.md5(user.getPassword() + salt);
         //生成新的盐和加密后的新密码一并保存到数据库
@@ -87,6 +120,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         return resultMap;
     }
 
+    /**
+     * Update One User Information method
+     * @param user
+     * @return
+     */
     //调用login方法后再调用
     @Override
     public Map<String, Object> updateOneUserInformation(UsersEntity user) {
@@ -111,7 +149,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         return resultMap;
     }
 
-
+    /**
+     * Register method
+      * @param user
+     * @return
+     */
     @Override
     public Map<String, Object> register(UsersEntity user) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
@@ -163,7 +205,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         return resultMap;
     }
 
-
+    /**
+     * Forget Password method
+     * @param user
+     * @return
+     */
     @Override
     public Map<String, Object> forgetPassword(UsersEntity user) {
         //运行结果记录列表
@@ -185,6 +231,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         }
         UsersEntity usersEntity2 = usersEntityList2.get(0);
         System.out.println(user.getVerificationCode() + "==" + usersEntity2.getVerificationCode());
+
+
         if (!((usersEntity2.getVerificationCode()).equals(user.getVerificationCode()))) {
             resultMap.put("code", 400);
             resultMap.put("message", "您输入的验证码不正确");
@@ -205,6 +253,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     }
 
 
+    /**
+     * Delete User method
+     * @param user
+     * @return
+     */
     //执行该方法前应该先执行loginAccount再调用
     @Override
     public Map<String, Object> deleteUser(UsersEntity user) {//还可以通过逻辑删除
@@ -240,13 +293,27 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         return resultMap;
     }
 
+    /**
+     *
+     */
     @Value("${spring.mail.username}")
     private String mailUsername;
+    /**
+     *
+     */
     @Resource
     private JavaMailSender javaMailSender;
+    /**
+     *
+     */
     @Resource
     private TemplateEngine templateEngine;
 
+    /**
+     * sendMail method
+     * @param Url
+     * @param email
+     */
     @Override
     public void sendMail(String Url, String email) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -273,6 +340,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         javaMailSender.send(mimeMessage);
     }
 
+    /**
+     * Activation Account method
+     * @param confirmCode
+     * @return
+     */
     @Override
     public Map<String, Object> activationAccount(String confirmCode) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
@@ -308,6 +380,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     //必须包含一个“@”符号：@
     //域名可以由字母、数字、点号、减号组成：[a-zA-Z0-9.-]+
     //域名后缀至少有两个字母：\.[a-zA-Z]{2,}$
+
+    /**
+     * Determine if it is the correct email address
+     * @param email
+     * @return
+     */
     @Override
     public boolean isEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
@@ -315,6 +393,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         return pattern.matcher(email).matches();
     }
 
+    /**
+     * Update VerificationCode method
+     * @param user
+     * @return
+     */
     @Override
     public Map<String, Object> updateVerificationCode(UsersEntity user) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
@@ -348,6 +431,4 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         }
         return resultMap;
     }
-
-
 }
