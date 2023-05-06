@@ -5,7 +5,7 @@ package com.groupwork.charchar.controller;
  * @Date 2023 05 05 09 47
  **/
 
-import com.alibaba.fastjson.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.groupwork.charchar.vo.TopReviewsVO;
 import org.junit.jupiter.api.MethodOrderer;
@@ -39,12 +39,8 @@ public class LikeControllerTest {
     @Test
     @Order(1)
     public void shouldReturnMapWhenLike() throws Exception {
-        String result  = this.mockMvc.perform(post("http://localhost:1234/charchar/like/giveLike")
+        String result  = this.mockMvc.perform(post("http://localhost:9001/charchar/like/giveLike/{userId}/{reviewId}",1,1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\n" +
-                                "  \"userId\": 1,\n" +
-                                "  \"reviewId\": 1,\n" +
-                                "}")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -58,11 +54,8 @@ public class LikeControllerTest {
     @Test
     @Order(2)
     public void shouldReturnOKWhenUpdateReviewLikeCount() throws Exception {
-        this.mockMvc.perform(post("http://localhost:1234/charchar/like/updateReviewLike")
+        this.mockMvc.perform(post("http://localhost:9001/charchar/like/updateReviewLike/{attractionId}",1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\n" +
-                                "  \"attractionId\": 1,\n" +
-                                "}")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -73,7 +66,7 @@ public class LikeControllerTest {
     @Test
     @Order(3)
     public void shouldReturnListWhenGetTopReviews() throws Exception {
-        String result  =  this.mockMvc.perform(get("http://localhost:1234/charchar/like/getTopReviews/{attractionId}/{topN}",1,1))
+        String result  =  this.mockMvc.perform(get("http://localhost:9001/charchar/like/getTopReviews/{attractionId}/{topN}",1,1))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
