@@ -9,9 +9,9 @@ import com.groupwork.charchar.entity.UsersEntity;
 import com.groupwork.charchar.service.UsersService;
 
 /**
- * @author wangyilong
- * @email 571379772@qq.com
- * @date 2023-03-24 15:33:03
+ * @author Eastman
+ * @email 931654949@qq.com
+ * @date 2023-05-02 15:33:03
  */
 @RestController
 @CrossOrigin(origins = "*")
@@ -88,10 +88,12 @@ public class UsersController {
     }
 
     /**
-     * 用户注销
+     * Delete account
+     * @param users
+     * @return
      */
 
-    @DeleteMapping("/deleteUser")//Delete account
+    @DeleteMapping("/deleteUser")
     public Map<String,Object> deleteUser(@RequestBody UsersEntity users) {
         Map<String,Object> flag = usersService.deleteUser(users);
         return flag;
@@ -104,7 +106,7 @@ public class UsersController {
      */
     @GetMapping("/activation")
     public Map<String, Object> activationAccont(@RequestParam String confirmCode) {
-        return usersService.activationAccont(confirmCode);
+        return usersService.activationAccount(confirmCode);
     }
 
 

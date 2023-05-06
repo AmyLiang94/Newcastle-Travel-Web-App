@@ -9,12 +9,12 @@ import java.util.List;
 /**
  * @author Eastman
  * @email 931654949@qq.com
- * @date 2023-03-24 15:33:03
+ * @date 2023-05-02 15:33:03
  */
 @Mapper
 public interface UsersDao extends BaseMapper<UsersEntity> {
     /**
-     *
+     * interface
      * @param email
      * @return  user_id, username, email, password, salt
      */
@@ -22,7 +22,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     public List<UsersEntity> selectEmail(@Param("email") String email);
 
     /**
-     *
+     *  interface
      * @param email
      * @return  user_id,username,email
      */
@@ -31,7 +31,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     public List<UsersEntity> getByUserEmail(@Param("email") String email);
 
     /**
-     *
+     *  interface
      * @param confirmCode
      * @return  email, activation_time
      */
@@ -39,7 +39,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     UsersEntity selectUserByConfirmCode(@Param("confirmCode") String confirmCode);
 
     /**
-     *
+     *  interface
      * @param email
      * @return  verification_code
      */
@@ -47,7 +47,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     public List<UsersEntity> findVerifiCode(@Param("email") String email);
 
     /**
-     *
+     *  interface
      * @param email
      * @param password
      * @param salt
@@ -56,7 +56,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     void updatePwd(@Param("email") String email, @Param("password") String password, @Param("salt") String salt);
 
     /**
-     *
+     *  interface
      * @param username
      * @param email
      */
@@ -64,7 +64,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     void updateUserInformation(@Param("username") String username, @Param("email") String email);
 
     /**
-     *
+     *  interface
      * @param email
      * @param verificationCode
      */
@@ -72,7 +72,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     void updateVertificationCode(@Param("email") String email,@Param("verificationCode") String verificationCode);
 
     /**
-     *
+     *  interface
      * @param confirmCode
      * @return
      */
@@ -80,7 +80,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     int updateUserByConfirmCode(@Param("confirmCode") String confirmCode);
 
     /**
-     *
+     *  interface
      * @param user
      * @return
      */
@@ -88,7 +88,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
     int save(UsersEntity user);
 
     /**
-     *
+     *  interface
      * @param email
      */
     @Delete("DELETE FROM users WHERE email=#{email}")
