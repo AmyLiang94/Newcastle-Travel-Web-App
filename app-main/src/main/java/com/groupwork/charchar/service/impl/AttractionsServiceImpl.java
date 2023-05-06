@@ -67,16 +67,15 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             double rating = curPlace.has("rating") ? curPlace.get("rating").getAsDouble() : 0.0;
             String placeId = curPlace.get("place_id").getAsString();
             String overview = getOverViewByGoogleID(placeId);
-            uniqueId =uniqueId++;
             Random rand = new Random();
-            double ticketPrice = Math.round(rand.nextDouble() * 170) / 10.0;
-            int randomNumber = rand.nextInt(2) + 1;
+//            double ticketPrice = Math.round(rand.nextDouble() * 170) / 10.0;
+            /**int randomNumber = rand.nextInt(2) + 1;
             String Category = null;
             if (randomNumber == 1){
                 Category ="Historic";
             }else{
                 Category ="Natural";
-            }
+            }**/
             double lat = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lat").getAsDouble();
             double lng = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lng").getAsDouble();
             String photo = null;
@@ -97,10 +96,10 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 attractions.setAttractionId(uniqueId);
                 attractions.setAttractionName(name);
                 attractions.setDescription(overview);
-                attractions.setCategory(Category);
+//                attractions.setCategory(Category);
                 attractions.setLatitude(BigDecimal.valueOf(lat));
                 attractions.setLongitude(BigDecimal.valueOf(lng));
-                attractions.setTicketPrice(BigDecimal.valueOf(ticketPrice));
+//                attractions.setTicketPrice(BigDecimal.valueOf(ticketPrice));
                 attractions.setAttrRating(rating);
                 attractions.setWheelchairAllow(WC_Accessibilty);
                 attractions.setPlaceId(placeId);
@@ -109,7 +108,20 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 save(attractions);
                 showList.add(attractions);
             }
+            AttractionsEntity attractions = new AttractionsEntity();
 
+            attractions.setAttractionName(name);
+            attractions.setDescription(overview);
+            //attractions.setCategory(Category);//
+            attractions.setLatitude(BigDecimal.valueOf(lat));
+            attractions.setLongitude(BigDecimal.valueOf(lng));
+//            attractions.setTicketPrice(BigDecimal.valueOf(ticketPrice));
+            attractions.setAttrRating(rating);
+            attractions.setWheelchairAllow(WC_Accessibilty);
+            attractions.setPlaceId(placeId);
+            attractions.setAddress(address);
+            attractions.setImageUrl(photo);
+            showList.add(attractions);
         }
         return showList;
     }
@@ -221,6 +233,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 }
             } else {
                 logger.error("Opening hours information is not available for this place.");
+
             }
         }
         return hoursList;
@@ -270,7 +283,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (candidates.length() > 0) {
                 JSONObject candidate = candidates.getJSONObject(0);
                 tempPlaceId = candidate.getString("place_id");
-
                logger.info("Place ID: " + tempPlaceId);
             } else {
                 logger.info("No place found with that name and address.");
@@ -301,7 +313,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 }else if (wheelchairAccessible == false){
                     accessibility = 0;
                 }
-                // do something with the wheelchairAccessible value
+            } else {
+                accessibility=-1;
             }
         }
         return accessibility;
@@ -466,9 +479,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             // Extract the latitude and longitude coordinates from the response
             lat = jsonResponse.getJSONObject("result").getJSONObject("geometry").getJSONObject("location").getDouble("lat");
 
-            // Print the coordinates
-//            System.out.println("Latitude: " + lat);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -500,8 +510,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
             // Extract the latitude and longitude coordinates from the response
             lng = jsonResponse.getJSONObject("result").getJSONObject("geometry").getJSONObject("location").getDouble("lng");
-
-            // Print the coordinates
             logger.info("Latitude: " + lng);
 
         } catch (IOException e) {
