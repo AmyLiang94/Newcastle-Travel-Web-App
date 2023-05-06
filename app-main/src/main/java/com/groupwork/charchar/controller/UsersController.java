@@ -1,21 +1,12 @@
 package com.groupwork.charchar.controller;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.crypto.SecureUtil;
-import com.groupwork.charchar.dao.UsersDao;
-import com.groupwork.charchar.service.impl.UsersServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.groupwork.charchar.entity.UsersEntity;
 import com.groupwork.charchar.service.UsersService;
-
-import javax.annotation.Resource;
-
 
 /**
  * @author wangyilong
@@ -32,45 +23,15 @@ public class UsersController {
     /**
      * 登录
      */
-//    @CrossOrigin(origins = "*", maxAge = 3600)
-//    @CrossOrigin(origins = "http://localhost:8081")
-    @PostMapping("/login")
+    @PostMapping("/login")//登录
         public Map<String,Object> login(@RequestBody UsersEntity user){
-//        System.out.println(user.getEmail());
         return usersService.loginAccount(user);
 }
-
-    /**
-     * 获取所有用户信息的所有信息
-     */
-//    @GetMapping
-//    public List<UsersEntity> getAll(){
-//        List<UsersEntity> userList = usersService.list();
-//        System.out.println("getAll bookList"+userList);
-//        return userList;
-//    }
-
-
-    /**
-     * 通过Email获取单个用户信息（建议使用）
-     */
-
-//    @GetMapping("/getUserInformation")
-////    public UsersEntity getUserInformation(@RequestBody UsersEntity users){
-//    public Map<String, Object> getUserInformation(@RequestBody UsersEntity users){
-////        UsersEntity usersEntity = usersService.getUserInfomation(users);
-////        System.out.println("getById bookList"+usersEntity);
-////        return usersEntity;
-//        Map<String,Object> usersEntity = usersService.getUserInfomation(users);
-//        return usersEntity;
-//    }
-
-
     /**
      * 更改用户个人信息username, Phone
      */
 
-    @PostMapping("/updateOneUserInfomation")
+    @PostMapping("/updateOneUserInfomation")//Change username
     public Map<String,Object> updateOneUserInfomation(@RequestBody UsersEntity users){
         Map<String,Object> usersEntity = usersService.updateOneUserInformation(users);
         return usersEntity;
@@ -79,7 +40,7 @@ public class UsersController {
      * 注册
      */
 
-    @PostMapping("/registryUser")
+    @PostMapping("/registryUser")//User Registration
     public Map<String,Object> registerUser(@RequestBody UsersEntity users) {
         Map<String,Object> res = usersService.register(users);
         return res;
@@ -88,7 +49,7 @@ public class UsersController {
      * 发送验证码
      */
 
-    @PostMapping("/sendVerificationCode")
+    @PostMapping("/sendVerificationCode")//Send verification code
     public Map<String,Object> sendVerificationCode(@RequestBody UsersEntity users) {
         Map<String,Object> res = usersService.updateVerificationCode(users);
         return res;
@@ -98,7 +59,7 @@ public class UsersController {
      * 修改密码
      */
 
-    @PutMapping("/updateUserPassword")
+    @PutMapping("/updateUserPassword")//Change password
     public Map<String,Object> updateUserPassword(@RequestBody UsersEntity users) {
         Map<String,Object> update=usersService.updatePassword(users);
         return update;
@@ -107,7 +68,7 @@ public class UsersController {
      * 忘记密码
      */
 
-    @PutMapping("/forgetUserPassword")
+    @PutMapping("/forgetUserPassword")//Forgot your password
     public Map<String,Object> forgetUserPassword(@RequestBody UsersEntity users) {
         Map<String,Object> update=usersService.forgetPassword(users);
         return update;
@@ -117,13 +78,13 @@ public class UsersController {
      * 用户注销
      */
 
-    @DeleteMapping("/deleteUser")
+    @DeleteMapping("/deleteUser")//Delete account
     public Map<String,Object> deleteUser(@RequestBody UsersEntity users) {
         Map<String,Object> flag = usersService.deleteUser(users);
         return flag;
     }
 
-    @GetMapping("/activation")
+    @GetMapping("/activation")//Activate account
     public Map<String, Object> activationAccont(@RequestParam String confirmCode) {
         return usersService.activationAccont(confirmCode);
     }

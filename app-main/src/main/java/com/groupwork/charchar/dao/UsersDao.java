@@ -13,6 +13,7 @@ import java.util.List;
  */
 @Mapper
 public interface UsersDao extends BaseMapper<UsersEntity> {
+    //Get some user information by email
     @Select("SELECT  user_id, username, email, password, salt FROM users where email=#{email}")
     public List<UsersEntity> selectEmail(@Param("email") String email);
 
