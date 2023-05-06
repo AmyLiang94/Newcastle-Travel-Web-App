@@ -17,7 +17,7 @@ import java.util.*;
  * @date 2023-03-24 15:33:03
  */
 @RestController
-@RequestMapping("product/attractions")
+@RequestMapping("charchar/attractions")
 public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;
@@ -26,6 +26,7 @@ public class AttractionsController {
      * Given User's Current Coordinate and Search Radius, Return A List Of AttractionEntities
      */
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
+    //need users's lat and lng coord as double, and radius as double in (M)
     public List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
                                                      @PathVariable("longitude") double longitude,
                                                      @PathVariable("radius") double radius) throws IOException, JSONException {
@@ -33,7 +34,7 @@ public class AttractionsController {
         return res;
     }
     /**
-     * 获取步行时间
+     * Return Distance To The Attraction
      *
      * @param departLat latitude of departure
      * @param departLng longitude of departure
@@ -51,7 +52,7 @@ public class AttractionsController {
         return response;
     }
     /**
-     *更新评分Updating Rating
+     *Update Rating
      */
     @PostMapping("/update/rating/{attractionId}")
     public UpdateAttractionRatingVO updateAttractionRating(
