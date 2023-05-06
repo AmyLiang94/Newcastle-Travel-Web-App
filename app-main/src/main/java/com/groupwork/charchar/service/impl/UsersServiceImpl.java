@@ -92,7 +92,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     @Override
     public Map<String, Object> updatePassword(UsersEntity user) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
-        //通过邮箱获取该用户
+        //Get this user by email
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
         List<UsersEntity> usersEntityList2 = usersDao.findVerifiCode(user.getEmail());
         //确认该用户是否存在
@@ -116,7 +116,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         }
         String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
         String md5Pwd = SecureUtil.md5(user.getPassword() + salt);
-        //生成新的盐和加密后的新密码一并保存到数据库
+        //Generate a new salt and save it to the database along with the new encrypted password
         usersDao.updatePwd(user.getEmail(), md5Pwd, salt);
         resultMap.put("code", 200);
         resultMap.put("message", "修改密码成功");
@@ -216,12 +216,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
      */
     @Override
     public Map<String, Object> forgetPassword(UsersEntity user) {
-        //运行结果记录列表
+        //List of run result records
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
-        //通过邮箱获取该用户
+        //Get this user by email
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
         List<UsersEntity> usersEntityList2 = usersDao.findVerifiCode(user.getEmail());
-        //确认该用户是否存在
+        //Confirm that the user exists
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
             resultMap.put("message", "该账号不存在");
@@ -240,11 +240,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message", "您输入的验证码不正确");
             return resultMap;
         }
-        // 通过上述判定后，创建临时密码
+        // After passing the above determination, create a temporary password
         int num = (int) ((Math.random() * 9 + 1) * 100000);
         String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
         String md5Pwd = SecureUtil.md5(num + salt);
-        //生成新的盐和加密后的新密码一并保存到数据库
+        //Generate a new salt and save it to the database along with the new encrypted password
         usersDao.updatePwd(user.getEmail(), md5Pwd, salt);
         // 发送邮件得到临时密码（可以使用异步方式发送：多线程、消息队列）
         String activationUrl = "新的密码已生成请尽快更改" + String.valueOf(num);
