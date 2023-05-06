@@ -76,13 +76,13 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             String overview = getOverViewByGoogleID(placeId);
             Random rand = new Random();
 //            double ticketPrice = Math.round(rand.nextDouble() * 170) / 10.0;
-            int randomNumber = rand.nextInt(2) + 1;
+            /**int randomNumber = rand.nextInt(2) + 1;
             String Category = null;
             if (randomNumber == 1){
                 Category ="Historic";
             }else{
                 Category ="Natural";
-            }
+            }**/
             double lat = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lat").getAsDouble();
             double lng = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lng").getAsDouble();
             String photo = curPlace.getAsJsonArray("photos").get(0).getAsJsonObject().get("photo_reference").getAsString();
@@ -92,7 +92,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
             attractions.setAttractionName(name);
             attractions.setDescription(overview);
-            attractions.setCategory(Category);
+            //attractions.setCategory(Category);//
             attractions.setLatitude(BigDecimal.valueOf(lat));
             attractions.setLongitude(BigDecimal.valueOf(lng));
 //            attractions.setTicketPrice(BigDecimal.valueOf(ticketPrice));

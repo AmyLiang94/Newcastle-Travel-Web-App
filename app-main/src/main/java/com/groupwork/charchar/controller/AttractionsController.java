@@ -22,7 +22,8 @@ public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;
     /**
-     * 返回范围内的景点
+     * Return NearBy Attractions
+     * Given User's Current Coordinate and Search Radius, Return A List Of AttractionEntities
      */
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
     public List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
