@@ -69,7 +69,7 @@ public class UsersController {
     /**
      * 更改用户个人信息username, Phone
      */
-//    @CrossOrigin(origins = "http://localhost:8081")
+
     @PostMapping("/updateOneUserInfomation")
     public Map<String,Object> updateOneUserInfomation(@RequestBody UsersEntity users){
         Map<String,Object> usersEntity = usersService.updateOneUserInformation(users);
@@ -78,7 +78,7 @@ public class UsersController {
     /**
      * 注册
      */
-//    @CrossOrigin(origins = "http://localhost:8081")
+
     @PostMapping("/registryUser")
     public Map<String,Object> registerUser(@RequestBody UsersEntity users) {
         Map<String,Object> res = usersService.register(users);
@@ -87,7 +87,7 @@ public class UsersController {
     /**
      * 发送验证码
      */
-//    @CrossOrigin(origins = "http://localhost:8081")
+
     @PostMapping("/sendVerificationCode")
     public Map<String,Object> sendVerificationCode(@RequestBody UsersEntity users) {
         Map<String,Object> res = usersService.updateVerificationCode(users);
@@ -97,21 +97,19 @@ public class UsersController {
     /**
      * 修改密码
      */
-//    @CrossOrigin(origins = "http://localhost:8081")
+
     @PutMapping("/updateUserPassword")
     public Map<String,Object> updateUserPassword(@RequestBody UsersEntity users) {
         Map<String,Object> update=usersService.updatePassword(users);
-        System.out.println(update);
         return update;
     }
     /**
      * 忘记密码
      */
-//    @CrossOrigin(origins = "http://localhost:8081")
+
     @PutMapping("/forgetUserPassword")
     public Map<String,Object> forgetUserPassword(@RequestBody UsersEntity users) {
         Map<String,Object> update=usersService.forgetPassword(users);
-        System.out.println(update);
         return update;
     }
 
@@ -122,7 +120,6 @@ public class UsersController {
     @DeleteMapping("/deleteUser")
     public Map<String,Object> deleteUser(@RequestBody UsersEntity users) {
         Map<String,Object> flag = usersService.deleteUser(users);
-        System.out.println(flag);
         return flag;
     }
 
