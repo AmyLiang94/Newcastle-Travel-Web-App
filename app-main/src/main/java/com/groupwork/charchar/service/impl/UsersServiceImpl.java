@@ -77,7 +77,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         resultMap.put("message", "登陆成功");
         resultMap.put("data", user.getEmail());
         resultMap.put("userId",usersEntityList.get(0).getUserId());
-        System.out.println("login");
         return resultMap;
 //        arrayList.add(0,200);
 //        return arrayList.get(0);
@@ -126,7 +125,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         usersDao.updateUserInformation(user.getUsername(), user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "修改个人信息成功");
-        System.out.println("updateOneUserInformation");
         return resultMap;
     }
 
@@ -175,7 +173,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             sendMail(activationUrl, user.getEmail());
             resultMap.put("code", 200);
             resultMap.put("message", "注册成功，请前往邮箱激活");
-            System.out.println("register");
         } else {
             resultMap.put("code", 400);
             resultMap.put("message", "注册失败");
@@ -221,18 +218,16 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         sendMail(activationUrl, user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "请前往邮箱获取临时密码");
-        System.out.println("forgetPassword");
         return resultMap;
     }
 
 
     //执行该方法前应该先执行loginAccount再调用
     @Override
-    public Map<String, Object> deleteUser(UsersEntity user) {
+    public Map<String, Object> deleteUser(UsersEntity user) {//还可以通过逻辑删除
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
         //获取该用户名相应的用户名，加密后的密码 和 盐
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
-
 
         //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
@@ -246,11 +241,19 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message", "该账号异常");
             return resultMap;
         }
+        //查询到一个用户，进行密码对比(一个email只有一个用户所以是get（0）)
+        UsersEntity usersEntity = usersEntityList.get(0);
+        //用户输入的密码和盐进行加密
+        String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
+        if (!usersEntity.getPassword().equals(md5Pwd)) {
+            resultMap.put("code", 400);
+            resultMap.put("message", "输入的密码不正确");
+            return resultMap;
+        }
         //注销账户
         usersDao.deleteUser(user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "该账户已被注销");
-        System.out.println("deleteUser");
         return resultMap;
     }
 
@@ -312,11 +315,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             message.setFrom(mailUsername);
             // 设置邮件接受者，可以多个
             message.setTo(email);
-            // 设置邮件抄送人，可以多个
-            // message.setCc();
-            // 设置隐秘抄送人，可以多个
-            // message.setBcc();
-            // 设置邮件发送日期
+//             设置邮件发送日期
             message.setSentDate(new Date());
             // 创建上下文环境
             Context context = new Context();
@@ -375,6 +374,21 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     @Override
     public Map<String, Object> updateVerificationCode(UsersEntity user) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
+
+        List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
+
+        //该用户不存在或未注册
+        if (usersEntityList == null || usersEntityList.isEmpty()) {
+            resultMap.put("code", 400);
+            resultMap.put("message", "该用户不存在或未注册");
+            return resultMap;
+        }
+        //用户存在多个相同名字账号，账号异常
+        if (usersEntityList.size() > 1) {
+            resultMap.put("code", 400);
+            resultMap.put("message", "该账号异常");
+            return resultMap;
+        }
         Random random = new Random();
         int randomNumber = random.nextInt(900000) + 100000;
         String vertifi=String.valueOf(randomNumber);
