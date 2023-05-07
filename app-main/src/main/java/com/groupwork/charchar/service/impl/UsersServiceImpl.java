@@ -79,6 +79,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         UsersEntity usersEntity2 = usersEntityList.get(0);
         //Snowflake number encryption by adding salt to the password entered by the user
         String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity2.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
+        //whether the account be actived
         if(usersEntity2.getIsValid()!=1){
             resultMap.put("code", 400);
             resultMap.put("message", "The account is not active");
