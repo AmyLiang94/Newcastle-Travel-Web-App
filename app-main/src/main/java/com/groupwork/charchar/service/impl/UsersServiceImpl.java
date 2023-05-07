@@ -79,6 +79,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         UsersEntity usersEntity2 = usersEntityList.get(0);
         //Snowflake number encryption by adding salt to the password entered by the user
         String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity2.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
+        if(usersEntity2.getIsValid()!=1){
+            resultMap.put("code", 400);
+            resultMap.put("message", "The account is not active");
+            return resultMap;
+        }
         //Determine if the password entered is correct
         if (!usersEntity2.getPassword().equals(md5Pwd)) {
             resultMap.put("code", 400);
@@ -205,7 +210,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         // Add an account
         int result = usersDao.save(user);
         if (result != 0) {
-            String activationUrl = "http://1.12.235.241:9090/charchar/users/activation?confirmCode=" + confirmCode;
+            String activationUrl = "http://localhost:9090/charchar/users/activation?confirmCode=" + confirmCode;
             sendMail(activationUrl, user.getEmail());
             resultMap.put("code", 200);
             resultMap.put("message", "Register successfully, please go to your mailbox to activate");
@@ -374,6 +379,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         // 根据确认码查询用户并修改状态值为 1（可用）(Look up the user according to the confirmation code and change the status value to 1 (available))
         int result = usersDao.updateUserByConfirmCode(confirmCode);
         if (result > 0) {
+            System.out.println(result);
             resultMap.put("code", 200);
             resultMap.put("message", "Successful activation");
         } else {
