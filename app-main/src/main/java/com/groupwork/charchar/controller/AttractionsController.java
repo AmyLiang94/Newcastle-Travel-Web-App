@@ -339,16 +339,19 @@ public class AttractionsController {
     public void saveAttractionsList(@PathVariable ("latitude") double lat,
                                     @PathVariable ("longitude") double lng,
                                     @PathVariable ("radius") double rad) throws JSONException, IOException {
-        Map<String, Boolean> response = new HashMap<>();
+//        Map<String, Boolean> response = new HashMap<>();
         List <AttractionsEntity> tempattractionList= attractionsService.getNearByLocation(lat, lng,rad);
-        for (AttractionsEntity a :tempattractionList){
-             boolean success = attractionsService.save(a);
-            response.put("success", success);
-        }
-
-
-
-
+//        try {
+            for (AttractionsEntity a :tempattractionList){
+                boolean exists = attractionsService.checkPlaceIdExists(a.getPlaceId());
+                if (!exists) {
+                    attractionsService.save(a);
+//                response.put("success", success);
+                }
+            }
+//        } catch (Exception e) {
+//            throw new RuntimeException("save all error");
+//        }
     }
 
     /**

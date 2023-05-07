@@ -27,11 +27,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,15 +65,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             double rating = curPlace.has("rating") ? curPlace.get("rating").getAsDouble() : 0.0;
             String placeId = curPlace.get("place_id").getAsString();
             String overview = getOverViewByGoogleID(placeId);
-            Random rand = new Random();
-//            double ticketPrice = Math.round(rand.nextDouble() * 170) / 10.0;
-            /**int randomNumber = rand.nextInt(2) + 1;
-            String Category = null;
-            if (randomNumber == 1){
-                Category ="Historic";
-            }else{
-                Category ="Natural";
-            }**/
             double lat = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lat").getAsDouble();
             double lng = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lng").getAsDouble();
             String photo = null;
@@ -90,40 +79,54 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                         }
                     }
                 }
-            }            int WC_Accessibilty = getWheelChair_AccessblityByGoogleID(placeId);
-            if (photo != null && photo.length() != 0) {
-                AttractionsEntity attractions = new AttractionsEntity();
-                attractions.setAttractionId(uniqueId);
-                attractions.setAttractionName(name);
-                attractions.setDescription(overview);
-//                attractions.setCategory(Category);
-                attractions.setLatitude(BigDecimal.valueOf(lat));
-                attractions.setLongitude(BigDecimal.valueOf(lng));
-//                attractions.setTicketPrice(BigDecimal.valueOf(ticketPrice));
-                attractions.setAttrRating(rating);
-                attractions.setWheelchairAllow(WC_Accessibilty);
-                attractions.setPlaceId(placeId);
-                attractions.setAddress(address);
-                attractions.setImageUrl(photo);
-                save(attractions);
-                showList.add(attractions);
             }
+            int WC_Accessibilty = getWheelChair_AccessblityByGoogleID(placeId);
+            // select id, category, price from db.
             AttractionsEntity attractions = new AttractionsEntity();
+            AttractionsEntity attractionsEntity = attractionsDao.getAttractionByplaceId(placeId);
+            attractions.setAttractionId(attractionsEntity.getAttractionId());
+            attractions.setAttractionName(attractionsEntity.getAttractionName());
+            attractions.setDescription(attractionsEntity.getDescription());
+            attractions.setCategory(attractionsEntity.getCategory());
+            attractions.setLatitude(attractionsEntity.getLatitude());
+            attractions.setLongitude(attractionsEntity.getLongitude());
+            attractions.setTicketPrice(attractionsEntity.getTicketPrice());
+            attractions.setImageUrl(attractionsEntity.getImageUrl());
+            attractions.setAttrRating(attractionsEntity.getAttrRating());
+            attractions.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
+            attractions.setPramAllow(attractionsEntity.getPramAllow());
+            attractions.setHearingAllow(attractionsEntity.getHearingAllow());
+            attractions.setAddress(attractionsEntity.getAddress());
+            attractions.setPlaceId(attractionsEntity.getPlaceId());
+//            JsonArray category  = curPlace.getAsJsonArray("types");
 
-            attractions.setAttractionName(name);
-            attractions.setDescription(overview);
-            //attractions.setCategory(Category);//
-            attractions.setLatitude(BigDecimal.valueOf(lat));
-            attractions.setLongitude(BigDecimal.valueOf(lng));
-//            attractions.setTicketPrice(BigDecimal.valueOf(ticketPrice));
-            attractions.setAttrRating(rating);
-            attractions.setWheelchairAllow(WC_Accessibilty);
-            attractions.setPlaceId(placeId);
-            attractions.setAddress(address);
-            attractions.setImageUrl(photo);
+//            attractions.setAttractionName(name);
+//            attractions.setDescription(overview);
+////            attractions.setAttractionId(attrIdCatePrice.getAttractionId());
+////            attractions.setCategory(category.getAsString());//
+//            attractions.setLatitude(BigDecimal.valueOf(lat));
+//            attractions.setLongitude(BigDecimal.valueOf(lng));
+////            attractions.setTicketPrice(attrIdCatePrice.getTicketPrice());
+//            attractions.setAttrRating(rating);
+//            attractions.setWheelchairAllow(WC_Accessibilty);
+//            attractions.setPlaceId(placeId);
+//            attractions.setAddress(address);
+//            attractions.setImageUrl(photo);
             showList.add(attractions);
         }
         return showList;
+    }
+
+    /**
+     * 在这里调用一个方法来查询数据库，检查给定的Place ID是否已存在
+     * 如果存在，返回true；否则返回false
+     * @param placeId
+     * @return
+     */
+
+    public boolean checkPlaceIdExists(String placeId) {
+        AttractionsEntity attraction = attractionsDao.findByPlaceId(placeId);
+        return attraction != null;
     }
 
     // 返回的数据类似："57" 单位：分钟
@@ -233,7 +236,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 }
             } else {
                 logger.error("Opening hours information is not available for this place.");
-
             }
         }
         return hoursList;
@@ -283,9 +285,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (candidates.length() > 0) {
                 JSONObject candidate = candidates.getJSONObject(0);
                 tempPlaceId = candidate.getString("place_id");
-               logger.info("Place ID: " + tempPlaceId);
             } else {
-                logger.info("No place found with that name and address.");
+                logger.error("No place found with that name and address.");
             }
         }
         return tempPlaceId;
@@ -378,7 +379,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             JSONObject result = json.getJSONObject("result");
             if (result.has("formatted_phone_number")) {
                 phone = result.getString("formatted_phone_number");
-
             } else {
                 phone="Phone Number not Specified";
             }
@@ -402,7 +402,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             JSONObject result = json.getJSONObject("result");
             if (result.has("formatted_address")) {
                 address = result.getString("formatted_address");
-
             } else {
                 address="Address not Specified";
             }
@@ -425,7 +424,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             JSONObject result = json.getJSONObject("result");
             if (result.has("editorial_summary")) {
                 overview = result.getString("editorial_summary");
-
             } else {
                 overview="overview not Specified";
             }
@@ -448,7 +446,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             JSONObject result = json.getJSONObject("result");
             if (result.has("name")) {
                 name = result.getString("name");
-
             } else {
                 name="overview not Specified";
             }

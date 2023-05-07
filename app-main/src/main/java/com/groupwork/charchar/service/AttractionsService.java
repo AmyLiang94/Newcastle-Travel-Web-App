@@ -35,7 +35,7 @@ public interface AttractionsService extends IService<AttractionsEntity> {
     String getNameByGoogleID(String attractionGoogleI)throws IOException, JSONException;
     double getLatCoordByGoogleID(String attractionGoogleID)throws IOException, JSONException;
     double getLngCoordByGoogleID(String attractionGoogleID)throws IOException, JSONException;
-
+    boolean checkPlaceIdExists(String placeId);
 
 
 
