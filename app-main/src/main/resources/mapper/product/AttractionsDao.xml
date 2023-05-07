@@ -40,5 +40,4 @@
         from attractions where place_id = #{placeId};
     </select>
 
-
 </mapper>

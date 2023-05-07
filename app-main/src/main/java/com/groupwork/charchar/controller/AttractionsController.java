@@ -1,10 +1,13 @@
 package com.groupwork.charchar.controller;
 
 import com.google.maps.errors.ApiException;
+import com.groupwork.charchar.dao.AttractionsDao;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.service.AttractionsService;
+import com.groupwork.charchar.vo.AttractionDetailVO;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import org.json.JSONException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +30,8 @@ import java.util.Map;
 public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;
+    @Autowired
+    private AttractionsDao attractionsDao;
 
     /**
      * 保存一堆景点
@@ -49,30 +54,38 @@ public class AttractionsController {
      */
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
     //need users's lat and lng coord as double, and radius as double in (M)
-    public List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
-                                                     @PathVariable("longitude") double longitude,
-                                                     @PathVariable("radius") double radius) throws IOException, JSONException {
-        List<AttractionsEntity> res = attractionsService.getNearByLocation(latitude, longitude, radius);
-        return res;
+    public List<AttractionDetailVO> getNearByLocation(@PathVariable("latitude") double latitude,
+                                                      @PathVariable("longitude") double longitude,
+                                                      @PathVariable("radius") double radius) throws IOException, JSONException {
+        List<AttractionsEntity> attractionsEntityList = attractionsService.getNearByLocation(latitude, longitude, radius);
+        List<AttractionDetailVO> attractionDetailVOList = new ArrayList<>();
+        for (AttractionsEntity attractionsEntity : attractionsEntityList) {
+            AttractionDetailVO attractionDetailVO = new AttractionDetailVO();
+            BeanUtils.copyProperties(attractionsEntity, attractionDetailVO);
+            String walkingTime = attractionsService.getWalkTime(latitude, longitude, attractionsEntity.getLatitude().doubleValue(), attractionsEntity.getLongitude().doubleValue());
+            attractionDetailVO.setWalkingTime(walkingTime);
+            attractionDetailVOList.add(attractionDetailVO);
+        }
+        return attractionDetailVOList;
     }
-    /**
-     * Return Distance To The Attraction
-     *
-     * @param departLat latitude of departure
-     * @param departLng longitude of departure
-     * @param desLat    latitude of destination
-     * @param desLng    longitude of destination
-     */
-    @GetMapping("/walktime/{departLat}/{departLng}/{desLat}/{desLng}")
-    public Map<String, String> getWalkTime(@PathVariable("departLat") double departLat,
-                                           @PathVariable("departLng") double departLng,
-                                           @PathVariable("desLat") double desLat,
-                                           @PathVariable("desLng") double desLng) {
-        String walkingTime = attractionsService.getWalkTime(departLat, departLng, desLat, desLng);
-        Map<String, String> response = new HashMap<>();
-        response.put("walkingTime", walkingTime);
-        return response;
-    }
+//    /**
+//     * Return Distance To The Attraction
+//     *
+//     * @param departLat latitude of departure
+//     * @param departLng longitude of departure
+//     * @param desLat    latitude of destination
+//     * @param desLng    longitude of destination
+//     */
+//    @GetMapping("/walktime/{departLat}/{departLng}/{desLat}/{desLng}")
+//    public Map<String, String> getWalkTime(@PathVariable("departLat") double departLat,
+//                                           @PathVariable("departLng") double departLng,
+//                                           @PathVariable("desLat") double desLat,
+//                                           @PathVariable("desLng") double desLng) {
+//        String walkingTime = attractionsService.getWalkTime(departLat, departLng, desLat, desLng);
+//        Map<String, String> response = new HashMap<>();
+//        response.put("walkingTime", walkingTime);
+//        return response;
+//    }
     /**
      *Update Rating
      */
@@ -86,10 +99,10 @@ public class AttractionsController {
      * 通过本地AttractionID 获取地点信息
      *
      */
-    @GetMapping("/findAttractionByID/{attractionId}")
+    @GetMapping("/findAttractionByID/{placeId}")
     public @ResponseBody AttractionsEntity getById(
-            @PathVariable Integer attractionId) {
-        AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
+            @PathVariable String placeId) {
+        AttractionsEntity attractionsEntity = attractionsDao.getAttractionByplaceId(placeId);
         return attractionsEntity;
     }
     /**

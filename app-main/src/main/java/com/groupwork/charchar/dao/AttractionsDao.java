@@ -19,4 +19,6 @@ public interface AttractionsDao extends BaseMapper<AttractionsEntity> {
     AttractionsEntity getAttractionByplaceId(String placeId);
 
     AttractionsEntity findByPlaceId(String placeId);
+
+    AttractionsEntity getAttrEntityByPlaceId(String placeId);
 }

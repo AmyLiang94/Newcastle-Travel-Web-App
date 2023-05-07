@@ -2,14 +2,13 @@ package com.groupwork.charchar.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.groupwork.charchar.entity.ReviewsEntity;
+import com.groupwork.charchar.service.ILikeService;
 import com.groupwork.charchar.service.ReviewsService;
+import com.groupwork.charchar.vo.ReviewsDetailVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -23,6 +22,9 @@ import java.util.Map;
 public class ReviewsController {
     @Autowired
     private ReviewsService reviewsService;
+    @Autowired LikeController likeController;
+    @Autowired
+    ILikeService likeService;
 
     /**
      * 获取某个景点的所有评论
@@ -30,9 +32,26 @@ public class ReviewsController {
      * @param attractionId attraction id
      */
     @GetMapping("/list/attr/{attractionId}")
-    public List<ReviewsEntity> listReviewsByAttraction(@PathVariable("attractionId") Integer attractionId) {
+    public List<ReviewsDetailVO> listReviewsByAttraction(@PathVariable("attractionId") Integer attractionId, Integer userId) {
         List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
-        return reviews;
+        List<ReviewsDetailVO> res = new ArrayList<>();
+        for (ReviewsEntity review : reviews) {
+            ReviewsDetailVO reviewsDetailVO = new ReviewsDetailVO();
+//            Map<String, Object> likeMap = likeController.like(userId, review.getReviewId());
+            reviewsDetailVO.setReviewId(review.getReviewId());
+            reviewsDetailVO.setAttractionId(review.getAttractionId());
+            reviewsDetailVO.setUserId(review.getUserId());
+            reviewsDetailVO.setRating(review.getRating());
+            reviewsDetailVO.setReviewText(review.getReviewText());
+            reviewsDetailVO.setCreateTime(review.getCreateTime());
+            reviewsDetailVO.setUpdateTime(review.getUpdateTime());
+            long likeCount = likeService.findLikeCount(reviewsDetailVO.getReviewId());
+            int likeStatus = likeService.findCurUserLikeStatus(userId, reviewsDetailVO.getReviewId());
+            reviewsDetailVO.setLikeStatus(likeStatus);
+            reviewsDetailVO.setLikeCount(likeCount);
+            res.add(reviewsDetailVO);
+        }
+        return res;
     }
 
     /**
