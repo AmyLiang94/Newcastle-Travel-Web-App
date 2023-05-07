@@ -1,6 +1,5 @@
 package com.groupwork.charchar.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.groupwork.charchar.entity.ReviewsEntity;
 import com.groupwork.charchar.service.ILikeService;
 import com.groupwork.charchar.service.ReviewsService;
@@ -31,8 +30,9 @@ public class ReviewsController {
      *
      * @param attractionId attraction id
      */
-    @GetMapping("/list/attr/{attractionId}")
-    public List<ReviewsDetailVO> listReviewsByAttraction(@PathVariable("attractionId") Integer attractionId, Integer userId) {
+    @GetMapping("/list/attr/{attractionId}/{userId}")
+    public List<ReviewsDetailVO> listReviewsByAttraction(@PathVariable("attractionId") Integer attractionId,
+                                                         @PathVariable("userId") Integer userId) {
         List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
         List<ReviewsDetailVO> res = new ArrayList<>();
         for (ReviewsEntity review : reviews) {
@@ -65,27 +65,27 @@ public class ReviewsController {
         return reviews;
     }
 
-    /**
-     * 分页获取某个景点的所有评论
-     *
-     * @param attractionId attraction id
-     */
-    @GetMapping("/list/attr/{attractionId}/{page}/{size}")
-    public IPage<ReviewsEntity> listReviewsByAttractionWithPage(@PathVariable("attractionId") Integer attractionId, @PathVariable Integer page, @PathVariable Integer size) {
-        IPage<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionIdWithPage(attractionId, page, size);
-        return reviews;
-    }
-
-    /**
-     * 分页获取某个用户的所有评论
-     *
-     * @userId user id
-     */
-    @GetMapping("/list/user/{userId}/{page}/{size}")
-    public IPage<ReviewsEntity> listReviewsByUserWithPage(@PathVariable("userId") Integer userId, @PathVariable Integer page, @PathVariable Integer size) {
-        IPage<ReviewsEntity> reviews = reviewsService.listReviewsByUserIdWithPage(userId, page, size);
-        return reviews;
-    }
+//    /**
+//     * 分页获取某个景点的所有评论
+//     *
+//     * @param attractionId attraction id
+//     */
+//    @GetMapping("/list/attr/{attractionId}/{page}/{size}")
+//    public IPage<ReviewsEntity> listReviewsByAttractionWithPage(@PathVariable("attractionId") Integer attractionId, @PathVariable Integer page, @PathVariable Integer size) {
+//        IPage<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionIdWithPage(attractionId, page, size);
+//        return reviews;
+//    }
+//
+//    /**
+//     * 分页获取某个用户的所有评论
+//     *
+//     * @userId user id
+//     */
+//    @GetMapping("/list/user/{userId}/{page}/{size}")
+//    public IPage<ReviewsEntity> listReviewsByUserWithPage(@PathVariable("userId") Integer userId, @PathVariable Integer page, @PathVariable Integer size) {
+//        IPage<ReviewsEntity> reviews = reviewsService.listReviewsByUserIdWithPage(userId, page, size);
+//        return reviews;
+//    }
 
     /**
      * 保存

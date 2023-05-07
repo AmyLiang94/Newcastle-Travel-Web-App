@@ -1,12 +1,12 @@
 package com.groupwork.charchar.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-
-import lombok.Data;
 
 /**
  * @author wangyilong
@@ -21,7 +21,7 @@ public class ReviewsEntity implements Serializable {
     /**
      *
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer reviewId;
     /**
      *

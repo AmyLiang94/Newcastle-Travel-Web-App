@@ -1,10 +1,7 @@
 package com.groupwork.charchar.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.groupwork.charchar.common.Constants;
 import com.groupwork.charchar.dao.AttractionsDao;
 import com.groupwork.charchar.entity.AttractionsEntity;
@@ -35,7 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-
 @Service("attractionsService")
 public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, AttractionsEntity> implements AttractionsService {
     private Logger logger = LoggerFactory.getLogger(AttractionsServiceImpl.class);
@@ -45,10 +41,10 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     private AttractionsDao attractionsDao;
     @Resource
     private ReviewsService reviewsService;
+
     @Override
     public List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException {
         List<AttractionsEntity> showList = new ArrayList<>();
-        int uniqueId = 0;
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
@@ -61,30 +57,9 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         JsonArray datas = json.getAsJsonArray("results");
         for (JsonElement data : datas) {
             JsonObject curPlace = data.getAsJsonObject();
-            String name = curPlace.get("name").getAsString();
-            String address = curPlace.get("vicinity").getAsString();
-            double rating = curPlace.has("rating") ? curPlace.get("rating").getAsDouble() : 0.0;
             String placeId = curPlace.get("place_id").getAsString();
-            String overview = getOverViewByGoogleID(placeId);
-            double lat = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lat").getAsDouble();
-            double lng = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lng").getAsDouble();
-            String photo = null;
-            if (curPlace != null) {
-                JsonArray photos = curPlace.getAsJsonArray("photos");
-                if (photos != null && !photos.isJsonNull() && photos.size() > 0) {
-                    JsonObject photoObj = photos.get(0).getAsJsonObject();
-                    if (photoObj != null && !photoObj.isJsonNull() && photoObj.has("photo_reference")) {
-                        JsonElement photoReference = photoObj.get("photo_reference");
-                        if (photoReference != null && !photoReference.isJsonNull()) {
-                            photo = photoReference.getAsString();
-                        }
-                    }
-                }
-            }
-            int WC_Accessibilty = getWheelChair_AccessblityByGoogleID(placeId);
-            // select id, category, price from db.
             AttractionsEntity attractions = new AttractionsEntity();
-            AttractionsEntity attractionsEntity = attractionsDao.getAttractionByplaceId(placeId);
+            AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
             attractions.setAttractionId(attractionsEntity.getAttractionId());
             attractions.setAttractionName(attractionsEntity.getAttractionName());
             attractions.setDescription(attractionsEntity.getDescription());
@@ -99,20 +74,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             attractions.setHearingAllow(attractionsEntity.getHearingAllow());
             attractions.setAddress(attractionsEntity.getAddress());
             attractions.setPlaceId(attractionsEntity.getPlaceId());
-//            JsonArray category  = curPlace.getAsJsonArray("types");
-
-//            attractions.setAttractionName(name);
-//            attractions.setDescription(overview);
-////            attractions.setAttractionId(attrIdCatePrice.getAttractionId());
-////            attractions.setCategory(category.getAsString());//
-//            attractions.setLatitude(BigDecimal.valueOf(lat));
-//            attractions.setLongitude(BigDecimal.valueOf(lng));
-////            attractions.setTicketPrice(attrIdCatePrice.getTicketPrice());
-//            attractions.setAttrRating(rating);
-//            attractions.setWheelchairAllow(WC_Accessibilty);
-//            attractions.setPlaceId(placeId);
-//            attractions.setAddress(address);
-//            attractions.setImageUrl(photo);
             showList.add(attractions);
         }
         return showList;
@@ -122,7 +83,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     @Override
     public List<AttractionsEntity> saveNearByAttraction(double latitude, double longitude, double radius) throws IOException, JSONException {
         List<AttractionsEntity> showList = new ArrayList<>();
-        int uniqueId = 0;
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
@@ -142,35 +102,44 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             String overview = getOverViewByGoogleID(placeId);
             double lat = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lat").getAsDouble();
             double lng = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lng").getAsDouble();
+            List<String> photosList = new ArrayList<>();
             String photo = null;
             if (curPlace != null) {
                 JsonArray photos = curPlace.getAsJsonArray("photos");
                 if (photos != null && !photos.isJsonNull() && photos.size() > 0) {
-                    JsonObject photoObj = photos.get(0).getAsJsonObject();
-                    if (photoObj != null && !photoObj.isJsonNull() && photoObj.has("photo_reference")) {
-                        JsonElement photoReference = photoObj.get("photo_reference");
-                        if (photoReference != null && !photoReference.isJsonNull()) {
-                            photo = photoReference.getAsString();
+                    int count = 0;
+                    int max = 5;
+                    for (JsonElement element : photos) {
+                        if (count > max) break;
+                        JsonObject photoObj = element.getAsJsonObject();
+                        if (photoObj != null && !photoObj.isJsonNull() && photoObj.has("photo_reference")) {
+                            JsonElement photoReference = photoObj.get("photo_reference");
+                            if (photoReference != null && !photoReference.isJsonNull()) {
+                                String photoRef = photoReference.getAsString();
+                                int maxWidth = 400;
+                                String apiKey = key;
+                                photo = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + maxWidth + "&photoreference=" + photoRef + "&key=" + apiKey;
+                                photosList.add(photo);
+                                count++;
+                            }
                         }
                     }
                 }
             }
+            Gson gson = new Gson();
+            String photosJson = gson.toJson(photosList);
             int WC_Accessibilty = getWheelChair_AccessblityByGoogleID(placeId);
             AttractionsEntity attractions = new AttractionsEntity();
-            JsonArray category  = curPlace.getAsJsonArray("types");
-
             attractions.setAttractionName(name);
             attractions.setDescription(overview);
-//            attractions.setAttractionId(attrIdCatePrice.getAttractionId());
-//            attractions.setCategory(category.getAsString());//
             attractions.setLatitude(BigDecimal.valueOf(lat));
             attractions.setLongitude(BigDecimal.valueOf(lng));
-//            attractions.setTicketPrice(attrIdCatePrice.getTicketPrice());
             attractions.setAttrRating(rating);
             attractions.setWheelchairAllow(WC_Accessibilty);
             attractions.setPlaceId(placeId);
             attractions.setAddress(address);
-            attractions.setImageUrl(photo);
+            // 如果list不行，直接传一张photo
+            attractions.setImageUrl(photosJson);
             showList.add(attractions);
         }
         return showList;
@@ -179,6 +148,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     /**
      * 在这里调用一个方法来查询数据库，检查给定的Place ID是否已存在
      * 如果存在，返回true；否则返回false
+     *
      * @param placeId
      * @return
      */
@@ -236,27 +206,29 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
         List<AttractionsEntity> tempAttractionEntities = new ArrayList<>();
         List<AttractionsEntity> filteredAttractions = new ArrayList<>();
-        for (int a : attractionIDs){
+        for (int a : attractionIDs) {
             tempAttractionEntities.add(attractionsDao.getAttractionById(a));
         }
-        for(AttractionsEntity a : tempAttractionEntities){
-            if (a.getCategory().equals(category)){
+        for (AttractionsEntity a : tempAttractionEntities) {
+            if (a.getCategory().equals(category)) {
                 filteredAttractions.add(a);
             }
         }
 
         return filteredAttractions;
     }
+
     @Override
     public List<String> filterAttractionByWheelChairAccessibility(List<String> attractionGoogleId, Integer wc_allowed) throws JSONException, IOException {
         List<String> filteredAttractions = new ArrayList<>();
-        for (String s: attractionGoogleId){
-            if (getWheelChair_AccessblityByGoogleID(s) == wc_allowed){
+        for (String s : attractionGoogleId) {
+            if (getWheelChair_AccessblityByGoogleID(s) == wc_allowed) {
                 filteredAttractions.add(s);
             }
         }
         return filteredAttractions;
     }
+
     @Override
     public List<String> getOpeningHourMK2(String placeID) throws JSONException, IOException {
         OkHttpClient client = new OkHttpClient();
@@ -286,7 +258,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                             String openTime = open.getString("time");
                             JSONObject close = period.getJSONObject("close");
                             String closeTime = close.getString("time");
-                            hoursList.add( openTime + "-" + closeTime);
+                            hoursList.add(openTime + "-" + closeTime);
                         }
                     }
                     if (!isOpen) {
@@ -299,6 +271,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return hoursList;
     }
+
     @Override
     public int getCurrentOpeningStatus(String placeID) throws JSONException, IOException {
         int openStatus = 4;
@@ -315,7 +288,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (result.has("opening_hours")) {
                 JSONObject openingHours = result.getJSONObject("opening_hours");
                 boolean openNow = openingHours.getBoolean("open_now");
-                if (openNow == true){
+                if (openNow == true) {
                     openStatus = 1;
                 } else if (openNow == false) {
                     openStatus = 0;
@@ -327,6 +300,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return openStatus;
     }
+
     @Override
     public String getGooglePlaceIDByCoordinateAndName(String attractionName, String attractionAddress) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient();
@@ -352,7 +326,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     }
 
 
-
     @Override
     public int getWheelChair_AccessblityByGoogleID(String attractionGoogleID) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient();
@@ -368,13 +341,13 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             JSONObject result = json.getJSONObject("result");
             if (result.has("wheelchair_accessible_entrance")) {
                 wheelchairAccessible = result.getBoolean("wheelchair_accessible_entrance");
-                if (wheelchairAccessible == true){
+                if (wheelchairAccessible == true) {
                     accessibility = 1;
-                }else if (wheelchairAccessible == false){
+                } else if (wheelchairAccessible == false) {
                     accessibility = 0;
                 }
             } else {
-                accessibility=-1;
+                accessibility = -1;
             }
         }
         return accessibility;
@@ -396,7 +369,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 category = result.getString("types");
 
             } else {
-                category="Category not Specified";
+                category = "Category not Specified";
             }
         }
         return category;
@@ -418,7 +391,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 rating = result.getDouble("rating");
 
             } else {
-                rating = -1 ;
+                rating = -1;
             }
         }
         return rating;
@@ -439,13 +412,14 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (result.has("formatted_phone_number")) {
                 phone = result.getString("formatted_phone_number");
             } else {
-                phone="Phone Number not Specified";
+                phone = "Phone Number not Specified";
             }
         }
         return phone;
 
 
     }
+
     @Override
     public String getAddressByGoogleID(String attractionGoogleI) throws IOException, JSONException {
 
@@ -462,7 +436,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (result.has("formatted_address")) {
                 address = result.getString("formatted_address");
             } else {
-                address="Address not Specified";
+                address = "Address not Specified";
             }
         }
         return address;
@@ -484,7 +458,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (result.has("editorial_summary")) {
                 overview = result.getString("editorial_summary");
             } else {
-                overview="overview not Specified";
+                overview = "overview not Specified";
             }
         }
         return overview;
@@ -506,7 +480,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             if (result.has("name")) {
                 name = result.getString("name");
             } else {
-                name="overview not Specified";
+                name = "overview not Specified";
             }
         }
         return name;
@@ -540,9 +514,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return lat;
     }
-
-
-
 
 
     @Override
@@ -593,12 +564,13 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 website = result.getString("website");
 
             } else {
-                website="Phone not Specified";
+                website = "Phone not Specified";
             }
         }
         return website;
 
     }
+
     @Override
     public int getTotalNumberOfRatingsByGoogleID(String attractionGoogleI) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient();
@@ -615,7 +587,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 NOR = result.getInt("user_ratings_total");
 
             } else {
-                NOR=-1;
+                NOR = -1;
             }
         }
         return NOR;
@@ -623,11 +595,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     }
 
 
-
-
     @Override
     public String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException {
-
 
 
         OkHttpClient client = new OkHttpClient();
@@ -653,6 +622,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         }
         return tempPlaceId;
     }
+
     @Override
     public UpdateAttractionRatingVO updateAttractionRating(Integer attractionId) {
         AttractionsEntity attraction = attractionsDao.getAttractionById(attractionId);

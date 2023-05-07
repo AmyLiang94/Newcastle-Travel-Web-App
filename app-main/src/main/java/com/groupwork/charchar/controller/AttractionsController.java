@@ -68,6 +68,10 @@ public class AttractionsController {
         }
         return attractionDetailVOList;
     }
+    /**
+     *
+     *
+     */
 //    /**
 //     * Return Distance To The Attraction
 //     *
@@ -96,13 +100,13 @@ public class AttractionsController {
         return updateEntity;
     }
     /**
-     * 通过本地AttractionID 获取地点信息
+     * 通过本地placeID 获取地点信息
      *
      */
     @GetMapping("/findAttractionByID/{placeId}")
     public @ResponseBody AttractionsEntity getById(
             @PathVariable String placeId) {
-        AttractionsEntity attractionsEntity = attractionsDao.getAttractionByplaceId(placeId);
+        AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
         return attractionsEntity;
     }
     /**
