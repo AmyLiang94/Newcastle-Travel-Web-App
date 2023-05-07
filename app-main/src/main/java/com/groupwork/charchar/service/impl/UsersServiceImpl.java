@@ -57,7 +57,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //Determine if the input is an email address
         if (!isEmail(user.getEmail())) {
             resultMap.put("code", 400);
-            resultMap.put("message", "请输入正确的邮箱");
+            resultMap.put("message", "Please enter the correct email address");
             return resultMap;
         }
         //Determine if a user exists in the database
@@ -65,13 +65,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该用户不存在或未注册");
+            resultMap.put("message", "This user does not exist or is not registered");
             return resultMap;
         }
         //Multiple accounts with the same name exist for users, determine account anomalies
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
-            resultMap.put("message", "账号异常");
+            resultMap.put("message", "Account anomalies");
             return resultMap;
         }
         //Query for a user and do a password comparison (an email has only one user so it's get (0))
@@ -107,20 +107,19 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //确认该用户是否存在
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号不存在");
+            resultMap.put("message", "The account does not exist");
             return resultMap;
         }
         //用户存在多个相同名字账号，账号异常
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号异常");
+            resultMap.put("message", "The account is abnormal");
             return resultMap;
         }
         UsersEntity usersEntity2 = usersEntityList2.get(0);
-        System.out.println((usersEntity2.getVerificationCode()+"="+user.getVerificationCode()));
         if (!((usersEntity2.getVerificationCode()).equals(user.getVerificationCode()))){
             resultMap.put("code", 400);
-            resultMap.put("message", "您输入的验证码不正确");
+            resultMap.put("message", "The verification code you entered is incorrect");
             return resultMap;
         }
         String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
@@ -128,8 +127,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //Generate a new salt and save it to the database along with the new encrypted password
         usersDao.updatePwd(user.getEmail(), md5Pwd, salt);
         resultMap.put("code", 200);
-        resultMap.put("message", "修改密码成功");
-        System.out.println("updatePassword");
+        resultMap.put("message", "Password change successful");
         return resultMap;
     }
 
@@ -147,19 +145,19 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该用户不存在或未注册");
+            resultMap.put("message", "This user does not exist or is not registered");
             return resultMap;
         }
         //用户存在多个相同名字账号，账号异常
         if (usersEntityList.size() > 1||usersEntityList.get(0).getUsername().equals(user.getUsername())) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号重名或异常");
+            resultMap.put("message", "The account is renamed or abnormal");
             return resultMap;
         }
         // 检查密保问题的答案是否正确
         usersDao.updateUserInformation(user.getUsername(), user.getEmail());
         resultMap.put("code", 200);
-        resultMap.put("message", "修改个人信息成功");
+        resultMap.put("message", "Change personal information successfully");
         return resultMap;
     }
 
@@ -174,20 +172,20 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //判断输入的是否是邮箱
         if (!isEmail(user.getEmail())) {
             resultMap.put("code", 400);
-            resultMap.put("message", "请输入正确的邮箱");
+            resultMap.put("message", "Please enter the correct email address");
             return resultMap;
         }
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
         //该用户名已经注册
         if (!(usersEntityList == null || usersEntityList.isEmpty())) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该用户名已经注册");
+            resultMap.put("message", "This username is already registered");
             return resultMap;
         }
         //用户存在多个相同名字账号，账号异常
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号异常");
+            resultMap.put("message", "The account is abnormal");
             return resultMap;
         }
         // 雪花算法生成确认码
@@ -211,10 +209,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             String activationUrl = "http://1.12.235.241:9090/charchar/users/activation?confirmCode=" + confirmCode;
             sendMail(activationUrl, user.getEmail());
             resultMap.put("code", 200);
-            resultMap.put("message", "注册成功，请前往邮箱激活");
+            resultMap.put("message", "Register successfully, please go to your mailbox to activate");
         } else {
             resultMap.put("code", 400);
-            resultMap.put("message", "注册失败");
+            resultMap.put("message", "Registration failed");
         }
         return resultMap;
     }
@@ -234,20 +232,20 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //Confirm that the user exists
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号不存在");
+            resultMap.put("message", "The account does not exist");
             return resultMap;
         }
         //用户存在多个相同名字账号，账号异常
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号异常");
+            resultMap.put("message", "The account is abnormal");
             return resultMap;
         }
         UsersEntity usersEntity2 = usersEntityList2.get(0);
 
         if (!((usersEntity2.getVerificationCode()).equals(user.getVerificationCode()))){
             resultMap.put("code", 400);
-            resultMap.put("message", "您输入的验证码不正确");
+            resultMap.put("message", "The verification code you entered is incorrect");
             return resultMap;
         }
         // After passing the above determination, create a temporary password
@@ -257,10 +255,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //Generate a new salt and save it to the database along with the new encrypted password
         usersDao.updatePwd(user.getEmail(), md5Pwd, salt);
         // 发送邮件得到临时密码（可以使用异步方式发送：多线程、消息队列）
-        String activationUrl = "新的密码已生成请尽快更改" + String.valueOf(num);
+        String activationUrl = "A new password has been created, please change it as soon as possible" + String.valueOf(num);
         sendMail(activationUrl, user.getEmail());
         resultMap.put("code", 200);
-        resultMap.put("message", "请前往邮箱获取临时密码");
+        resultMap.put("message", "Please go to your email address for a temporary password");
         return resultMap;
     }
 
@@ -279,13 +277,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该用户不存在或未注册");
+            resultMap.put("message", "This user does not exist or is not registered");
             return resultMap;
         }
         //用户存在多个相同名字账号，账号异常
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号异常");
+            resultMap.put("message", "The account is abnormal");
             return resultMap;
         }
         //查询到一个用户，进行密码对比(一个email只有一个用户所以是get（0）)
@@ -294,13 +292,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
         if (!usersEntity.getPassword().equals(md5Pwd)) {
             resultMap.put("code", 400);
-            resultMap.put("message", "输入的密码不正确");
+            resultMap.put("message", "The password entered is incorrect");
             return resultMap;
         }
         //注销账户
         usersDao.deleteUser(user.getEmail());
         resultMap.put("code", 200);
-        resultMap.put("message", "该账户已被注销");
+        resultMap.put("message", "The account has been cancelled");
         return resultMap;
     }
 
@@ -367,20 +365,22 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
 
             if (after) {
                 resultMap.put("code", 400);
-                resultMap.put("message", "链接已失效，请重新注册");
+                resultMap.put("message", "The link is no longer available, please re-register");
                 return resultMap;
             }
         } else {
-            System.out.println("getActivationTime is null");
+            resultMap.put("code", 400);
+            resultMap.put("message", "error,ActivationTime is null");
+            return resultMap;
         }
         // 根据确认码查询用户并修改状态值为 1（可用）
         int result = usersDao.updateUserByConfirmCode(confirmCode);
         if (result > 0) {
             resultMap.put("code", 200);
-            resultMap.put("message", "激活成功");
+            resultMap.put("message", "Successful activation");
         } else {
             resultMap.put("code", 400);
-            resultMap.put("message", "激活失败");
+            resultMap.put("message", "Activation failed");
         }
         return resultMap;
     }
@@ -411,13 +411,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该用户不存在或未注册");
+            resultMap.put("message", "This user does not exist or is not registered");
             return resultMap;
         }
         //用户存在多个相同名字账号，账号异常
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
-            resultMap.put("message", "该账号异常");
+            resultMap.put("message", "The account is abnormal");
             return resultMap;
         }
         Random random = new Random();
@@ -428,10 +428,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         sendMail(activationUrl, user.getEmail());
         if (vertifi !=null) {
             resultMap.put("code", 200);
-            resultMap.put("message", "验证码发送成功");
+            resultMap.put("message", "Verification code sent successfully");
         } else {
             resultMap.put("code", 400);
-            resultMap.put("message", "验证码发送失败");
+            resultMap.put("message", "Verification code failed to be sent");
         }
         return resultMap;
     }
