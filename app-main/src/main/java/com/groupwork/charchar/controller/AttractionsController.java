@@ -27,6 +27,22 @@ import java.util.Map;
 public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;
+
+    /**
+     * 保存一堆景点
+     */
+    @PostMapping("/save/AttractionList/{latitude}/{longitude}/{radius}")
+    public void saveAttractionsList(@PathVariable ("latitude") double lat,
+                                    @PathVariable ("longitude") double lng,
+                                    @PathVariable ("radius") double rad) throws JSONException, IOException {
+        List <AttractionsEntity> tempattractionList= attractionsService.saveNearByAttraction(lat, lng,rad);
+        for (AttractionsEntity a :tempattractionList){
+            boolean exists = attractionsService.checkPlaceIdExists(a.getPlaceId());
+            if (!exists) {
+                attractionsService.save(a);
+            }
+        }
+    }
     /**
      * Return NearBy Attractions
      * Given User's Current Coordinate and Search Radius, Return A List Of AttractionEntities
@@ -332,27 +348,7 @@ public class AttractionsController {
     }
 
 
-    /**
-     * 保存一堆景点
-     */
-    @PostMapping("/save/AttractionList/{latitude}/{longitude}/{radius}")
-    public void saveAttractionsList(@PathVariable ("latitude") double lat,
-                                    @PathVariable ("longitude") double lng,
-                                    @PathVariable ("radius") double rad) throws JSONException, IOException {
-//        Map<String, Boolean> response = new HashMap<>();
-        List <AttractionsEntity> tempattractionList= attractionsService.getNearByLocation(lat, lng,rad);
-//        try {
-            for (AttractionsEntity a :tempattractionList){
-                boolean exists = attractionsService.checkPlaceIdExists(a.getPlaceId());
-                if (!exists) {
-                    attractionsService.save(a);
-//                response.put("success", success);
-                }
-            }
-//        } catch (Exception e) {
-//            throw new RuntimeException("save all error");
-//        }
-    }
+
 
     /**
      * Saving a attraction

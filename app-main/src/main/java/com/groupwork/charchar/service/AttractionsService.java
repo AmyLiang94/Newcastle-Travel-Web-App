@@ -38,8 +38,7 @@ public interface AttractionsService extends IService<AttractionsEntity> {
     boolean checkPlaceIdExists(String placeId);
 
 
-
-
+    List<AttractionsEntity> saveNearByAttraction(double latitude, double longitude, double radius) throws IOException, JSONException;
     UpdateAttractionRatingVO updateAttractionRating(Integer attractionId);
 }
 

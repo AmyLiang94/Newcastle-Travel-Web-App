@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +113,64 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 //            attractions.setPlaceId(placeId);
 //            attractions.setAddress(address);
 //            attractions.setImageUrl(photo);
+            showList.add(attractions);
+        }
+        return showList;
+    }
+
+
+    @Override
+    public List<AttractionsEntity> saveNearByAttraction(double latitude, double longitude, double radius) throws IOException, JSONException {
+        List<AttractionsEntity> showList = new ArrayList<>();
+        int uniqueId = 0;
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = client.newCall(request).execute();
+        JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
+
+        JsonArray datas = json.getAsJsonArray("results");
+        for (JsonElement data : datas) {
+            JsonObject curPlace = data.getAsJsonObject();
+            String name = curPlace.get("name").getAsString();
+            String address = curPlace.get("vicinity").getAsString();
+            double rating = curPlace.has("rating") ? curPlace.get("rating").getAsDouble() : 0.0;
+            String placeId = curPlace.get("place_id").getAsString();
+            String overview = getOverViewByGoogleID(placeId);
+            double lat = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lat").getAsDouble();
+            double lng = curPlace.getAsJsonObject("geometry").getAsJsonObject("location").get("lng").getAsDouble();
+            String photo = null;
+            if (curPlace != null) {
+                JsonArray photos = curPlace.getAsJsonArray("photos");
+                if (photos != null && !photos.isJsonNull() && photos.size() > 0) {
+                    JsonObject photoObj = photos.get(0).getAsJsonObject();
+                    if (photoObj != null && !photoObj.isJsonNull() && photoObj.has("photo_reference")) {
+                        JsonElement photoReference = photoObj.get("photo_reference");
+                        if (photoReference != null && !photoReference.isJsonNull()) {
+                            photo = photoReference.getAsString();
+                        }
+                    }
+                }
+            }
+            int WC_Accessibilty = getWheelChair_AccessblityByGoogleID(placeId);
+            AttractionsEntity attractions = new AttractionsEntity();
+            JsonArray category  = curPlace.getAsJsonArray("types");
+
+            attractions.setAttractionName(name);
+            attractions.setDescription(overview);
+//            attractions.setAttractionId(attrIdCatePrice.getAttractionId());
+//            attractions.setCategory(category.getAsString());//
+            attractions.setLatitude(BigDecimal.valueOf(lat));
+            attractions.setLongitude(BigDecimal.valueOf(lng));
+//            attractions.setTicketPrice(attrIdCatePrice.getTicketPrice());
+            attractions.setAttrRating(rating);
+            attractions.setWheelchairAllow(WC_Accessibilty);
+            attractions.setPlaceId(placeId);
+            attractions.setAddress(address);
+            attractions.setImageUrl(photo);
             showList.add(attractions);
         }
         return showList;
