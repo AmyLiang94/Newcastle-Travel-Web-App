@@ -103,7 +103,7 @@ public class AttractionsControllerTest {
     @Test
     @Order(2)
     public void shouldReturnWalkingTimeWhenGetWalkTime() throws Exception {
-        String result  =  this.mockMvc.perform(get("http://localhost:9001/charchar/attractions//walktime/{departLat}/{departLng}/{desLat}/{desLng}", 24.09998,109.0987,24.087655,108.09873))
+        String result  =  this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/walktime/{departLat}/{departLng}/{desLat}/{desLng}", 24.09998,109.0987,24.087655,108.09873))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -149,12 +149,12 @@ public class AttractionsControllerTest {
     @Test
     @Order(5)
     public void shouldReturnWhenGetAttractionByOpeningStatus() throws Exception {
-        List<AttractionsEntity> attractionsEntities  = new ArrayList<>();
-        attractionsEntities.add(attractionsEntity);
-        attractionsEntities.add(attractionsEntity1);
-        attractionsEntities.add(attractionsEntity2);
+        List<String> attractionsEntities  = new ArrayList<>();
+        attractionsEntities.add("1");
+        attractionsEntities.add("2");
+        attractionsEntities.add("3");
         String jsonStr= JSON.toJSONString(attractionsEntities);
-        String result  = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterOpenAttractions")
+        String result  = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterOpenAttractionsMK2")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonStr))
@@ -200,12 +200,12 @@ public class AttractionsControllerTest {
     @Test
     @Order(8)
     public void shouldReturnWhenSortattractionsByRating() throws Exception {
-        List<AttractionsEntity> attractionsEntities  = new ArrayList<>();
-        attractionsEntities.add(attractionsEntity);
-        attractionsEntities.add(attractionsEntity1);
-        attractionsEntities.add(attractionsEntity2);
+        List<String> attractionsEntities  = new ArrayList<>();
+        attractionsEntities.add("1");
+        attractionsEntities.add("2");
+        attractionsEntities.add("3");
         String jsonStr= JSON.toJSONString(attractionsEntities);
-        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/sortAttractionByRating")
+        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/sortAttractionByRating/")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonStr))
@@ -213,9 +213,7 @@ public class AttractionsControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andReturn().getResponse().getContentAsString();
-        List<AttractionsEntity> attractionsEntityList = new ObjectMapper().readValue(result,
-                new TypeReference<List<AttractionsEntity>>(){});
-        System.out.println(attractionsEntityList);
+        System.out.println(result);
     }
 
     /*
@@ -224,15 +222,14 @@ public class AttractionsControllerTest {
     @Test
     @Order(9)
     public void shouldReturnWhenGetAttractionByCategory() throws Exception {
-        List<AttractionsEntity> attractionsEntities  = new ArrayList<>();
-        attractionsEntities.add(attractionsEntity);
-        attractionsEntities.add(attractionsEntity1);
-        attractionsEntities.add(attractionsEntity2);
+        List<Integer> attractionsEntities  = new ArrayList<>();
+        attractionsEntities.add(1);
+        attractionsEntities.add(2);
+        attractionsEntities.add(3);
         String jsonStr= JSON.toJSONString(attractionsEntities);
-        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterAttractionByCategory/{category}", attractionsEntities,attractionsEntity.getCategory()) .accept(MediaType.APPLICATION_JSON)
+        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterAttractionByCategory/{category}", attractionsEntity.getCategory()) .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonStr))
-                .andExpect(status().isOk())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -248,21 +245,19 @@ public class AttractionsControllerTest {
     @Test
     @Order(10)
     public void shouldReturnWheGetAttractionByWheelChairAccessibility() throws Exception {
-        List<AttractionsEntity> attractionsEntities  = new ArrayList<>();
-        attractionsEntities.add(attractionsEntity);
-        attractionsEntities.add(attractionsEntity1);
-        attractionsEntities.add(attractionsEntity2);
+        List<String> attractionsEntities  = new ArrayList<>();
+        attractionsEntities.add("1");
+        attractionsEntities.add("2");
+        attractionsEntities.add("3");
         String jsonStr= JSON.toJSONString(attractionsEntities);
-        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterAttractionByWheelChairAccessibility/{wheelChairAccessibility}",111)
+        String result = this.mockMvc.perform(get("http://localhost:9001/charchar/attractions/filterAttractionByWheelChairAccessibility/{wc_allowed}",111)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonStr))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andReturn().getResponse().getContentAsString();
-        List<AttractionsEntity> attractionsEntityList = new ObjectMapper().readValue(result,
-                new TypeReference<List<AttractionsEntity>>(){});
-        System.out.println(attractionsEntityList);
+        System.out.println(result);
     }
     /*
 

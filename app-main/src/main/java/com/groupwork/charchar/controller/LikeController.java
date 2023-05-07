@@ -15,8 +15,8 @@ import java.util.Map;
 public class LikeController {
     @Resource
     ILikeService likeService;
-    @PostMapping("/giveLike")
-    public Map<String, Object> like(Integer userId, Integer reviewId) {
+    @PostMapping("/giveLike/{userId}/{reviewId}")
+    public Map<String, Object> like(@PathVariable Integer userId, @PathVariable Integer reviewId) {
         likeService.like(userId, reviewId);
         long likeCount = likeService.findLikeCount(reviewId);
         int likeStatus = likeService.findCurUserLikeStatus(userId, reviewId);
@@ -30,8 +30,8 @@ public class LikeController {
      * 更新景点最新的景点点赞数量
      * @param attractionId
      */
-    @PostMapping("/updateReviewLike")
-    public void updateReviewLikeCount(Integer attractionId) {
+    @PostMapping("/updateReviewLike/{attractionId}")
+    public void updateReviewLikeCount(@PathVariable Integer attractionId) {
         likeService.updateReviewLikeCount(attractionId);
     }
 
