@@ -26,7 +26,8 @@ import com.groupwork.charchar.service.UsersService;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-/**
+
+/*
  * @author Eastman
  * @email 931654949@qq.com
  * @date 2023-05-02 15:33:03
@@ -104,13 +105,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         //Get this user by email
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
         List<UsersEntity> usersEntityList2 = usersDao.findVerifiCode(user.getEmail());
-        //确认该用户是否存在
+
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
             resultMap.put("message", "The account does not exist");
             return resultMap;
         }
-        //用户存在多个相同名字账号，账号异常
+
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
             resultMap.put("message", "The account is abnormal");
@@ -122,7 +123,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message", "The verification code you entered is incorrect");
             return resultMap;
         }
-        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
+        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数(Used as an encryption to generate a snowflake number with 6 random digits)
         String md5Pwd = SecureUtil.md5(user.getPassword() + salt);
         //Generate a new salt and save it to the database along with the new encrypted password
         usersDao.updatePwd(user.getEmail(), md5Pwd, salt);
@@ -137,24 +138,23 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
      * @param user The user whose information is to be changed.
      * @return A Map containing the response code and message.
      */
-    //调用login方法后再调用
+
     @Override
     public Map<String, Object> updateOneUserInformation(UsersEntity user) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
-        //该用户不存在或未注册
+
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
             resultMap.put("message", "This user does not exist or is not registered");
             return resultMap;
         }
-        //用户存在多个相同名字账号，账号异常
+
         if (usersEntityList.size() > 1||usersEntityList.get(0).getUsername().equals(user.getUsername())) {
             resultMap.put("code", 400);
             resultMap.put("message", "The account is renamed or abnormal");
             return resultMap;
         }
-        // 检查密保问题的答案是否正确
         usersDao.updateUserInformation(user.getUsername(), user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "Change personal information successfully");
@@ -169,43 +169,42 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     @Override
     public Map<String, Object> register(UsersEntity user) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
-        //判断输入的是否是邮箱
+
         if (!isEmail(user.getEmail())) {
             resultMap.put("code", 400);
             resultMap.put("message", "Please enter the correct email address");
             return resultMap;
         }
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
-        //该用户名已经注册
+
         if (!(usersEntityList == null || usersEntityList.isEmpty())) {
             resultMap.put("code", 400);
             resultMap.put("message", "This username is already registered");
             return resultMap;
         }
-        //用户存在多个相同名字账号，账号异常
+
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
             resultMap.put("message", "The account is abnormal");
             return resultMap;
         }
-        // 雪花算法生成确认码
+        // 雪花算法生成确认码(Snowflake algorithm to generate confirmation codes)
         String confirmCode = IdUtil.getSnowflake(1, 1).nextIdStr();
-        //盐
+        //盐(Salt)
         String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
-        //加密密码，原始密码+盐
+        //加密密码，原始密码+盐(Encrypted password, original password + salt)
         String md5Pwd = SecureUtil.md5(user.getPassword() + salt);
-        // 激活失效时间：24小时
+        // 激活失效时间：24小时(Activation expiry time: 24 hours)
         LocalDateTime ldt = LocalDateTime.now().plusDays(1);
-        //初始化账号信息
+        //初始化账号信息(Initialising account information)
         user.setSalt(salt);
         user.setPassword(md5Pwd);
         user.setConfirmCode(confirmCode);
         user.setActivationTime(ldt);
         user.setIsValid((byte) 0);
-        // 新增账号
+        // Add an account
         int result = usersDao.save(user);
         if (result != 0) {
-            // 发送邮件时间很慢（可以使用异步方式发送：多线程、消息队列）
             String activationUrl = "http://1.12.235.241:9090/charchar/users/activation?confirmCode=" + confirmCode;
             sendMail(activationUrl, user.getEmail());
             resultMap.put("code", 200);
@@ -250,12 +249,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         }
         // After passing the above determination, create a temporary password
         int num = (int) ((Math.random() * 9 + 1) * 100000);
-        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数
+        String salt = RandomUtil.randomString(6);//用为加密，生成随机数位6位的雪花数(Used as an encryption to generate a snowflake number with 6 random digits)
         String md5Pwd = SecureUtil.md5(num + salt);
         //Generate a new salt and save it to the database along with the new encrypted password
         usersDao.updatePwd(user.getEmail(), md5Pwd, salt);
-        // 发送邮件得到临时密码（可以使用异步方式发送：多线程、消息队列）
-        String activationUrl = "A new password has been created, please change it as soon as possible" + String.valueOf(num);
+        // 发送邮件得到临时密码(Send an email to get a temporary password)
+        String activationUrl = "A new password has been created, please change it as soon as possible" + num;
         sendMail(activationUrl, user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "Please go to your email address for a temporary password");
@@ -271,24 +270,23 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     @Override
     public Map<String, Object> deleteUser(UsersEntity user) {//还可以通过逻辑删除
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
-        //获取该用户名相应的用户名，加密后的密码 和 盐
+        //获取该用户名相应的用户名，加密后的密码 和 盐(Get the corresponding user name, encrypted password and salt)
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
 
-        //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
             resultMap.put("message", "This user does not exist or is not registered");
             return resultMap;
         }
-        //用户存在多个相同名字账号，账号异常
+
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
             resultMap.put("message", "The account is abnormal");
             return resultMap;
         }
-        //查询到一个用户，进行密码对比(一个email只有一个用户所以是get（0）)
+        //查询到一个用户，进行密码对比(一个email只有一个用户所以是get（0）)(Query for a user and do a password comparison (an email has only one user so it's get (0)))
         UsersEntity usersEntity = usersEntityList.get(0);
-        //用户输入的密码和盐进行加密
+
         String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
         if (!usersEntity.getPassword().equals(md5Pwd)) {
             resultMap.put("code", 400);
@@ -328,19 +326,19 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true);
-            // 设置邮件主题
+            // 设置邮件主题(Set email subject)
             message.setSubject("Welcome to CharChar Services");
-            // 设置邮件发送者
+            // 设置邮件发送者(Setting up email senders)
             message.setFrom(mailUsername);
-            // 设置邮件接受者，可以多个
+            // 设置邮件接受者，可以多个(Set up email recipients)
             message.setTo(email);
-//             设置邮件发送日期
+//             设置邮件发送日期(Set email delivery date)
             message.setSentDate(new Date());
-            // 创建上下文环境
+            // 创建上下文环境(Creating a Contextual Environment)
             Context context = new Context();
             context.setVariable("Url", Url);
             String text = templateEngine.process("activation-account.html", context);
-            // 设置邮件正文
+            // 设置邮件正文(Setting the body of the email)
             message.setText(text, true);
         } catch (MessagingException e) {
             e.printStackTrace();
@@ -357,9 +355,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
     @Override
     public Map<String, Object> activationAccount(String confirmCode) {
         Map<String, Object> resultMap = new ConcurrentHashMap<>();
-        // 根据确认码查询用户
+        // 根据确认码查询用户(User search by confirmation code)
         UsersEntity user = usersDao.selectUserByConfirmCode(confirmCode);
-        // 判断激活时间是否超时
+        // 判断激活时间是否超时(Determine if the activation time has expired)
         if (user.getActivationTime() != null) {
             boolean after = LocalDateTime.now().isAfter(user.getActivationTime());
 
@@ -373,7 +371,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message", "error,ActivationTime is null");
             return resultMap;
         }
-        // 根据确认码查询用户并修改状态值为 1（可用）
+        // 根据确认码查询用户并修改状态值为 1（可用）(Look up the user according to the confirmation code and change the status value to 1 (available))
         int result = usersDao.updateUserByConfirmCode(confirmCode);
         if (result > 0) {
             resultMap.put("code", 200);
@@ -408,13 +406,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
 
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
 
-        //该用户不存在或未注册
+
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
             resultMap.put("message", "This user does not exist or is not registered");
             return resultMap;
         }
-        //用户存在多个相同名字账号，账号异常
+
         if (usersEntityList.size() > 1) {
             resultMap.put("code", 400);
             resultMap.put("message", "The account is abnormal");
@@ -426,13 +424,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         usersDao.updateVertificationCode(user.getEmail(),vertifi);
         String activationUrl = "This is your verification code, please keep it safe" + vertifi;
         sendMail(activationUrl, user.getEmail());
-        if (vertifi !=null) {
-            resultMap.put("code", 200);
-            resultMap.put("message", "Verification code sent successfully");
-        } else {
-            resultMap.put("code", 400);
-            resultMap.put("message", "Verification code failed to be sent");
-        }
+        resultMap.put("code", 200);
+        resultMap.put("message", "Verification code sent successfully");
         return resultMap;
     }
 }
