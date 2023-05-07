@@ -65,27 +65,6 @@ public class ReviewsController {
         return reviews;
     }
 
-//    /**
-//     * 分页获取某个景点的所有评论
-//     *
-//     * @param attractionId attraction id
-//     */
-//    @GetMapping("/list/attr/{attractionId}/{page}/{size}")
-//    public IPage<ReviewsEntity> listReviewsByAttractionWithPage(@PathVariable("attractionId") Integer attractionId, @PathVariable Integer page, @PathVariable Integer size) {
-//        IPage<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionIdWithPage(attractionId, page, size);
-//        return reviews;
-//    }
-//
-//    /**
-//     * 分页获取某个用户的所有评论
-//     *
-//     * @userId user id
-//     */
-//    @GetMapping("/list/user/{userId}/{page}/{size}")
-//    public IPage<ReviewsEntity> listReviewsByUserWithPage(@PathVariable("userId") Integer userId, @PathVariable Integer page, @PathVariable Integer size) {
-//        IPage<ReviewsEntity> reviews = reviewsService.listReviewsByUserIdWithPage(userId, page, size);
-//        return reviews;
-//    }
 
     /**
      * 保存
@@ -98,16 +77,6 @@ public class ReviewsController {
         return response;
     }
 
-//    /**
-//     * 修改
-//     */
-//    @PutMapping("/update")
-//    public Map<String, Boolean> updateReview(@RequestBody ReviewsEntity reviews) {
-//        boolean success = reviewsService.updateById(reviews);
-//        Map<String, Boolean> response = new HashMap<>();
-//        response.put("success", success);
-//        return response;
-//    }
 
     /**
      * 删除

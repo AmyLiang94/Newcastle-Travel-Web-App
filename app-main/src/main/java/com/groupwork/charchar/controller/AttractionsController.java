@@ -34,7 +34,12 @@ public class AttractionsController {
     private AttractionsDao attractionsDao;
 
     /**
-     * 保存一堆景点
+     *
+     * @param lat
+     * @param lng
+     * @param rad
+     * @throws JSONException
+     * @throws IOException
      */
     @PostMapping("/save/AttractionList/{latitude}/{longitude}/{radius}")
     public void saveAttractionsList(@PathVariable ("latitude") double lat,
@@ -53,7 +58,7 @@ public class AttractionsController {
      * Given User's Current Coordinate and Search Radius, Return A List Of AttractionEntities
      */
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
-    //need users's lat and lng coord as double, and radius as double in (M)
+    //need users' lat and lng coord as double, and radius as double in (M)
     public List<AttractionDetailVO> getNearByLocation(@PathVariable("latitude") double latitude,
                                                       @PathVariable("longitude") double longitude,
                                                       @PathVariable("radius") double radius) throws IOException, JSONException {
@@ -271,7 +276,7 @@ public class AttractionsController {
         return result;
     }
     /**
-     * 获取谷歌ID By Name ans Address
+     * 获取谷歌ID By Name and Address
      *
      */
     @GetMapping("/getAttractionGooglePlaceIDByNameAndCoord/{attractionName}/{attractionAddress}")
