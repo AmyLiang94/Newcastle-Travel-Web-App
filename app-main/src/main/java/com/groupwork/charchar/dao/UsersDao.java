@@ -18,7 +18,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
      * @param email
      * @return  user_id, username, email, password, salt
      */
-    @Select("SELECT  user_id, username, email, password, salt FROM users where email=#{email}")
+    @Select("SELECT  user_id, username, email, password, salt, is_valid FROM users where email=#{email}")
     public List<UsersEntity> selectEmail(@Param("email") String email);
 
     /**

@@ -1,10 +1,13 @@
 package com.groupwork.charchar.controller;
 
 import com.google.maps.errors.ApiException;
+import com.groupwork.charchar.dao.AttractionsDao;
 import com.groupwork.charchar.entity.AttractionsEntity;
 import com.groupwork.charchar.service.AttractionsService;
+import com.groupwork.charchar.vo.AttractionDetailVO;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import org.json.JSONException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,36 +30,71 @@ import java.util.Map;
 public class AttractionsController {
     @Autowired
     private AttractionsService attractionsService;
+    @Autowired
+    private AttractionsDao attractionsDao;
+
+    /**
+     *
+     * @param lat
+     * @param lng
+     * @param rad
+     * @throws JSONException
+     * @throws IOException
+     */
+    @PostMapping("/save/AttractionList/{latitude}/{longitude}/{radius}")
+    public void saveAttractionsList(@PathVariable ("latitude") double lat,
+                                    @PathVariable ("longitude") double lng,
+                                    @PathVariable ("radius") double rad) throws JSONException, IOException {
+        List <AttractionsEntity> tempattractionList= attractionsService.saveNearByAttraction(lat, lng,rad);
+        for (AttractionsEntity a :tempattractionList){
+            boolean exists = attractionsService.checkPlaceIdExists(a.getPlaceId());
+            if (!exists) {
+                attractionsService.save(a);
+            }
+        }
+    }
     /**
      * Return NearBy Attractions
      * Given User's Current Coordinate and Search Radius, Return A List Of AttractionEntities
      */
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
-    //need users's lat and lng coord as double, and radius as double in (M)
-    public List<AttractionsEntity> getNearByLocation(@PathVariable("latitude") double latitude,
-                                                     @PathVariable("longitude") double longitude,
-                                                     @PathVariable("radius") double radius) throws IOException, JSONException {
-        List<AttractionsEntity> res = attractionsService.getNearByLocation(latitude, longitude, radius);
-        return res;
+    //need users' lat and lng coord as double, and radius as double in (M)
+    public List<AttractionDetailVO> getNearByLocation(@PathVariable("latitude") double latitude,
+                                                      @PathVariable("longitude") double longitude,
+                                                      @PathVariable("radius") double radius) throws IOException, JSONException {
+        List<AttractionsEntity> attractionsEntityList = attractionsService.getNearByLocation(latitude, longitude, radius);
+        List<AttractionDetailVO> attractionDetailVOList = new ArrayList<>();
+        for (AttractionsEntity attractionsEntity : attractionsEntityList) {
+            AttractionDetailVO attractionDetailVO = new AttractionDetailVO();
+            BeanUtils.copyProperties(attractionsEntity, attractionDetailVO);
+            String walkingTime = attractionsService.getWalkTime(latitude, longitude, attractionsEntity.getLatitude().doubleValue(), attractionsEntity.getLongitude().doubleValue());
+            attractionDetailVO.setWalkingTime(walkingTime);
+            attractionDetailVOList.add(attractionDetailVO);
+        }
+        return attractionDetailVOList;
     }
     /**
-     * Return Distance To The Attraction
      *
-     * @param departLat latitude of departure
-     * @param departLng longitude of departure
-     * @param desLat    latitude of destination
-     * @param desLng    longitude of destination
+     *
      */
-    @GetMapping("/walktime/{departLat}/{departLng}/{desLat}/{desLng}")
-    public Map<String, String> getWalkTime(@PathVariable("departLat") double departLat,
-                                           @PathVariable("departLng") double departLng,
-                                           @PathVariable("desLat") double desLat,
-                                           @PathVariable("desLng") double desLng) {
-        String walkingTime = attractionsService.getWalkTime(departLat, departLng, desLat, desLng);
-        Map<String, String> response = new HashMap<>();
-        response.put("walkingTime", walkingTime);
-        return response;
-    }
+//    /**
+//     * Return Distance To The Attraction
+//     *
+//     * @param departLat latitude of departure
+//     * @param departLng longitude of departure
+//     * @param desLat    latitude of destination
+//     * @param desLng    longitude of destination
+//     */
+//    @GetMapping("/walktime/{departLat}/{departLng}/{desLat}/{desLng}")
+//    public Map<String, String> getWalkTime(@PathVariable("departLat") double departLat,
+//                                           @PathVariable("departLng") double departLng,
+//                                           @PathVariable("desLat") double desLat,
+//                                           @PathVariable("desLng") double desLng) {
+//        String walkingTime = attractionsService.getWalkTime(departLat, departLng, desLat, desLng);
+//        Map<String, String> response = new HashMap<>();
+//        response.put("walkingTime", walkingTime);
+//        return response;
+//    }
     /**
      *Update Rating
      */
@@ -67,13 +105,13 @@ public class AttractionsController {
         return updateEntity;
     }
     /**
-     * 通过本地AttractionID 获取地点信息
+     * 通过本地placeID 获取地点信息
      *
      */
-    @GetMapping("/findAttractionByID/{attractionId}")
+    @GetMapping("/findAttractionByID/{placeId}")
     public @ResponseBody AttractionsEntity getById(
-            @PathVariable Integer attractionId) {
-        AttractionsEntity attractionsEntity = attractionsService.getById(attractionId);
+            @PathVariable String placeId) {
+        AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
         return attractionsEntity;
     }
     /**
@@ -238,7 +276,7 @@ public class AttractionsController {
         return result;
     }
     /**
-     * 获取谷歌ID By Name ans Address
+     * 获取谷歌ID By Name and Address
      *
      */
     @GetMapping("/getAttractionGooglePlaceIDByNameAndCoord/{attractionName}/{attractionAddress}")
@@ -332,24 +370,7 @@ public class AttractionsController {
     }
 
 
-    /**
-     * 保存一堆景点
-     */
-    @PostMapping("/save/AttractionList/{latitude}/{longitude}/{radius}")
-    public void saveAttractionsList(@PathVariable ("latitude") double lat,
-                                    @PathVariable ("longitude") double lng,
-                                    @PathVariable ("radius") double rad) throws JSONException, IOException {
-        Map<String, Boolean> response = new HashMap<>();
-        List <AttractionsEntity> tempattractionList= attractionsService.getNearByLocation(lat, lng,rad);
-        for (AttractionsEntity a :tempattractionList){
-             boolean success = attractionsService.save(a);
-            response.put("success", success);
-        }
 
-
-
-
-    }
 
     /**
      * Saving a attraction

@@ -29,6 +29,15 @@
     <update id="updateAttractionRating">
         update attractions set attr_rating = #{attrRating} where attraction_id = #{attractionId};
     </update>
-
+    <select id="getAttractionByPlaceId" resultType="com.groupwork.charchar.entity.AttractionsEntity">
+        select  attraction_id, attraction_name, description,
+                category, latitude, longitude, opening_hours, ticket_price,
+                image_url, attr_rating, wheelchair_allow, pram_allow, hearing_allow, address, place_id
+        from attractions where place_id = #{placeId} ;
+    </select>
+    <select id="findByPlaceId" resultType="com.groupwork.charchar.entity.AttractionsEntity">
+        select place_id
+        from attractions where place_id = #{placeId};
+    </select>
 
 </mapper>

@@ -1,27 +1,22 @@
-package com.groupwork.charchar.entity;
+package com.groupwork.charchar.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @author wangyilong
- * @email 571379772@qq.com
- * @date 2023-03-24 15:33:03
+ * @className: reviewsDetailVO
+ * @Author: wyl
+ * @Description:
+ * @Date: 07/05/2023 16:35
  */
 @Data
-@TableName("reviews")
-public class ReviewsEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class ReviewsDetailVO {
     /**
      *
      */
-    @TableId(type = IdType.AUTO)
+    @TableId
     private Integer reviewId;
     /**
      *
@@ -39,6 +34,13 @@ public class ReviewsEntity implements Serializable {
      *
      */
     private String reviewText;
+
+    private Long likeCount;
+
+    /**
+     * 0 未点赞， 1点过赞
+     */
+    private Integer likeStatus;
     /**
      *
      */
@@ -47,5 +49,6 @@ public class ReviewsEntity implements Serializable {
      *
      */
     private Date updateTime;
+
 
 }
