@@ -20,7 +20,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,18 +49,25 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     private AttractionsDao attractionsDao;
     @Resource
     private ReviewsService reviewsService;
+    private static String cacheKey;
+    @Autowired
+    private RedisTemplate redisTemplate;
     private static final OkHttpClient CLIENT = new OkHttpClient().newBuilder().build();
-
 
     @Override
     public List<AttractionDetailVO> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException {
+        cacheKey = String.format("%.15f_%.15f_%d", latitude, longitude, (int) radius);
+        List<AttractionDetailVO> showList = (List<AttractionDetailVO>) redisTemplate.opsForValue().get(cacheKey);
+        if (showList == null) {
             final Set<String> placeIdSet = new HashSet<>();
-            List<AttractionDetailVO>showList = new ArrayList<>();
+            showList = new ArrayList<>();
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
             String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
             Request request = new Request.Builder()
                     .url(url)
                     .build();
-            Response response = CLIENT.newCall(request).execute();
+            Response response = client.newCall(request).execute();
             JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
 
             JsonArray datas = json.getAsJsonArray("results");
@@ -86,7 +96,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                     attractionDetailVO.setPramAllow(attractionsEntity.getPramAllow());
                     attractionDetailVO.setHearingAllow(attractionsEntity.getHearingAllow());
                     attractionDetailVO.setAddress(attractionsEntity.getAddress());
-                    attractionDetailVO.setPlaceId(placeId);
+                    attractionDetailVO.setPlaceId(attractionsEntity.getPlaceId());
                     attractionDetailVO.setOpeningHours(openingHours);
                     String walkingTime = this.getWalkTime(latitude, longitude, attractionsEntity.getLatitude().doubleValue(), attractionsEntity.getLongitude().doubleValue());
                     attractionDetailVO.setWalkingTime(walkingTime);
@@ -95,8 +105,61 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                     showList.add(attractionDetailVO);
                 }
             }
+            redisTemplate.opsForValue().set(cacheKey, showList, 5, TimeUnit.MINUTES);
+        }
         return showList;
     }
+
+//    @Override
+//    public List<AttractionDetailVO> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException {
+//
+//
+//            Set<String> placeIdSet = new HashSet<>();
+//            List<AttractionDetailVO>showList = new ArrayList<>();
+//            String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
+//            Request request = new Request.Builder()
+//                    .url(url)
+//                    .build();
+//            Response response = CLIENT.newCall(request).execute();
+//            JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
+//
+//            JsonArray datas = json.getAsJsonArray("results");
+//            for (JsonElement data : datas) {
+//                JsonObject curPlace = data.getAsJsonObject();
+//                String placeId = curPlace.get("place_id").getAsString();
+//                if (placeIdSet.contains(placeId)) continue;
+//                else placeIdSet.add(placeId);
+//                List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
+//                LocalDate today = LocalDate.now();
+//                DayOfWeek dayOfWeek = today.getDayOfWeek();
+//                String openingHours = openingHourMK2.get(dayOfWeek.getValue()-1);
+//                AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
+//                AttractionDetailVO attractionDetailVO = new AttractionDetailVO();
+//                if (null != attractionsEntity) {
+//                    attractionDetailVO.setAttractionId(attractionsEntity.getAttractionId());
+//                    attractionDetailVO.setAttractionName(attractionsEntity.getAttractionName());
+//                    attractionDetailVO.setDescription(attractionsEntity.getDescription());
+//                    attractionDetailVO.setCategory(attractionsEntity.getCategory());
+//                    attractionDetailVO.setLatitude(attractionsEntity.getLatitude());
+//                    attractionDetailVO.setLongitude(attractionsEntity.getLongitude());
+//                    attractionDetailVO.setTicketPrice(attractionsEntity.getTicketPrice());
+//                    attractionDetailVO.setImageUrl(attractionsEntity.getImageUrl());
+//                    attractionDetailVO.setAttrRating(attractionsEntity.getAttrRating());
+//                    attractionDetailVO.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
+//                    attractionDetailVO.setPramAllow(attractionsEntity.getPramAllow());
+//                    attractionDetailVO.setHearingAllow(attractionsEntity.getHearingAllow());
+//                    attractionDetailVO.setAddress(attractionsEntity.getAddress());
+//                    attractionDetailVO.setPlaceId(placeId);
+//                    attractionDetailVO.setOpeningHours(openingHours);
+//                    String walkingTime = this.getWalkTime(latitude, longitude, attractionsEntity.getLatitude().doubleValue(), attractionsEntity.getLongitude().doubleValue());
+//                    attractionDetailVO.setWalkingTime(walkingTime);
+//                    int currentOpeningStatus = this.getCurrentOpeningStatus(attractionsEntity.getPlaceId());
+//                    attractionDetailVO.setOpeningStatus(currentOpeningStatus);
+//                    showList.add(attractionDetailVO);
+//                }
+//            }
+//        return showList;
+//    }
 
 
     @Override
