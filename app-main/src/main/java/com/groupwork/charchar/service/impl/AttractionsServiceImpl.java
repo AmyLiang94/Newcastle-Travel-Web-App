@@ -9,6 +9,7 @@ import com.groupwork.charchar.entity.ReviewsEntity;
 import com.groupwork.charchar.exception.AttractionNotFoundException;
 import com.groupwork.charchar.service.AttractionsService;
 import com.groupwork.charchar.service.ReviewsService;
+import com.groupwork.charchar.vo.AttractionDetailVO;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
@@ -19,7 +20,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -29,7 +32,10 @@ import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,68 +43,133 @@ import java.util.regex.Pattern;
 @Service("attractionsService")
 public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, AttractionsEntity> implements AttractionsService {
     private Logger logger = LoggerFactory.getLogger(AttractionsServiceImpl.class);
-    @Value("AIzaSyAyrCOQjmxR0Z2xeYxDh4-L_ipXlFHk85M")
+    @Value("${google.maps.api.key}")
     private String key;
     @Resource
     private AttractionsDao attractionsDao;
     @Resource
     private ReviewsService reviewsService;
+    private static String cacheKey;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    private static final OkHttpClient CLIENT = new OkHttpClient().newBuilder().build();
 
     @Override
-    public List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException {
-        List<AttractionsEntity> showList = new ArrayList<>();
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Response response = client.newCall(request).execute();
-        JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
+    public List<AttractionDetailVO> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException {
+        cacheKey = String.format("%.15f_%.15f_%d", latitude, longitude, (int) radius);
+        List<AttractionDetailVO> showList = (List<AttractionDetailVO>) redisTemplate.opsForValue().get(cacheKey);
+        if (showList == null) {
+            final Set<String> placeIdSet = new HashSet<>();
+            showList = new ArrayList<>();
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+            Response response = client.newCall(request).execute();
+            JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
 
-        JsonArray datas = json.getAsJsonArray("results");
-        for (JsonElement data : datas) {
-            JsonObject curPlace = data.getAsJsonObject();
-            String placeId = curPlace.get("place_id").getAsString();
-            List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
-            LocalDate today = LocalDate.now();
-            DayOfWeek dayOfWeek = today.getDayOfWeek();
-            String openingHours = openingHourMK2.get(dayOfWeek.getValue()-1);
-            AttractionsEntity attractions = new AttractionsEntity();
-            AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
-            if (null != attractionsEntity) {
-                attractions.setAttractionId(attractionsEntity.getAttractionId());
-                attractions.setAttractionName(attractionsEntity.getAttractionName());
-                attractions.setDescription(attractionsEntity.getDescription());
-                attractions.setCategory(attractionsEntity.getCategory());
-                attractions.setLatitude(attractionsEntity.getLatitude());
-                attractions.setLongitude(attractionsEntity.getLongitude());
-                attractions.setTicketPrice(attractionsEntity.getTicketPrice());
-                attractions.setImageUrl(attractionsEntity.getImageUrl());
-                attractions.setAttrRating(attractionsEntity.getAttrRating());
-                attractions.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
-                attractions.setPramAllow(attractionsEntity.getPramAllow());
-                attractions.setHearingAllow(attractionsEntity.getHearingAllow());
-                attractions.setAddress(attractionsEntity.getAddress());
-                attractions.setPlaceId(attractionsEntity.getPlaceId());
-                attractions.setOpeningHours(openingHours);
-                showList.add(attractions);
+            JsonArray datas = json.getAsJsonArray("results");
+            for (JsonElement data : datas) {
+                JsonObject curPlace = data.getAsJsonObject();
+                String placeId = curPlace.get("place_id").getAsString();
+                if (placeIdSet.contains(placeId)) continue;
+                else placeIdSet.add(placeId);
+                List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
+                LocalDate today = LocalDate.now();
+                DayOfWeek dayOfWeek = today.getDayOfWeek();
+                String openingHours = openingHourMK2.get(dayOfWeek.getValue()-1);
+                AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
+                AttractionDetailVO attractionDetailVO = new AttractionDetailVO();
+                if (null != attractionsEntity) {
+                    attractionDetailVO.setAttractionId(attractionsEntity.getAttractionId());
+                    attractionDetailVO.setAttractionName(attractionsEntity.getAttractionName());
+                    attractionDetailVO.setDescription(attractionsEntity.getDescription());
+                    attractionDetailVO.setCategory(attractionsEntity.getCategory());
+                    attractionDetailVO.setLatitude(attractionsEntity.getLatitude());
+                    attractionDetailVO.setLongitude(attractionsEntity.getLongitude());
+                    attractionDetailVO.setTicketPrice(attractionsEntity.getTicketPrice());
+                    attractionDetailVO.setImageUrl(attractionsEntity.getImageUrl());
+                    attractionDetailVO.setAttrRating(attractionsEntity.getAttrRating());
+                    attractionDetailVO.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
+                    attractionDetailVO.setPramAllow(attractionsEntity.getPramAllow());
+                    attractionDetailVO.setHearingAllow(attractionsEntity.getHearingAllow());
+                    attractionDetailVO.setAddress(attractionsEntity.getAddress());
+                    attractionDetailVO.setPlaceId(attractionsEntity.getPlaceId());
+                    attractionDetailVO.setOpeningHours(openingHours);
+                    String walkingTime = this.getWalkTime(latitude, longitude, attractionsEntity.getLatitude().doubleValue(), attractionsEntity.getLongitude().doubleValue());
+                    attractionDetailVO.setWalkingTime(walkingTime);
+                    int currentOpeningStatus = this.getCurrentOpeningStatus(attractionsEntity.getPlaceId());
+                    attractionDetailVO.setOpeningStatus(currentOpeningStatus);
+                    showList.add(attractionDetailVO);
+                }
             }
+            redisTemplate.opsForValue().set(cacheKey, showList, 5, TimeUnit.MINUTES);
         }
         return showList;
     }
+
+//    @Override
+//    public List<AttractionDetailVO> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException {
+//
+//
+//            Set<String> placeIdSet = new HashSet<>();
+//            List<AttractionDetailVO>showList = new ArrayList<>();
+//            String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
+//            Request request = new Request.Builder()
+//                    .url(url)
+//                    .build();
+//            Response response = CLIENT.newCall(request).execute();
+//            JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
+//
+//            JsonArray datas = json.getAsJsonArray("results");
+//            for (JsonElement data : datas) {
+//                JsonObject curPlace = data.getAsJsonObject();
+//                String placeId = curPlace.get("place_id").getAsString();
+//                if (placeIdSet.contains(placeId)) continue;
+//                else placeIdSet.add(placeId);
+//                List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
+//                LocalDate today = LocalDate.now();
+//                DayOfWeek dayOfWeek = today.getDayOfWeek();
+//                String openingHours = openingHourMK2.get(dayOfWeek.getValue()-1);
+//                AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
+//                AttractionDetailVO attractionDetailVO = new AttractionDetailVO();
+//                if (null != attractionsEntity) {
+//                    attractionDetailVO.setAttractionId(attractionsEntity.getAttractionId());
+//                    attractionDetailVO.setAttractionName(attractionsEntity.getAttractionName());
+//                    attractionDetailVO.setDescription(attractionsEntity.getDescription());
+//                    attractionDetailVO.setCategory(attractionsEntity.getCategory());
+//                    attractionDetailVO.setLatitude(attractionsEntity.getLatitude());
+//                    attractionDetailVO.setLongitude(attractionsEntity.getLongitude());
+//                    attractionDetailVO.setTicketPrice(attractionsEntity.getTicketPrice());
+//                    attractionDetailVO.setImageUrl(attractionsEntity.getImageUrl());
+//                    attractionDetailVO.setAttrRating(attractionsEntity.getAttrRating());
+//                    attractionDetailVO.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
+//                    attractionDetailVO.setPramAllow(attractionsEntity.getPramAllow());
+//                    attractionDetailVO.setHearingAllow(attractionsEntity.getHearingAllow());
+//                    attractionDetailVO.setAddress(attractionsEntity.getAddress());
+//                    attractionDetailVO.setPlaceId(placeId);
+//                    attractionDetailVO.setOpeningHours(openingHours);
+//                    String walkingTime = this.getWalkTime(latitude, longitude, attractionsEntity.getLatitude().doubleValue(), attractionsEntity.getLongitude().doubleValue());
+//                    attractionDetailVO.setWalkingTime(walkingTime);
+//                    int currentOpeningStatus = this.getCurrentOpeningStatus(attractionsEntity.getPlaceId());
+//                    attractionDetailVO.setOpeningStatus(currentOpeningStatus);
+//                    showList.add(attractionDetailVO);
+//                }
+//            }
+//        return showList;
+//    }
 
 
     @Override
     public List<AttractionsEntity> saveNearByAttraction(double latitude, double longitude, double radius) throws IOException, JSONException {
         List<AttractionsEntity> showList = new ArrayList<>();
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
         String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response response = client.newCall(request).execute();
+        Response response = CLIENT.newCall(request).execute();
         JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
 
         JsonArray datas = json.getAsJsonArray("results");
@@ -147,7 +218,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             attractions.setWheelchairAllow(WC_Accessibilty);
             attractions.setPlaceId(placeId);
             attractions.setAddress(address);
-            // 如果list不行，直接传一张photo
             attractions.setImageUrl(photosJson);
             showList.add(attractions);
         }
@@ -172,13 +242,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     @Override
     public String getWalkTime(double departLat, double departLng, double desLat, double desLng) {
 
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
         String url = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%.15f,%.15f&destination=%.15f,%.15f&mode=walking&key=%s", departLat, departLng, desLat, desLng, key);
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response response = client.newCall(request).execute();
+        Response response = CLIENT.newCall(request).execute();
         JsonObject json = JsonParser.parseString(response.body().string()).getAsJsonObject();
         JsonArray routes = json.getAsJsonArray("routes");
         if (routes != null && routes.size() > 0) {
@@ -240,12 +308,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public List<String> getOpeningHourMK2(String placeID) throws JSONException, IOException {
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + placeID + "&fields=opening_hours&key=" + key)
                 .build();
         List<String> hoursList = new ArrayList<>();
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -296,12 +363,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     public int getCurrentOpeningStatus(String placeID) throws JSONException, IOException {
         int openStatus = 4;
 
-        OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + placeID + "&fields=opening_hours&key=" + key)
                 .build();
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
             JSONObject json = new JSONObject(response.body().string());
             JSONObject result = json.getJSONObject("result");
@@ -323,13 +389,12 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public String getGooglePlaceIDByCoordinateAndName(String attractionName, String attractionAddress) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
         String input = attractionName + " " + attractionAddress;
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + input + "&inputtype=textquery&fields=place_id&key=" + key)
                 .build();
         String tempPlaceId = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -348,13 +413,12 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public int getWheelChair_AccessblityByGoogleID(String attractionGoogleID) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleID + "&fields=wheelchair_accessible_entrance&key=" + key)
                 .build();
         boolean wheelchairAccessible = false;
         int accessibility = -1;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -375,12 +439,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public String getCategoryByGoogleID(String attractionGoogleID) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleID + "&fields=types&key=" + key)
                 .build();
         String category = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -419,12 +482,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public String getPhoneNumberByGoogleID(String attractionGoogleI) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=formatted_phone_number&key=" + key)
                 .build();
         String phone = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -443,12 +505,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     @Override
     public String getAddressByGoogleID(String attractionGoogleI) throws IOException, JSONException {
 
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=formatted_address&key=" + key)
                 .build();
         String address = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -465,12 +526,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public String getOverViewByGoogleID(String attractionGoogleI) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=editorial_summary&key=" + key)
                 .build();
         String overview = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -487,12 +547,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public String getNameByGoogleID(String attractionGoogleI) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=name&key=" + key)
                 .build();
         String name = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -511,9 +570,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     public double getLatCoordByGoogleID(String attractionGoogleID) throws IOException, JSONException {
         String urlString = "https://maps.googleapis.com/maps/api/place/details/json?place_id=" + attractionGoogleID + "&fields=geometry&key=" + key;
 
-        // Create an OkHttpClient instance
-        OkHttpClient client = new OkHttpClient();
-
         // Create a request object
         Request request = new Request.Builder()
                 .url(urlString)
@@ -521,7 +577,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         double lat = 0;
         try {
             // Execute the request and get the response
-            Response response = client.newCall(request).execute();
+            Response response = CLIENT.newCall(request).execute();
 
             // Parse the response as a JSON object
             JSONObject jsonResponse = new JSONObject(response.body().string());
@@ -541,7 +597,6 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         String urlString = "https://maps.googleapis.com/maps/api/place/details/json?place_id=" + attractionGoogleID + "&fields=geometry&key=" + key;
 
         // Create an OkHttpClient instance
-        OkHttpClient client = new OkHttpClient();
 
         // Create a request object
         Request request = new Request.Builder()
@@ -550,7 +605,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         double lng = 0;
         try {
             // Execute the request and get the response
-            Response response = client.newCall(request).execute();
+            Response response = CLIENT.newCall(request).execute();
 
             // Parse the response as a JSON object
             JSONObject jsonResponse = new JSONObject(response.body().string());
@@ -570,12 +625,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     @Override
     public String getOfficalWebsiteByGoogleID(String attractionGoogleI) throws IOException, JSONException {
 
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=website&key=" + key)
                 .build();
         String website = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -593,12 +647,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
 
     @Override
     public int getTotalNumberOfRatingsByGoogleID(String attractionGoogleI) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/details/json?placeid=" + attractionGoogleI + "&fields=user_ratings_total&key=" + key)
                 .build();
         int NOR = 0;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());
@@ -618,14 +671,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     @Override
     public String getGooglePlaceIDByName(String attractionName) throws IOException, JSONException {
 
-
-        OkHttpClient client = new OkHttpClient();
-
         Request request = new Request.Builder()
                 .url("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=" + attractionName + "&inputtype=textquery&fields=place_id&key=" + key)
                 .build();
         String tempPlaceId = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = CLIENT.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             JSONObject json = new JSONObject(response.body().string());

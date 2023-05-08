@@ -2,6 +2,7 @@ package com.groupwork.charchar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.groupwork.charchar.entity.AttractionsEntity;
+import com.groupwork.charchar.vo.AttractionDetailVO;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import org.json.JSONException;
 
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public interface AttractionsService extends IService<AttractionsEntity> {
 
-    List<AttractionsEntity> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException;
+    List<AttractionDetailVO> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException;
 
     String getWalkTime(double departLat, double departLng, double desLat, double desLng);
     List<AttractionsEntity> filterAttractionByCategory(List<Integer> attractions, String category);
