@@ -66,21 +66,23 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             String openingHours = openingHourMK2.get(dayOfWeek.getValue()-1);
             AttractionsEntity attractions = new AttractionsEntity();
             AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
-            attractions.setAttractionId(attractionsEntity.getAttractionId());
-            attractions.setAttractionName(attractionsEntity.getAttractionName());
-            attractions.setDescription(attractionsEntity.getDescription());
-            attractions.setCategory(attractionsEntity.getCategory());
-            attractions.setLatitude(attractionsEntity.getLatitude());
-            attractions.setLongitude(attractionsEntity.getLongitude());
-            attractions.setTicketPrice(attractionsEntity.getTicketPrice());
-            attractions.setImageUrl(attractionsEntity.getImageUrl());
-            attractions.setAttrRating(attractionsEntity.getAttrRating());
-            attractions.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
-            attractions.setPramAllow(attractionsEntity.getPramAllow());
-            attractions.setHearingAllow(attractionsEntity.getHearingAllow());
-            attractions.setAddress(attractionsEntity.getAddress());
-            attractions.setPlaceId(attractionsEntity.getPlaceId());
-            attractions.setOpeningHours(openingHours);
+            if (null != attractionsEntity) {
+                attractions.setAttractionId(attractionsEntity.getAttractionId());
+                attractions.setAttractionName(attractionsEntity.getAttractionName());
+                attractions.setDescription(attractionsEntity.getDescription());
+                attractions.setCategory(attractionsEntity.getCategory());
+                attractions.setLatitude(attractionsEntity.getLatitude());
+                attractions.setLongitude(attractionsEntity.getLongitude());
+                attractions.setTicketPrice(attractionsEntity.getTicketPrice());
+                attractions.setImageUrl(attractionsEntity.getImageUrl());
+                attractions.setAttrRating(attractionsEntity.getAttrRating());
+                attractions.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
+                attractions.setPramAllow(attractionsEntity.getPramAllow());
+                attractions.setHearingAllow(attractionsEntity.getHearingAllow());
+                attractions.setAddress(attractionsEntity.getAddress());
+                attractions.setPlaceId(attractionsEntity.getPlaceId());
+                attractions.setOpeningHours(openingHours);
+            }
             showList.add(attractions);
         }
         return showList;
