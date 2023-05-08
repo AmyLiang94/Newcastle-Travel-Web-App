@@ -79,7 +79,13 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
                 LocalDate today = LocalDate.now();
                 DayOfWeek dayOfWeek = today.getDayOfWeek();
-                String openingHours = openingHourMK2.get(dayOfWeek.getValue()-1);
+                String openingHours;
+                if (null != openingHourMK2 && openingHourMK2.size() == 1) {
+                    openingHours = openingHourMK2.get(0);
+                } else {
+                    openingHours = openingHourMK2.get(dayOfWeek.getValue()-1);
+                }
+                // 在这里使用 openingHours
                 AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
                 AttractionDetailVO attractionDetailVO = new AttractionDetailVO();
                 if (null != attractionsEntity) {
