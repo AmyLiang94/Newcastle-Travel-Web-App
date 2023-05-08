@@ -82,8 +82,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 attractions.setAddress(attractionsEntity.getAddress());
                 attractions.setPlaceId(attractionsEntity.getPlaceId());
                 attractions.setOpeningHours(openingHours);
+                showList.add(attractions);
             }
-            showList.add(attractions);
         }
         return showList;
     }
