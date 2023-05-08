@@ -380,7 +380,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         // 根据确认码查询用户并修改状态值为 1（可用）(Look up the user according to the confirmation code and change the status value to 1 (available))
         int result = usersDao.updateUserByConfirmCode(confirmCode);
         if (result > 0) {
-            System.out.println(result);
             resultMap.put("code", 200);
             resultMap.put("message", "Successful activation");
         } else {

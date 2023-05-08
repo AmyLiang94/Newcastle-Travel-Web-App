@@ -108,5 +108,4 @@ public class UsersController {
         return usersService.activationAccount(confirmCode);
     }
 
-
 }
