@@ -74,4 +74,7 @@ public class UsersEntity implements Serializable {
     @TableField("verification_code")
     private String verificationCode;
 
+    @TableField("is_delete")
+    private Byte isDelete; // 是否可用
+
 }

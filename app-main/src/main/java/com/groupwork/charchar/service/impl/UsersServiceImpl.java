@@ -62,6 +62,15 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         }
         //Determine if a user exists in the database
         List<UsersEntity> usersEntityList = usersDao.selectEmail(user.getEmail());
+        //Query for a user and do a password comparison (an email has only one user so it's get (0))
+
+        UsersEntity usersEntity2 = usersEntityList.get(0);
+        //Determining whether a user has been logically deleted
+        if(usersEntity2.getIsDelete()==1){
+            resultMap.put("code", 400);
+            resultMap.put("message", "User has been logged out");
+            return resultMap;
+        }
         //该用户不存在或未注册
         if (usersEntityList == null || usersEntityList.isEmpty()) {
             resultMap.put("code", 400);
@@ -74,8 +83,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message", "Account anomalies");
             return resultMap;
         }
-        //Query for a user and do a password comparison (an email has only one user so it's get (0))
-        UsersEntity usersEntity2 = usersEntityList.get(0);
         //Snowflake number encryption by adding salt to the password entered by the user
         String md5Pwd = SecureUtil.md5(user.getPassword() + usersEntity2.getSalt());//查询到的salt和密码编写的雪花数应该与database对应
         //whether the account be actived
@@ -207,6 +214,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         user.setConfirmCode(confirmCode);
         user.setActivationTime(ldt);
         user.setIsValid((byte) 0);
+        user.setIsDelete((byte) 0);
         // Add an account
         int result = usersDao.save(user);
         if (result != 0) {
@@ -302,7 +310,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             return resultMap;
         }
         //注销账户
-        usersDao.deleteUser(user.getEmail());
+        usersDao.updateUserStatus(user.getEmail());
         resultMap.put("code", 200);
         resultMap.put("message", "The account has been cancelled");
         return resultMap;
@@ -382,7 +390,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
         // 根据确认码查询用户并修改状态值为 1（可用）(Look up the user according to the confirmation code and change the status value to 1 (available))
         int result = usersDao.updateUserByConfirmCode(confirmCode);
         if (result > 0) {
-            System.out.println(result);
             resultMap.put("code", 200);
             resultMap.put("message", "Successful activation");
         } else {
