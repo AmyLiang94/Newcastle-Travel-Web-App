@@ -78,4 +78,5 @@ public class AttractionDetailVO {
     private String placeId;
 
     private String walkingTime;
+    private Integer openingStatus;
 }

@@ -1,9 +1,13 @@
 package com.groupwork.charchar.controller;
 
+import com.groupwork.charchar.dao.UsersDao;
 import com.groupwork.charchar.entity.ReviewsEntity;
+import com.groupwork.charchar.entity.UsersEntity;
 import com.groupwork.charchar.service.ILikeService;
 import com.groupwork.charchar.service.ReviewsService;
 import com.groupwork.charchar.vo.ReviewsDetailVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +23,14 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 @RequestMapping("charchar/reviews")
 public class ReviewsController {
+    private Logger logger = LoggerFactory.getLogger(ReviewsController.class);
     @Autowired
     private ReviewsService reviewsService;
-    @Autowired LikeController likeController;
     @Autowired
-    ILikeService likeService;
+    private ILikeService likeService;
+    @Autowired
+    private UsersDao usersDao;
+    public final static int IS_VALID = 1;
 
     /**
      * 获取某个景点的所有评论
@@ -36,11 +43,19 @@ public class ReviewsController {
         List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
         List<ReviewsDetailVO> res = new ArrayList<>();
         for (ReviewsEntity review : reviews) {
+            UsersEntity usersEntity = usersDao.selectUserEntityById(review.getUserId());
+            if (null == usersEntity) {
+                throw new RuntimeException("userId:" + review.getUserId() + " not exists.");
+            }
+            if (usersEntity.getIsValid() != IS_VALID) {
+                throw new RuntimeException("userId:" + review.getUserId() +" not valid");
+            }
             ReviewsDetailVO reviewsDetailVO = new ReviewsDetailVO();
 //            Map<String, Object> likeMap = likeController.like(userId, review.getReviewId());
             reviewsDetailVO.setReviewId(review.getReviewId());
             reviewsDetailVO.setAttractionId(review.getAttractionId());
             reviewsDetailVO.setUserId(review.getUserId());
+            reviewsDetailVO.setUsername(usersEntity.getUsername());
             reviewsDetailVO.setRating(review.getRating());
             reviewsDetailVO.setReviewText(review.getReviewText());
             reviewsDetailVO.setCreateTime(review.getCreateTime());

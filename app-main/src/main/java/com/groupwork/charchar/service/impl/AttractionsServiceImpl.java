@@ -58,6 +58,10 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         for (JsonElement data : datas) {
             JsonObject curPlace = data.getAsJsonObject();
             String placeId = curPlace.get("place_id").getAsString();
+//            List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
+//            LocalDate today = LocalDate.now();
+//            DayOfWeek dayOfWeek = today.getDayOfWeek();
+//            String openingHours = openingHourMK2.get(dayOfWeek.getValue());
             AttractionsEntity attractions = new AttractionsEntity();
             AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
             attractions.setAttractionId(attractionsEntity.getAttractionId());
@@ -74,6 +78,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             attractions.setHearingAllow(attractionsEntity.getHearingAllow());
             attractions.setAddress(attractionsEntity.getAddress());
             attractions.setPlaceId(attractionsEntity.getPlaceId());
+//            attractions.setOpeningHours(openingHours);
             showList.add(attractions);
         }
         return showList;
@@ -108,7 +113,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                 JsonArray photos = curPlace.getAsJsonArray("photos");
                 if (photos != null && !photos.isJsonNull() && photos.size() > 0) {
                     int count = 0;
-                    int max = 5;
+                    int max = 3;
                     for (JsonElement element : photos) {
                         if (count > max) break;
                         JsonObject photoObj = element.getAsJsonObject();

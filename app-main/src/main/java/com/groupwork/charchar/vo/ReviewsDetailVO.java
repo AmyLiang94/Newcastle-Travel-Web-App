@@ -26,6 +26,7 @@ public class ReviewsDetailVO {
      *
      */
     private Integer userId;
+    private String username;
     /**
      *
      */
