@@ -26,6 +26,8 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -58,28 +60,30 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
         for (JsonElement data : datas) {
             JsonObject curPlace = data.getAsJsonObject();
             String placeId = curPlace.get("place_id").getAsString();
-//            List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
-//            LocalDate today = LocalDate.now();
-//            DayOfWeek dayOfWeek = today.getDayOfWeek();
-//            String openingHours = openingHourMK2.get(dayOfWeek.getValue());
+            List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
+            LocalDate today = LocalDate.now();
+            DayOfWeek dayOfWeek = today.getDayOfWeek();
+            String openingHours = openingHourMK2.get(dayOfWeek.getValue()-1);
             AttractionsEntity attractions = new AttractionsEntity();
             AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
-            attractions.setAttractionId(attractionsEntity.getAttractionId());
-            attractions.setAttractionName(attractionsEntity.getAttractionName());
-            attractions.setDescription(attractionsEntity.getDescription());
-            attractions.setCategory(attractionsEntity.getCategory());
-            attractions.setLatitude(attractionsEntity.getLatitude());
-            attractions.setLongitude(attractionsEntity.getLongitude());
-            attractions.setTicketPrice(attractionsEntity.getTicketPrice());
-            attractions.setImageUrl(attractionsEntity.getImageUrl());
-            attractions.setAttrRating(attractionsEntity.getAttrRating());
-            attractions.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
-            attractions.setPramAllow(attractionsEntity.getPramAllow());
-            attractions.setHearingAllow(attractionsEntity.getHearingAllow());
-            attractions.setAddress(attractionsEntity.getAddress());
-            attractions.setPlaceId(attractionsEntity.getPlaceId());
-//            attractions.setOpeningHours(openingHours);
-            showList.add(attractions);
+            if (null != attractionsEntity) {
+                attractions.setAttractionId(attractionsEntity.getAttractionId());
+                attractions.setAttractionName(attractionsEntity.getAttractionName());
+                attractions.setDescription(attractionsEntity.getDescription());
+                attractions.setCategory(attractionsEntity.getCategory());
+                attractions.setLatitude(attractionsEntity.getLatitude());
+                attractions.setLongitude(attractionsEntity.getLongitude());
+                attractions.setTicketPrice(attractionsEntity.getTicketPrice());
+                attractions.setImageUrl(attractionsEntity.getImageUrl());
+                attractions.setAttrRating(attractionsEntity.getAttrRating());
+                attractions.setWheelchairAllow(attractionsEntity.getWheelchairAllow());
+                attractions.setPramAllow(attractionsEntity.getPramAllow());
+                attractions.setHearingAllow(attractionsEntity.getHearingAllow());
+                attractions.setAddress(attractionsEntity.getAddress());
+                attractions.setPlaceId(attractionsEntity.getPlaceId());
+                attractions.setOpeningHours(openingHours);
+                showList.add(attractions);
+            }
         }
         return showList;
     }
@@ -261,9 +265,19 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                         if (openDay == i) {
                             isOpen = true;
                             String openTime = open.getString("time");
-                            JSONObject close = period.getJSONObject("close");
-                            String closeTime = close.getString("time");
-                            hoursList.add(openTime + "-" + closeTime);
+                            String openingHour = openTime.substring(0,2);
+                            String openingMinut = openTime.substring(2);
+                            String resultOpeningTime = openingHour + ":" + openingMinut;
+                            if (period.has("close")) {
+                                JSONObject close = period.getJSONObject("close");
+                                String closeTime = close.getString("time");
+                                String closingHour = closeTime.substring(0,2);
+                                String closingMinute = closeTime.substring(2);
+                                String resultClosingTime = closingHour + ":" + closingMinute;
+                                hoursList.add(resultOpeningTime + " - " + resultClosingTime);
+                            } else {
+                                hoursList.add("Open 24 hours");
+                            }
                         }
                     }
                     if (!isOpen) {
@@ -271,7 +285,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                     }
                 }
             } else {
-                logger.error("Opening hours information is not available for this place.");
+
+                hoursList.add("Open 24 Hours");
             }
         }
         return hoursList;
@@ -299,7 +314,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                     openStatus = 0;
                 }
             } else {
-                logger.error("Opening hours information is not available for this place.");
+
                 openStatus = -1;
             }
         }
