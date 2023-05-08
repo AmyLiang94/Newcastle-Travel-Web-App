@@ -7,7 +7,6 @@ import com.groupwork.charchar.service.AttractionsService;
 import com.groupwork.charchar.vo.AttractionDetailVO;
 import com.groupwork.charchar.vo.UpdateAttractionRatingVO;
 import org.json.JSONException;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,17 +72,7 @@ public class AttractionsController {
     public List<AttractionDetailVO> getNearByLocation(@PathVariable("latitude") double latitude,
                                                       @PathVariable("longitude") double longitude,
                                                       @PathVariable("radius") double radius) throws IOException, JSONException {
-        List<AttractionsEntity> attractionsEntityList = attractionsService.getNearByLocation(latitude, longitude, radius);
-        List<AttractionDetailVO> attractionDetailVOList = new ArrayList<>();
-        for (AttractionsEntity attractionsEntity : attractionsEntityList) {
-            AttractionDetailVO attractionDetailVO = new AttractionDetailVO();
-            BeanUtils.copyProperties(attractionsEntity, attractionDetailVO);
-            String walkingTime = attractionsService.getWalkTime(latitude, longitude, attractionsEntity.getLatitude().doubleValue(), attractionsEntity.getLongitude().doubleValue());
-            attractionDetailVO.setWalkingTime(walkingTime);
-            int currentOpeningStatus = attractionsService.getCurrentOpeningStatus(attractionsEntity.getPlaceId());
-            attractionDetailVO.setOpeningStatus(currentOpeningStatus);
-            attractionDetailVOList.add(attractionDetailVO);
-        }
+        List<AttractionDetailVO> attractionDetailVOList = attractionsService.getNearByLocation(latitude, longitude, radius);
         return attractionDetailVOList;
     }
     /**

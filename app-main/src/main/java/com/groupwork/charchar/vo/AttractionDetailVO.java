@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -13,8 +14,8 @@ import java.math.BigDecimal;
  * @Date: 07/05/2023 16:42
  */
 @Data
-public class AttractionDetailVO {
-
+public class AttractionDetailVO implements Serializable {
+    private static final long serialVersionUID = -3826891916021780628L;
     /**
      *
      */
