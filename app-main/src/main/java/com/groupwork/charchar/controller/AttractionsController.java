@@ -78,6 +78,8 @@ public class AttractionsController {
             BeanUtils.copyProperties(attractionsEntity, attractionDetailVO);
             String walkingTime = attractionsService.getWalkTime(latitude, longitude, attractionsEntity.getLatitude().doubleValue(), attractionsEntity.getLongitude().doubleValue());
             attractionDetailVO.setWalkingTime(walkingTime);
+            int currentOpeningStatus = attractionsService.getCurrentOpeningStatus(attractionsEntity.getPlaceId());
+            attractionDetailVO.setOpeningStatus(currentOpeningStatus);
             attractionDetailVOList.add(attractionDetailVO);
         }
         return attractionDetailVOList;
