@@ -40,16 +40,16 @@ public class ReviewsController {
     @GetMapping("/list/attr/{attractionId}/{userId}")
     public List<ReviewsDetailVO> listReviewsByAttraction(@PathVariable("attractionId") Integer attractionId,
                                                          @PathVariable("userId") Integer userId) {
-        UsersEntity usersEntity = usersDao.selectUserEntityById(userId);
-        if (null == usersEntity) {
-            throw new RuntimeException("userId:" + userId + " not exists.");
-        }
-        if (usersEntity.getIsValid() != IS_VALID) {
-            throw new RuntimeException("userId:" + userId +" not valid");
-        }
         List<ReviewsEntity> reviews = reviewsService.listReviewsByAttractionId(attractionId);
         List<ReviewsDetailVO> res = new ArrayList<>();
         for (ReviewsEntity review : reviews) {
+            UsersEntity usersEntity = usersDao.selectUserEntityById(review.getUserId());
+            if (null == usersEntity) {
+                throw new RuntimeException("userId:" + review.getUserId() + " not exists.");
+            }
+            if (usersEntity.getIsValid() != IS_VALID) {
+                throw new RuntimeException("userId:" + review.getUserId() +" not valid");
+            }
             ReviewsDetailVO reviewsDetailVO = new ReviewsDetailVO();
 //            Map<String, Object> likeMap = likeController.like(userId, review.getReviewId());
             reviewsDetailVO.setReviewId(review.getReviewId());
