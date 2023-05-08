@@ -9,12 +9,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.format.annotation.DateTimeFormat;
+
 
 /**
  * @author Eastman
@@ -77,5 +75,8 @@ public class UsersEntity implements Serializable {
      */
     @TableField("verification_code")
     private String verificationCode;
+
+    @TableField("is_delete")
+    private Byte isDelete; // 是否可用
 
 }
