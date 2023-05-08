@@ -47,11 +47,11 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
     @Resource
     private ReviewsService reviewsService;
     private static final OkHttpClient CLIENT = new OkHttpClient().newBuilder().build();
-    private static Set<String> set;
+
 
     @Override
     public List<AttractionDetailVO> getNearByLocation(double latitude, double longitude, double radius) throws IOException, JSONException {
-            set = new HashSet<>();
+            final Set<String> placeIdSet = new HashSet<>();
             List<AttractionDetailVO>showList = new ArrayList<>();
             String url = String.format("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&radius=%f&type=tourist_attraction&key=%s", latitude, longitude, radius, key);
             Request request = new Request.Builder()
@@ -64,8 +64,8 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
             for (JsonElement data : datas) {
                 JsonObject curPlace = data.getAsJsonObject();
                 String placeId = curPlace.get("place_id").getAsString();
-                if (set.contains(placeId)) continue;
-                else set.add(placeId);
+                if (placeIdSet.contains(placeId)) continue;
+                else placeIdSet.add(placeId);
                 List<String> openingHourMK2 = this.getOpeningHourMK2(placeId);
                 LocalDate today = LocalDate.now();
                 DayOfWeek dayOfWeek = today.getDayOfWeek();
