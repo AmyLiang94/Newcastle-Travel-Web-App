@@ -18,7 +18,7 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
      * @param email
      * @return  user_id, username, email, password, salt
      */
-    @Select("SELECT  user_id, username, email, password, salt, is_valid FROM users where email=#{email}")
+    @Select("SELECT  user_id, username, email, password, salt, is_valid, is_delete FROM users where email=#{email}")
     public List<UsersEntity> selectEmail(@Param("email") String email);
     /**
      * interface
@@ -88,17 +88,19 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
 
     /**
      *  interface
-     * @param user
+     * @param email
      * @return
      */
-    @Insert("INSERT INTO users(username, password,email, salt, confirm_code, activation_time, is_valid) VALUES (#{username}, #{password}, #{email}, #{salt}, #{confirmCode}, #{activationTime}, #{isValid})")
-    int save(UsersEntity user);
+    @Update("UPDATE users SET is_delete = 1 WHERE email = #{email}")
+    int updateUserStatus(@Param("email") String email);
 
     /**
      *  interface
-     * @param email
+     * @param user
+     * @return
      */
-    @Delete("DELETE FROM users WHERE email=#{email}")
-    void deleteUser(@Param("email") String email);
+    @Insert("INSERT INTO users(username, password,email, salt, confirm_code, activation_time, is_valid, is_delete) VALUES (#{username}, #{password}, #{email}, #{salt}, #{confirmCode}, #{activationTime}, #{isValid}, #{isDelete})")
+    int save(UsersEntity user);
+
 
 }
