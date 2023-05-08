@@ -34,7 +34,8 @@ public class AttractionsController {
     private AttractionsDao attractionsDao;
 
     /**
-     *
+     * Save a list of Attraction Entities
+     * Acquiring Attractions place_Id by using Coordinates
      * @param lat
      * @param lng
      * @param rad
@@ -53,9 +54,17 @@ public class AttractionsController {
             }
         }
     }
+
     /**
      * Return NearBy Attractions
      * Given User's Current Coordinate and Search Radius, Return A List Of AttractionEntities
+     *
+     * @param latitude
+     * @param longitude
+     * @param radius
+     * @return
+     * @throws IOException
+     * @throws JSONException
      */
     @GetMapping("/near/location/{latitude}/{longitude}/{radius}")
     //need users' lat and lng coord as double, and radius as double in (M)
@@ -95,8 +104,12 @@ public class AttractionsController {
 //        response.put("walkingTime", walkingTime);
 //        return response;
 //    }
+
     /**
-     *Update Rating
+     * Updating Rating For an Attraction
+     * Based attractionID
+     * @param attractionId
+     * @return
      */
     @PostMapping("/update/rating/{attractionId}")
     public UpdateAttractionRatingVO updateAttractionRating(
@@ -104,9 +117,11 @@ public class AttractionsController {
         UpdateAttractionRatingVO updateEntity = attractionsService.updateAttractionRating(attractionId);
         return updateEntity;
     }
+
     /**
-     * 通过本地placeID 获取地点信息
-     *
+     * Fetch Stored Attraction Information
+     * @param placeId
+     * @return
      */
     @GetMapping("/findAttractionByID/{placeId}")
     public @ResponseBody AttractionsEntity getById(
@@ -114,9 +129,17 @@ public class AttractionsController {
         AttractionsEntity attractionsEntity = attractionsDao.getAttractionByPlaceId(placeId);
         return attractionsEntity;
     }
+
     /**
-     * 过滤开门景点 二式改
-     *
+     * Filter A List Of Attraction By Opening Status
+     * This Method Requests Information From Google,
+     * So All Attractions Are Provided in place_Id String From.
+     * @param attractionsGoogleIDs
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws ApiException
+     * @throws JSONException
      */
     @GetMapping("/filterOpenAttractionsMK2")
     public @ResponseBody List<String> getAttractionByOpeningStatus(
@@ -140,8 +163,13 @@ public class AttractionsController {
     }
 
     /**
-     * 根据评分排序景点
-
+     * Sort Attractions Base on Ratings
+     * From the Most to the Least
+     * Information Fetched From Google
+     * @param attractionsGoogleIDs
+     * @return
+     * @throws JSONException
+     * @throws IOException
      */
     @GetMapping("/sortAttractionByRating/")
     public @ResponseBody List<String> sortAttractionsByRating (
@@ -160,9 +188,14 @@ public class AttractionsController {
         return attractionsGoogleIDs;
 
     }
-    /**
-     * 根据种类过滤景点
 
+    /**
+     * Filter A List of Attractions Based on Their Category
+     * Since Category is not Provided By Google
+     * Local attractionID is Used to Provide Such Information
+     * @param attractionIDs
+     * @param category
+     * @return
      */
     @GetMapping("/filterAttractionByCategory/{category}")
     public @ResponseBody List<AttractionsEntity> getAttractionByCategory(@RequestBody List<Integer> attractionIDs,
@@ -170,8 +203,15 @@ public class AttractionsController {
         List<AttractionsEntity> filteredAttractions = attractionsService.filterAttractionByCategory(attractionIDs, category);
         return filteredAttractions;
     }
+
     /**
-     * 根据轮椅使用过滤景点
+     * Filter A List of Attraction By WheelChair Accessibility
+     * Attractions Represented By Google place_ID
+     * @param attracGoogleId
+     * @param wc_allowed
+     * @return
+     * @throws JSONException
+     * @throws IOException
      */
     @GetMapping("/filterAttractionByWheelChairAccessibility/{wc_allowed}")
     public @ResponseBody List<String> getAttractionByWheelChairAccessibility(
@@ -180,9 +220,16 @@ public class AttractionsController {
         List<String> result = attractionsService.filterAttractionByWheelChairAccessibility(attracGoogleId, wc_allowed);
         return result;
     }
+
     /**
-     * 根据距离排序
-     *
+     * Sort A LIst of Attractions Base on Their Walking Distance
+     * Attraction Represented By Google PlaceID To Fetch Attraction Coordinates
+     * @param attractionsGoogleIdList
+     * @param departLat
+     * @param departLng
+     * @return
+     * @throws JSONException
+     * @throws IOException
      */
     @GetMapping("/sortAttractionByDistance/{departLat}/{departLng}")
     public @ResponseBody List<String> sortAttractionByDistance(@RequestBody List<String> attractionsGoogleIdList,
@@ -208,8 +255,14 @@ public class AttractionsController {
 
         return attractionsGoogleIdList;
     }
+
     /**
-     * 根据景点热门程度排序
+     * Sort Attraction Base On Their Popularity
+     * Define Popularity As Number of Total Views For Attractions     *
+     * @param attractionsGoogleIdList
+     * @return
+     * @throws JSONException
+     * @throws IOException
      */
     @GetMapping("/sortAttractionByPopularity/")
     public @ResponseBody List<String> sortAttractionByPopular(@RequestBody List<String> attractionsGoogleIdList) throws JSONException, IOException {
@@ -228,9 +281,12 @@ public class AttractionsController {
 
         return attractionsGoogleIdList;
     }
+
     /**
-     * 根据景点免费分类
-     *
+     * Filter Attraction Which are Free to Enter
+     * Attractions are Represented By
+     * @param attractionsEntityList
+     * @return
      */
     @GetMapping("/filterAttractionByFreeEntry/")
     public @ResponseBody List<AttractionsEntity> getAttractionsByFreeEntry (
