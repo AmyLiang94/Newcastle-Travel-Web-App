@@ -326,7 +326,11 @@ public class AttractionsController {
     }
 
     /**
-     * 获取谷歌PlaceID By Name
+     *
+     * @param attractionName
+     * @return
+     * @throws JSONException
+     * @throws IOException
      */
     @GetMapping("/getAttractionGooglePlaceIDByName/{attractionName}")
     public @ResponseBody String getAttractionGooglePlaceIDByName(

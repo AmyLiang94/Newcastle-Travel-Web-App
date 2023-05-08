@@ -306,7 +306,7 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                     openStatus = 0;
                 }
             } else {
-                logger.error("Opening hours information is not available for this place.");
+
                 openStatus = -1;
             }
         }
