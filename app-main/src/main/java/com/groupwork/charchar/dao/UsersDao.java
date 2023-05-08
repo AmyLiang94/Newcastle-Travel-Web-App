@@ -20,6 +20,13 @@ public interface UsersDao extends BaseMapper<UsersEntity> {
      */
     @Select("SELECT  user_id, username, email, password, salt, is_valid FROM users where email=#{email}")
     public List<UsersEntity> selectEmail(@Param("email") String email);
+    /**
+     * interface
+     * @param userId
+     * @return  user_id, username, email, is_valid
+     */
+    @Select("SELECT  user_id, username, email, is_valid FROM users where user_id=#{userId}")
+    public UsersEntity selectUserEntityById(@Param("userId") Integer userId);
 
     /**
      *  interface
