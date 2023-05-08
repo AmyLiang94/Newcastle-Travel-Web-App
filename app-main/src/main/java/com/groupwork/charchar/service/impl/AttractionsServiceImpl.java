@@ -263,10 +263,16 @@ public class AttractionsServiceImpl extends ServiceImpl<AttractionsDao, Attracti
                         if (openDay == i) {
                             isOpen = true;
                             String openTime = open.getString("time");
+                            String openingHour = openTime.substring(0,2);
+                            String openingMinut = openTime.substring(2);
+                            String resultOpeningTime = openingHour + ":" + openingMinut;
                             if (period.has("close")) {
                                 JSONObject close = period.getJSONObject("close");
                                 String closeTime = close.getString("time");
-                                hoursList.add(openTime + "-" + closeTime);
+                                String closingHour = closeTime.substring(0,2);
+                                String closingMinute = closeTime.substring(2);
+                                String resultClosingTime = closingHour + ":" + closingMinute;
+                                hoursList.add(resultOpeningTime + " - " + resultClosingTime);
                             } else {
                                 hoursList.add("Open 24 hours");
                             }
