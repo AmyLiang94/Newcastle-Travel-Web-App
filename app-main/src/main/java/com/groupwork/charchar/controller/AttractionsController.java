@@ -301,9 +301,12 @@ public class AttractionsController {
         }
         return filteredList;
     }
+
     /**
-     * 根据景点价格排序
-     *
+     * Sort Attractions By the Ticket Price
+     * From the Most to the Least
+     * @param attractionsEntityList
+     * @return
      */
     @GetMapping("/sortAttractionByTicketPrice/")
     public @ResponseBody List<AttractionsEntity> sortAttractionByTicketPrice(
