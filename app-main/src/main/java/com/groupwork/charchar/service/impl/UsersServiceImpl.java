@@ -69,11 +69,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersDao, UsersEntity> impleme
             resultMap.put("message", "Account anomalies");
             return resultMap;
         }
-        if (usersEntityList == null || usersEntityList.isEmpty()) {
-            resultMap.put("code", 400);
-            resultMap.put("message", "The account does not exist");
-            return resultMap;
-        }
         UsersEntity usersEntity2 = usersEntityList.get(0);
         //Multiple accounts with the same name exist for users, determine account anomalies
 
