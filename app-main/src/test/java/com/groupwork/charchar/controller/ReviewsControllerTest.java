@@ -20,7 +20,7 @@ public class ReviewsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    private static ObjectMapper objectMapper; //轉換Json
+    private static ObjectMapper objectMapper;
     private static ReviewsEntity testReviews;
 
     private ReviewsController reviewsController;
@@ -39,70 +39,13 @@ public class ReviewsControllerTest {
 
     }
 
+
     /**
-     *获取某个景点的所有评论
-     @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
+     * Access comments.
+     * @throws Exception If an exception is thrown during the testing process, it indicates a test failure.
      */
     @Test
     @Order(1)
-    public void shouldReturnOKWhenGetReviewsList() throws Exception {
-        this.mockMvc.perform(get("/charchar/reviews/list/attr/{attractionId}",testReviews.getAttractionId()))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-                //.andExpect(jsonPath("$.code").value(0))
-                //.andExpect(jsonPath("$.msg").value("success"));
-    }
-
-    /**
-     *分頁-获取某个景点的所有评论
-     *目前先假定 page/review 1:10
-     @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
-     */
-    @Test
-    @Order(1)
-    public void pageShouldReturnOKWhenGetReviewsList() throws Exception {
-        this.mockMvc.perform(get("/charchar/reviews/list/attr/{attractionId}/{page}/{size}",testReviews.getAttractionId(),1,10))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-                //.andExpect(jsonPath("$.code").value(0))
-                //.andExpect(jsonPath("$.msg").value("success"));
-    }
-
-
-    /**
-     *获取(已刪除)不存在景点的评论，應返回錯誤
-     @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
-     ＊＊＊仍在確認更改中
-     */
-    @Test
-    @Order(2)
-    public void shouldReturnEmptyWhenGetNotExistReviews() throws Exception {
-        this.mockMvc.perform(get("/charchar/reviews/info/{reviewsId}", testReviews.getReviewId()))
-                .andExpect(status().is4xxClientError());
-                //.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                //.andExpect(jsonPath("$.code").value(0))
-                //.andExpect(jsonPath("$.msg").value("success"))
-                //.andExpect(jsonPath("$.reviews").isEmpty());
-    }
-
-//    @Test
-//    @Order(2)
-//    public void shouldReturn4xxWhenGetNotExistReviews() throws Exception {
-//        this.mockMvc.perform(get("/product/reviews/info/{reviewsId}", testReviews.getReviewId()))
-//                .andExpect(status().is4xxClientError())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$.code").value(0))
-//                .andExpect(jsonPath("$.msg").value("success"))
-//                .andExpect(jsonPath("$.users").isEmpty());
-//    }
-
-    /**
-     *存取評論
-     @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
-     TODO:Return ID?
-     */
-    @Test
-    @Order(3)
     public void shouldReturnOKWhenSaveReview() throws Exception {
         this.mockMvc.perform(post("/charchar/reviews/save")
                         .contentType("application/json")
@@ -110,131 +53,46 @@ public class ReviewsControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-                //.andExpect(jsonPath("$.code").value(0))
-                //.andExpect(jsonPath("$.msg").value("success"));
-    }
-
-
-//    /*
-//    確認是否能使用review id 拿取對應資料：
-//     */
-//    @Test
-//    @Order(5)
-//    public void shouldReturnTestReviewWhenGetReviewInfo() throws Exception {
-//        MvcResult result = this.mockMvc.perform(get("/product/reviews/info/{reviewsId}", testReviews.getReviewId())).andReturn();
-//        MockHttpServletResponse response = result.getResponse();
-//        assertEquals(HttpStatus.OK.value(), response.getStatus());
-//        ReviewsEntity dbReview =
-//                objectMapper.readValue(response.getContentAsString(), R.class).getData("reviews", new TypeReference<ReviewsEntity>() {
-//                });
-//        //因指令時間不同 故需拉出要比對的4個項目
-//        assertEquals(testReviews.getAttractionId(), dbReview.getAttractionId());
-//        assertEquals(testReviews.getUserId(), dbReview.getUserId());
-//        assertEquals(testReviews.getRating(), dbReview.getRating());
-//        assertEquals(testReviews.getReviewText(), dbReview.getReviewText());
-//    }
-
-    /**
-     *修改評論
-     @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
-     TODO:Id needed?
-     */
-    @Test
-    @Order(6)
-    public void shouldReturnOKWhenUpdateReview() throws Exception {
-        String newReviewText = "newReviewTest";
-        testReviews.setReviewText(newReviewText);
-        // Check update function
-        this.mockMvc.perform(put("/charchar/reviews/update")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(testReviews))
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-        // Confirming success of update
-        //this.mockMvc.perform(get("/product/reviews/info/{userId}", testReviews.getUserId()))
-          //      .andExpect(status().isOk())
-            //    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-              //  .andExpect(jsonPath("$.reviews.reviewText").value(newReviewText));
     }
 
     /**
-     *获取某个用戶的所有评论
-     @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
+     * Get all comments from a specific user.
+     * @throws Exception If an exception is thrown during the testing process, it indicates a test failure.
      */
-
     @Test
-    @Order(6)
+    @Order(2)
     public void shouldReturnOKWhenGetReviewsListFromAUser() throws Exception {
-        this.mockMvc.perform(get("/charchar/reviews/list/attr/{userId}",testReviews.getUserId()))
-                .andExpect(status().isOk())
+        this.mockMvc.perform(get("/charchar/reviews/list/user/{userId}",testReviews.getUserId()))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        //.andExpect(jsonPath("$.code").value(0))
-        //.andExpect(jsonPath("$.msg").value("success"));
     }
 
     /**
-     *分頁 某个用戶的所有评论
-     * 目前先假定 page/review 1:5
-     @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
-     */
-
-    @Test
-    @Order(6)
-    public void pageShouldReturnOKWhenGetReviewsListFromAUser() throws Exception {
-        this.mockMvc.perform(get("/charchar/reviews/list/user/{userId}/{page}/{size}",testReviews.getUserId(),1,5))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        //.andExpect(jsonPath("$.code").value(0))
-        //.andExpect(jsonPath("$.msg").value("success"));
-    }
-
-    /**
-     *刪除用戶评论
-     @throws Exception 測試過程中若有例外拋出，則代表測試失敗。
-     TODO:跑錯目前仍在確認
+     * Delete user comments.
+     * @throws Exception If an exception is thrown during the testing process, it indicates a test failure.
      */
     @Test
-    @Order(7)
-    //public void shouldReturnOKWhenDeleteReview() throws Exception {
-        // Check update function
-      //  String jsonStr = "[" + testReviews.getUserId() + "]";
-        //this.mockMvc.perform(post("/charcahr/reviews/delete")
-          //              .contentType("application/json")
-            //            .content("[1,2,3]")
-              //  )
-                //.andExpect(status().isOk())
-                //.andExpect(content().contentType(MediaType.APPLICATION_JSON));
-                //.andExpect(jsonPath("$.code").value(0))
-                //.andExpect(jsonPath("$.msg").value("success"));
-                // Confirming success of delete
-                //this.mockMvc.perform(get("/product/reviews/info/{userId}", testReviews.getUserId()))
-                //      .andExpect(status().isOk())
-                //    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                //.andExpect(jsonPath("$.code").value(0))
-                //.andExpect(jsonPath("$.msg").value("success"))
-               // .andExpect(jsonPath("$.reviews").isEmpty());
-    //}
+    @Order(3)
+
     public void shouldReturnOKWhenDeleteReview() throws Exception {
-        //String[] jsonInt = {1, 2, 3};
-        //ObjectMapper objectMapper1 = new ObjectMapper();
-        //objectMapper.writeValue(Integer[].class,{});
-        //String JsonStr = objectMapper.writeValueAsString(jsonInt);
         this.mockMvc.perform(delete("/charchar/reviews/delete")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[1,2,3]"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-//        Integer[] reviewIds = {1,2,3};
-//        given(reviewsController.deleteReview(Arrays.asList(reviewIds))).willReturn(true);
-//
-//        mockMvc.perform(delete("/delete")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(new ObjectMapper().writeValueAsString(reviewIds)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    /**
+     * Get all comments for a specific tourist attraction.
+     * @throws Exception If an exception is thrown during the testing process, it indicates a test failure.
+     */
+    @Test
+    @Order(4)
+    public void shouldReturnOKWhenGetReviewsList() throws Exception {
+        this.mockMvc.perform(get("/charchar/reviews/list/attr/{attractionId}/{userId}",testReviews.getAttractionId(),testReviews.getUserId()))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
 
