@@ -28,7 +28,6 @@ public class ReviewsControllerTest {
 
     @BeforeAll
     static void setUp(){
-        int[] ids = {1,2,3};
         objectMapper = new ObjectMapper();
         testReviews = new ReviewsEntity();
         testReviews.setReviewId(002);

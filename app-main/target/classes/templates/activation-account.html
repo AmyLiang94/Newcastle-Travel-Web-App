@@ -1,0 +1,63 @@
+<!--<html>-->
+<!--<body>-->
+<!--<div>-->
+<!--  Email 地址验证<br>-->
+<!--  这封信是由<a href="http://www.lezijie.com" target="_blank">乐字节</a>发送的。<br>-->
+<!--  您收到这封邮件，是由于在<a href="http://www.lezijie.com" target="_blank">乐字节</a>进行了新用户注册，或用户修改 Email 使用了这个邮箱地址。<br>-->
+<!--  如果您并没有访问过<a href="http://www.lezijie.com" target="_blank">乐字节</a>或没有进行上述操作，请忽略这封邮件。您不需要退订或进行其他进一步的操作。<br>-->
+<!--  &#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;<br>-->
+<!--  帐号激活说明<br>-->
+<!--  &#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;<br>-->
+<!--  如果您是<a href="http://www.lezijie.com" target="_blank">乐字节</a>的新用户，或在修改您的注册 Email 时使用了本地址，我们需要对您的地址有效性进行验证以避免垃圾邮件或地址被滥用。<br>-->
+<!--  您只需点击下面的链接激活帐号即可：<br>-->
+<!--  <a th:href="@{${Url}}"><span th:text="${Url}"></span></a><br/>-->
+<!--  感谢您的访问，祝您生活愉快！<br>-->
+<!--  此致<br>-->
+<!--  <a href="http://www.lezijie.com" target="_blank">乐字节</a>管理团队。-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Email from Charchar App</title>
+  <style>
+    .container {
+      background-color: #FFA500; /* 将背景颜色更改为浅蓝色 */
+      padding: 5px;
+      border-radius: 5px; /* 添加圆角效果 */
+    }
+    img {
+      max-width: 80%;
+      height: auto;
+      display: block;
+      margin: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+<div>
+<!--  <img src="https://huaban.com/pins/3479202676" alt="Charchar App Logo">-->
+  <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fitem%2F201404%2F15%2F20140415221657_tMNBP.thumb.400_0.jpeg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1685634364&t=c1a224a0d15fd6614ccdd78733c82d84" alt="Charchar App Logo">
+  <p>Dear valued user,</p>
+  <p>This email is to inform you that you have received a message from Charchar App.</p>
+  <p>You are receiving this email because you have recently registered as a new user and have either sent a verification code or changed your password. Alternatively, you may have requested a password reset using your email address.</p>
+  <p>If you have not performed any of these actions, please ignore this email. There is no need to unsubscribe or take any further action.</p>
+  <hr>
+  <div class="container">
+  <p><strong>Important Information:</strong></p>
+  </div>
+  <p>The following information is provided by our system:</p>
+  <p>To activate your account or obtain a new verification code, simply click on the following link:</p>
+  <p><a th:href="@{${Url}}"><span th:text="${Url}"></span></a></p>
+  <p>Thank you for choosing Charchar App. If you have any questions or concerns, please feel free to contact our support team.</p>
+  <p>Best regards,</p>
+  <p>The Charchar Management Team</p>
+
+</div>
+</body>
+</html>
