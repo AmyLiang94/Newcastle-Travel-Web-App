@@ -1,5 +1,5 @@
 # Newcastle-Tourism-app
-!(Project name & logo)[https://github.com/AmyLiang94/Newcastle-Travel-Web-App/blob/main/app-main/Result%20Pic/Screenshot%202023-10-19%20at%2014.49.11.png]
+![Project name & logo](https://raw.githubusercontent.com/AmyLiang94/Newcastle-Travel-Web-App/main/app-main/Result%20Pic/Screenshot%202023-10-19%20at%2014.49.11.png)
 
 #Technology use:
 ![technology use](https://github.com/AmyLiang94/Newcastle-Travel-Web-App/blob/main/app-main/Result%20Pic/Screenshot%202023-10-19%20at%2014.49.41.png)
